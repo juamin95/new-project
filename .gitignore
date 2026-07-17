@@ -37,3 +37,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Obsidian-Vault: gerätespezifischer UI-Zustand (verursacht sonst Sync-Konflikte)
+vault/.obsidian/workspace.json
+vault/.obsidian/workspace-mobile.json
+vault/.obsidian/workspace
+
+# Obsidian-Vault: Cache und Papierkorb
+vault/.obsidian/cache
+vault/.trash/

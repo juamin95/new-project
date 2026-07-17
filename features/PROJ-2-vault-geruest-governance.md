@@ -1,6 +1,6 @@
 # PROJ-2: Vault-Gerüst & Governance
 
-## Status: Planned
+## Status: In Progress
 **Created:** 2026-07-17
 **Last Updated:** 2026-07-17
 
@@ -157,6 +157,16 @@ Gespeichert wird ausschließlich in Git — keine Datenbank, kein Server. Die Hi
 
 ### Abhängigkeiten (Pakete)
 - Keine.
+
+## Implementation Notes
+_Umgesetzt: 2026-07-17_
+
+- `vault/` angelegt mit `Start.md` (Hub inkl. Migrations-Filter), Übersichtsnotiz je Schicht (00–05), `03 AI/Notiz-Konventionen.md` und `03 AI/Lernlog/Lernlog-Konventionen.md`
+- `vault/.obsidian/` minimal versioniert (`app.json`, `appearance.json`, `community-plugins.json` als leere Defaults — Obsidian füllt sie beim ersten Öffnen)
+- `.claude/rules/vault.md` mit Lese-/Schreibregeln (Gate), Format-Verweis, Migrations-Filter und Sicherheitsregeln; toolneutral formuliert
+- `.gitignore` um Obsidian-Arbeitsdateien ergänzt (workspace*, cache, .trash) — per `git check-ignore` verifiziert
+- Ergänzung gegenüber dem Design: Sicherheitsregel „personenbezogene Kundendaten sparsam, führendes System ist Hero" in vault.md aufgenommen
+- Abweichungen vom Design: keine
 
 ## QA Test Results
 _To be added by /qa_
