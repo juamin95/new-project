@@ -4,6 +4,8 @@ Gilt für `vault/` — den Obsidian-kompatiblen Wissensspeicher dieses Repos. Di
 
 ## Leseregeln (Arbeitsgrundlage)
 
+- **Vault zuerst durchsuchen:** Bei Fach-, Prozess- und Nachschlagefragen zu GRÜNSCHNITT oder dem OS immer zuerst den Vault durchsuchen, bevor aus Allgemeinwissen geantwortet wird. Wird nichts gefunden, das transparent sagen und nicht raten.
+- **Hauptsprache Deutsch:** Antworten und Vault-Inhalte auf Deutsch; Fachbegriffe (oft englisch) im Original belassen (z. B. GraphQL, Introspection, Skill, Gate).
 - Nur Notizen mit `status: verifiziert` sind verlässliche Arbeitsgrundlage.
 - Notizen mit `status: erfasst` sind Rohmaterial (Beobachtungen, Entwürfe) — nutzbar als Hinweis, niemals als Faktenbasis für Außenwirksames oder Schreibzugriffe auf Zielsysteme.
 

@@ -63,6 +63,8 @@ After completing work on any feature, you MUST update tracking files. Follow thi
 - Do NOT skip updates because "it's obvious" or "minor"
 
 ## File Handling
+- Before deleting or overwriting files, ask the user first
+- When creating or moving files, briefly explain why
 - ALWAYS read a file before modifying it - never assume contents from memory
 - After context compaction, re-read files before continuing work
 - When unsure about current project state, read `features/INDEX.md` first

@@ -39,6 +39,7 @@ Die Beförderung von `erfasst` zu `verifiziert` ist eine bewusste menschliche En
 
 ## Verlinkung
 
+- **Atomare Notizen:** eine Idee pro Notiz, wo möglich — das hält den Vault verlinkbar und den Agenten-Kontext schlank
 - Querbezüge über `[[Wikilinks]]`, keine Inhaltskopien
 - Jede Notiz hat genau eine Heimat-Schicht (siehe Einsortier-Fragen in den Schicht-Übersichten)
 - Deutsche Datei- und Ordnernamen inklusive Umlaute sind erlaubt und erwünscht
