@@ -1,6 +1,6 @@
 # PROJ-2: Vault-Gerüst & Governance
 
-## Status: In Progress
+## Status: Approved
 **Created:** 2026-07-17
 **Last Updated:** 2026-07-17
 
@@ -60,14 +60,14 @@ vault/
 
 **Format:** Angenommen [Vorbedingung] / Wenn [Aktion] / Dann [Ergebnis]
 
-- [ ] Angenommen das Repo ist frisch geklont, wenn man `vault/` in Obsidian öffnet, dann lädt der Vault fehlerfrei und zeigt die Schicht-Ordner mit Übersichtsnotizen
-- [ ] Angenommen eine neue Claude-Session startet im Repo, wenn Vault-Arbeit beginnt, dann sind die Governance-Regeln automatisch im Kontext (`.claude/rules/vault.md`)
-- [ ] Angenommen der Agent will eine Beobachtung festhalten, wenn er in `03 AI/Lernlog/` schreibt, dann ist das ohne Freigabe erlaubt
-- [ ] Angenommen der Agent will außerhalb des Lernlogs schreiben, wenn keine Freigabe vorliegt, dann untersagen die Regeln die Direktänderung
-- [ ] Angenommen eine Notiz trägt `status: erfasst`, wenn der Agent Arbeitsgrundlage sucht, dann nutzt er sie nicht als verlässliches Wissen
-- [ ] Angenommen eine migrierte Notiz, wenn man ihr Frontmatter liest, dann stehen dort Herkunft und Validierungsdatum (`quelle`)
-- [ ] Angenommen Obsidian erzeugt lokale Arbeitsdateien (z. B. `workspace.json`), wenn man `git status` ausführt, dann tauchen sie nicht auf (`.gitignore`)
-- [ ] Angenommen jemand fragt „Gehört X in diesen Vault?", wenn er `Start.md` liest, dann beantwortet der Migrations-Filter die Frage eindeutig
+- [x] Angenommen das Repo ist frisch geklont, wenn man `vault/` in Obsidian öffnet, dann lädt der Vault fehlerfrei und zeigt die Schicht-Ordner mit Übersichtsnotizen
+- [x] Angenommen eine neue Claude-Session startet im Repo, wenn Vault-Arbeit beginnt, dann sind die Governance-Regeln automatisch im Kontext (`.claude/rules/vault.md`)
+- [x] Angenommen der Agent will eine Beobachtung festhalten, wenn er in `03 AI/Lernlog/` schreibt, dann ist das ohne Freigabe erlaubt
+- [x] Angenommen der Agent will außerhalb des Lernlogs schreiben, wenn keine Freigabe vorliegt, dann untersagen die Regeln die Direktänderung
+- [x] Angenommen eine Notiz trägt `status: erfasst`, wenn der Agent Arbeitsgrundlage sucht, dann nutzt er sie nicht als verlässliches Wissen
+- [x] Angenommen eine migrierte Notiz, wenn man ihr Frontmatter liest, dann stehen dort Herkunft und Validierungsdatum (`quelle`)
+- [x] Angenommen Obsidian erzeugt lokale Arbeitsdateien (z. B. `workspace.json`), wenn man `git status` ausführt, dann tauchen sie nicht auf (`.gitignore`)
+- [x] Angenommen jemand fragt „Gehört X in diesen Vault?", wenn er `Start.md` liest, dann beantwortet der Migrations-Filter die Frage eindeutig
 
 ## Edge Cases
 - **Grenzfall Schreibstil:** Quelldatei mischt GRÜNSCHNITT- und private Deutz-Regeln → beim Migrieren (PROJ-5) wird nur der GRÜNSCHNITT-Teil übernommen
@@ -169,7 +169,63 @@ _Umgesetzt: 2026-07-17_
 - Abweichungen vom Design: keine
 
 ## QA Test Results
-_To be added by /qa_
+
+**Tested:** 2026-07-17
+**Testart:** Dateisystem-/Regelwerk-Prüfung (kein UI — Browser-, Responsive- und E2E-Tests nicht anwendbar)
+**Tester:** QA Engineer (AI)
+
+### Acceptance Criteria Status
+
+#### AC-1: Vault lädt in Obsidian mit Schicht-Ordnern
+- [x] Alle 9 Notizen + 3 Obsidian-Konfigdateien vorhanden, JSON valide, Frontmatter vollständig
+
+#### AC-2: Governance-Regeln automatisch im Kontext
+- [x] `.claude/rules/vault.md` ohne `paths:`-Filter → lädt in jeder Session (gleicher Mechanismus wie general.md)
+
+#### AC-3/AC-4: Schreibgates
+- [x] Lernlog autonom erlaubt, alles andere gated — in vault.md eindeutig formuliert
+
+#### AC-5: `status: erfasst` ist keine Arbeitsgrundlage
+- [x] Leseregel in vault.md vorhanden
+
+#### AC-6: `quelle`-Feld für migrierte Notizen
+- [x] In vault.md und Notiz-Konventionen dokumentiert (noch keine migrierte Notiz vorhanden — Vollprüfung in PROJ-3)
+
+#### AC-7: Obsidian-Arbeitsdateien ignoriert
+- [x] `git check-ignore` bestätigt workspace.json, workspace-mobile.json, cache, .trash
+
+#### AC-8: Migrations-Filter eindeutig in Start.md
+- [x] Abschnitte Rein / Raus / Grenzfälle vorhanden
+
+### Edge Cases Status
+- [x] Umlaute in Pfaden: von Git korrekt getrackt (`05 Anhänge/`)
+- [x] Notiz mit zwei möglichen Schichten: Einsortier-Fragen in jeder Übersichtsnotiz vorhanden
+- [ ] BUG-1: Toter Wikilink in Start.md (siehe unten)
+
+### Security Audit Results
+- [x] Keine Secrets/Credential-Muster im Vault (automatisiert geprüft)
+- [x] `settings.json` deny-Regeln decken .env, Secrets, Force-Push ab
+- [x] Regression: keine Änderungen an `src/` oder `package.json` durch PROJ-2
+
+### Bugs Found
+
+#### BUG-1: Toter Wikilink `[[Wikilinks]]` in Start.md
+- **Severity:** Low
+- **Steps to Reproduce:** Start.md in Obsidian öffnen → im Abschnitt „Einsortier-Regel" ist `[[Wikilinks]]` ein unaufgelöster Link (es gibt keine Notiz „Wikilinks")
+- **Expected:** Illustrativer Begriff in Backticks (wie in Notiz-Konventionen.md gelöst)
+- **Priority:** Nice to have
+
+### Automatisierte Tests
+- `src/test/vault-governance.test.ts` angelegt: 50 Vitest-Tests decken alle Akzeptanzkriterien ab und laufen bei jedem `npm test` als Regressionsschutz für PROJ-3 bis PROJ-6
+- Ergebnis: 49/50 bestanden; der eine Fehlschlag ist BUG-1 (Test bleibt bewusst rot, bis der Link gefixt ist)
+- E2E (Playwright) und weitere Unit-Tests: nicht anwendbar, kein App-Code betroffen
+
+### Summary
+- **Acceptance Criteria:** 8/8 passed
+- **Bugs Found:** 1 total (0 critical, 0 high, 0 medium, 1 low)
+- **Security:** Pass
+- **Production Ready:** YES
+- **Recommendation:** BUG-1 ist ein Ein-Zeichen-Fix (Backticks statt Wikilink) — vor dem Merge der nächsten Migration beheben, blockiert die Freigabe nicht
 
 ## Deployment
 _To be added by /deploy_
