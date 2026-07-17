@@ -6,6 +6,7 @@
  * Aufrufe:
  *   node scripts/hero-abgleich.mjs check          → Verbindung + Auth-Variante testen
  *   node scripts/hero-abgleich.mjs projekttypen   → Projekttypen + Statuspipelines abrufen
+ *   node scripts/hero-abgleich.mjs query '<gql>'  → beliebige Lese-Query (Mutations werden abgelehnt)
  */
 import { readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
@@ -74,6 +75,24 @@ if (!auth) {
   process.exit(1)
 }
 console.log(`OK: Verbindung steht (Auth-Variante: ${auth.name})`)
+
+if (command === 'query') {
+  const q = process.argv[3]
+  if (!q) {
+    console.error('FEHLER: Query fehlt. Aufruf: node scripts/hero-abgleich.mjs query \'{ ... }\'')
+    process.exit(1)
+  }
+  if (/^\s*mutation\b/i.test(q) || /\bmutation\s*[{(]/i.test(q)) {
+    console.error('ABGELEHNT: Dieses Werkzeug ist rein lesend — Mutations sind gesperrt.')
+    process.exit(1)
+  }
+  const { status, body } = await gql(q, auth.headers)
+  if (status !== 200 || body.errors) {
+    console.error(`Abfrage fehlgeschlagen (HTTP ${status}):`, JSON.stringify(body.errors ?? body, null, 2).slice(0, 800))
+    process.exit(1)
+  }
+  console.log(JSON.stringify(body.data, null, 2))
+}
 
 if (command === 'projekttypen') {
   const query = `{
