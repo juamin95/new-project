@@ -1,6 +1,6 @@
 # PROJ-3: Migration Prozesswissen
 
-## Status: Planned
+## Status: Architected
 **Created:** 2026-07-17
 **Last Updated:** 2026-07-17
 
@@ -80,8 +80,8 @@
 - Keine Secrets im Vault; Zugangsweg zu Hero wird in `/architecture` geklärt
 
 ## Open Questions
-- [ ] Zugriffsweg auf Hero aus diesem Repo (GraphQL direkt mit Key, über n8n, oder MCP?) → `/architecture`
-- [ ] Freigabeform für Julians Review: Gegenüberstellung im Chat oder als Datei? → beim ersten Prozess klären
+- [x] Zugriffsweg auf Hero: eigenes Lese-Skript gegen die GraphQL-API, Key in `.env.local` (entschieden in /architecture, 2026-07-17)
+- [x] Freigabeform: Gegenüberstellung + Abgleich-Ergebnis im Chat, Freigabe je Notiz (entschieden in /architecture, 2026-07-17)
 
 ## Decision Log
 
@@ -100,12 +100,61 @@
 <!-- Added by /architecture -->
 | Decision | Rationale | Date |
 |----------|-----------|------|
+| Hero-Abgleich per eigenem Lese-Skript (GraphQL direkt) | Deterministisch, wiederholbar, kein Überbau (n8n-MCP ist PROJ-14); Grundlage für PROJ-4 wiederverwendbar | 2026-07-17 |
+| API-Key in `.env.local`, Skript liest selbst | Bewährtes Muster aus dem alten Vault; deny-Regeln halten Claude von `.env*` fern | 2026-07-17 |
+| Nur Lesezugriffe auf Hero | Migration braucht keine Writes; „Reads erkunden, Writes gaten" | 2026-07-17 |
+| Reihenfolge: Kernprozesse → Support → Grenzfälle → Landkarte zuletzt | Landkarte verlinkt alle — zuletzt migriert lösen alle Links sofort auf, Regressionstest bleibt grün | 2026-07-17 |
+| Review je Notiz im Chat (Gegenüberstellung + Abgleich-Ergebnis) | Leichtgewichtig; inhaltliche Treue ist durch 1:1-Regel gesichert | 2026-07-17 |
 
 ---
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+_Erstellt: 2026-07-17_
+
+### Was gebaut wird (kein UI, kein Backend — Dateien + ein Prüfwerkzeug)
+
+```
+Migration (je Notiz im 4-Takt)
++-- 1. Kuratieren     → Notiz übertragen (1:1, Frontmatter/Links/Ablageort angepasst)
++-- 2. Hero-Abgleich  → Prüfskript vergleicht technische Fakten mit dem Live-System
++-- 3. Review-Gate    → Julian sieht Gegenüberstellung + Abgleich-Ergebnis, gibt frei
++-- 4. Schreiben      → Notiz mit status + quelle in den Vault, Commit
+
+scripts/hero-abgleich  → kleines, rein lesendes Prüfwerkzeug (einmalig für dieses Feature
+                         gebaut, wiederverwendbar für PROJ-4)
+```
+
+### Hero-Zugriff (die offene Frage aus der Spec — jetzt entschieden)
+
+Ein **kleines, rein lesendes Prüfskript im Repo** fragt die Hero-GraphQL-Partner-API ab (Endpoint `https://login.hero-software.de/api/external/v7/graphql`) und vergleicht: Projekttyp-IDs und -Namen, Statuspipelines je Projekttyp, Status-Codes. Ausgegeben wird nur das Vergleichsergebnis (stimmt / weicht ab / nicht prüfbar).
+
+**Warum so und nicht anders:**
+- **Nicht über n8n:** Die n8n-MCP-Anbindung ist PROJ-14 — für drei Lesequeries jetzt eine Monitoring-Infrastruktur vorzuziehen wäre Überbau.
+- **Nicht von Hand abtippen:** Genau die Abschreibfehler, die wir ausschließen wollen.
+- **Skript statt Agent-Aufruf:** Determinismus gehört in Code, nicht ins LLM (Blueprint-Regel); das Skript ist wiederholbar und dient PROJ-4 als Grundlage.
+- **Nur Reads:** Die Migration braucht keinerlei Schreibzugriff auf Hero („Reads erkunden, Writes gaten" — hier gibt es gar keine Writes).
+
+**Credential-Handling:** Der Hero-API-Key kommt in `.env.local` (von Julian einzutragen — Claude kann und darf `.env*`-Dateien weder lesen noch schreiben, das erzwingen die deny-Regeln in `settings.json`). Das Skript liest den Key zur Laufzeit selbst — dasselbe Muster wie im alten Vault („MCP-Server lesen Credentials selbst, Claude greift nie direkt darauf zu").
+
+### Datenmodell (unverändert)
+
+Es entsteht keine neue Datenstruktur: Migrierte Notizen folgen den PROJ-2-Konventionen (Frontmatter mit `tags`, `status`, `date`, `quelle`). Das Abgleich-Ergebnis wird je Kernprozess-Notiz als kurzer Absatz im `quelle`-Kontext dokumentiert („Hero-Abgleich bestanden am …" bzw. Abweichung).
+
+### Ablauf-Reihenfolge
+
+1. Kernprozesse einzeln (Bauprojekt → ohne Angebot → Abo), je mit Abgleich + Review-Gate
+2. Supportprozesse als Paket (nur Review, Zielstatus `erfasst`)
+3. Lernlog Bauprozess + Projekttypen-Wissensbasis (nur Review, `erfasst`)
+4. Prozesslandkarte zuletzt — sie verlinkt alle anderen; so lösen alle Links sofort auf und der Regressionstest bleibt grün
+
+### Review-Form (offene Frage aus der Spec — Vorschlag)
+
+Freigabe je Notiz im Chat: kompakte Gegenüberstellung (was wurde angepasst: Frontmatter, Links, entfernte Privat-Bezüge) plus Abgleich-Ergebnis. Kein Datei-Diff-Werkzeug nötig — die inhaltliche Treue ist per 1:1-Regel ohnehin gesetzt.
+
+### Abhängigkeiten (Pakete)
+- Keine. Das Prüfskript nutzt Bordmittel der vorhandenen Node-Umgebung.
+- Voraussetzung durch Julian: Hero-API-Key in `.env.local` eintragen (Variablenname wird beim Bau des Skripts dokumentiert — Hinweis: `.env.local.example` kann Claude wegen der deny-Regeln nicht selbst pflegen, der Eintrag dort ist ebenfalls Julians Part)
 
 ## QA Test Results
 _To be added by /qa_
