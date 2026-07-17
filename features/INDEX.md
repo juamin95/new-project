@@ -18,7 +18,7 @@
 | ID | Feature | Beschreibung | Prio | Abhängigkeiten | Status | Spec | Created |
 |----|---------|--------------|------|----------------|--------|------|---------|
 | PROJ-2 | Vault-Gerüst & Governance | Repo-2-Struktur, Ordnerlogik, Regeln, Migrations-Filter (nur GRÜNSCHNITT + OS) | P0 | Keine | Approved | [Spec](PROJ-2-vault-geruest-governance.md) | 2026-07-17 |
-| PROJ-3 | Migration Prozesswissen | Prozesslandkarte, 3 Kernprozesse (Projekt / ohne Angebot / Abo), Supportprozesse | P0 | PROJ-2 | Roadmap | — | 2026-07-17 |
+| PROJ-3 | Migration Prozesswissen | Prozesslandkarte, 3 Kernprozesse (Projekt / ohne Angebot / Abo), Supportprozesse | P0 | PROJ-2 | Planned | [Spec](PROJ-3-migration-prozesswissen.md) | 2026-07-17 |
 | PROJ-4 | Migration Hero-GraphQL-Wissen | API-Referenz + verifiziertes Praxiswissen | P0 | PROJ-2 | Roadmap | — | 2026-07-17 |
 | PROJ-5 | Migration OS-Wissen + Branding | Blueprint, Wissenskreislauf; Branding → `docs/design-system.md`, Schreibstil in den Vault | P0 | PROJ-2 | Roadmap | — | 2026-07-17 |
 | PROJ-6 | Migration Prozess-Skills | bauprojekt, projekt-ohne-angebot, abo, hero-stammdaten — mit Validierungstest | P0 | PROJ-3, PROJ-4 | Roadmap | — | 2026-07-17 |
