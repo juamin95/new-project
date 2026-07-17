@@ -23,7 +23,7 @@ Der Vault spiegelt die vier Schichten des OS-Blueprints. Die Nummern 01 bis 04 e
 
 ## Einsortier-Regel
 
-Es gibt genau eine Frage beim Einsortieren: **„Zu welcher Schicht gehört dieses Wissen?"** Jede Notiz hat genau eine Heimat-Schicht; Querbezüge laufen über [[Wikilinks]], nicht über Kopien.
+Es gibt genau eine Frage beim Einsortieren: **„Zu welcher Schicht gehört dieses Wissen?"** Jede Notiz hat genau eine Heimat-Schicht; Querbezüge laufen über `[[Wikilinks]]`, nicht über Kopien.
 
 ## Migrations-Filter: Was gehört in diesen Vault?
 

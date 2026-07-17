@@ -200,7 +200,7 @@ _Umgesetzt: 2026-07-17_
 ### Edge Cases Status
 - [x] Umlaute in Pfaden: von Git korrekt getrackt (`05 Anhänge/`)
 - [x] Notiz mit zwei möglichen Schichten: Einsortier-Fragen in jeder Übersichtsnotiz vorhanden
-- [ ] BUG-1: Toter Wikilink in Start.md (siehe unten)
+- [x] BUG-1: Toter Wikilink in Start.md — behoben am 2026-07-17, alle 50 Tests grün
 
 ### Security Audit Results
 - [x] Keine Secrets/Credential-Muster im Vault (automatisiert geprüft)
