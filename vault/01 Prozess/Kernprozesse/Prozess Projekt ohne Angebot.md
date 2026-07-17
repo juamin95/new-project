@@ -7,7 +7,7 @@ quelle: migriert aus gruenschnitt-wissen (Prozess Projekt ohne Angebot, Stand 20
 
 # Prozess: Projekt ohne Angebot (Direktauftrag)
 
-Der einfache Kernprozess-Weg (Entscheidung 14.07.2026, Teil des Zielbilds in der Prozesslandkarte): Ein bekannter Kunde ruft an und ruft eine überschaubare Leistung ab — kein Angebot, keine Planung, keine Vertriebsphase.
+Der einfache Kernprozess-Weg (Entscheidung 14.07.2026, Teil des Zielbilds in der [[Prozesslandkarte]]): Ein bekannter Kunde ruft an und ruft eine überschaubare Leistung ab — kein Angebot, keine Planung, keine Vertriebsphase.
 
 ## Auslöser
 

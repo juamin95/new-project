@@ -7,7 +7,7 @@ quelle: migriert aus gruenschnitt-wissen (Prozess Stammdatenpflege, Stand 2026-0
 
 # Prozess Stammdatenpflege (Katalog: Produkte & Leistungen)
 
-Supportprozess S1 der Prozesslandkarte. Wird vorausgesetzt von B3 (Angebot) und B7 (Rechnung) im [[Prozess Bauprojekt End-to-End]]: Jede Angebots-/Rechnungsposition muss aus dem Katalog stammen — Positionen werden nie erfunden.
+Supportprozess S1 der [[Prozesslandkarte]]. Wird vorausgesetzt von B3 (Angebot) und B7 (Rechnung) im [[Prozess Bauprojekt End-to-End]]: Jede Angebots-/Rechnungsposition muss aus dem Katalog stammen — Positionen werden nie erfunden.
 
 **Erfassungsstand:** aus n8n-Agent abgeleitet, bei Bedarf nachpflegen.
 

@@ -7,7 +7,7 @@ quelle: migriert aus gruenschnitt-wissen (Prozess Belegfluss Buchhaltung, Stand 
 
 # Prozess Belegfluss Buchhaltung (inkl. Zahlung & Mahnwesen)
 
-Supportprozess S3 der Prozesslandkarte. Verantwortung: Julian. Nimmt Belege aus B5 (Eingangsrechnungen Material) und B7 (Ausgangsrechnungen) des [[Prozess Bauprojekt End-to-End]] auf. Übergabepunkt: Sobald Marvin die Rechnung erstellt hat, ist er raus — ab da läuft alles hier.
+Supportprozess S3 der [[Prozesslandkarte]]. Verantwortung: Julian. Nimmt Belege aus B5 (Eingangsrechnungen Material) und B7 (Ausgangsrechnungen) des [[Prozess Bauprojekt End-to-End]] auf. Übergabepunkt: Sobald Marvin die Rechnung erstellt hat, ist er raus — ab da läuft alles hier.
 
 **Erfassungsstand:** Grundgerüst, bei Bedarf nachpflegen.
 

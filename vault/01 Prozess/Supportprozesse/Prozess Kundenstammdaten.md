@@ -7,7 +7,7 @@ quelle: migriert aus gruenschnitt-wissen (Prozess Kundenstammdaten, Stand 2026-0
 
 # Prozess Kundenstammdaten (Kontakt & Adressen)
 
-Supportprozess S2 der Prozesslandkarte. Wird vorausgesetzt von B1 und B3 im [[Prozess Bauprojekt End-to-End]]: Ohne angelegten Kunden kein Projekt, kein Angebot.
+Supportprozess S2 der [[Prozesslandkarte]]. Wird vorausgesetzt von B1 und B3 im [[Prozess Bauprojekt End-to-End]]: Ohne angelegten Kunden kein Projekt, kein Angebot.
 
 **Erfassungsstand:** aus n8n-Agent abgeleitet, bei Bedarf nachpflegen.
 

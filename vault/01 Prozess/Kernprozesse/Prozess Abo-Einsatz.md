@@ -7,7 +7,7 @@ quelle: migriert aus gruenschnitt-wissen (Prozess Abo-Einsatz, Stand 2026-07-14)
 
 # Prozess: Abo-Einsatz (Dauerpflege über Wartungsverträge)
 
-Der wiederkehrende Kernprozess-Weg (Entscheidung 14.07.2026, Teil des Zielbilds in der Prozesslandkarte): Die ~20 Dauerpflege-Objekte (Objektpflege gewerblich, Gartenpflege-Abos) laufen automatisiert über Hero-**Wartungsverträge**.
+Der wiederkehrende Kernprozess-Weg (Entscheidung 14.07.2026, Teil des Zielbilds in der [[Prozesslandkarte]]): Die ~20 Dauerpflege-Objekte (Objektpflege gewerblich, Gartenpflege-Abos) laufen automatisiert über Hero-**Wartungsverträge**.
 
 ## Mechanik
 

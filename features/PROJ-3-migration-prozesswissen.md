@@ -1,6 +1,6 @@
 # PROJ-3: Migration Prozesswissen
 
-## Status: Architected
+## Status: In Progress
 **Created:** 2026-07-17
 **Last Updated:** 2026-07-17
 
@@ -155,6 +155,19 @@ Freigabe je Notiz im Chat: kompakte Gegenüberstellung (was wurde angepasst: Fro
 ### Abhängigkeiten (Pakete)
 - Keine. Das Prüfskript nutzt Bordmittel der vorhandenen Node-Umgebung.
 - Voraussetzung durch Julian: Hero-API-Key in `.env.local` eintragen (Variablenname wird beim Bau des Skripts dokumentiert — Hinweis: `.env.local.example` kann Claude wegen der deny-Regeln nicht selbst pflegen, der Eintrag dort ist ebenfalls Julians Part)
+
+## Implementation Notes
+_Umgesetzt: 2026-07-18_
+
+- **Alle 9 Notizen migriert**, jede mit `quelle`-Feld (Herkunft, Abgleich- und Review-Datum):
+  - `verifiziert` (4): Prozesslandkarte, Bauprojekt End-to-End, Projekt ohne Angebot, Abo-Einsatz — Hero-Abgleich + Julian-Review je Notiz bestanden
+  - `erfasst` (5): 3 Supportprozesse, Lernlog Bauprozess, Projekttypen-Wissensbasis — ehrliche Statusvergabe wie geplant
+- **Hero-Abgleich:** Prüfskript `scripts/hero-abgleich.mjs` gebaut (Befehle: check, projekttypen, query — rein lesend, Mutations gesperrt, Key aus `.env.local`). Alle Projekttyp-IDs, Pipelines und Status-Codes wortgleich bestätigt; Wartungsvertrag 96920 live geprüft
+- **Gefundene Abweichungen** (dokumentiert + Julian-Entscheidung, nie stillschweigend): Abo-Notiz — nächster automatischer Lauf 13.09. statt ~13.08. (Aktions-Umstellung berechnete `recurring_next` neu), Erinnerung 4 Wochen statt ~7 Tage → auf Live-Stand aktualisiert mit Abgleich-Vermerk
+- **Kuratierung:** Inhalt fachlich 1:1; einzige inhaltliche Anpassungen mit Freigabe: veraltete „in Arbeit"-Kopfzeile im Bauprozess, Abo-Laufzeitwerte; private Verweise (Systemdatenanalyse, KI-Betriebssystem-Projektnotiz) neutral umformuliert
+- **Links:** PROJ-3-interne Wikilinks nach Abschluss in einem Durchgang aktiviert (17 Links); Verweise auf PROJ-4-Ziele (CalendarEvent, Gewerke/Projekttypen) als Klartext mit „folgt mit PROJ-4"-Vermerk
+- **Regressionstests:** decken die neuen Notizen automatisch ab — 77/77 grün
+- Abweichungen vom Tech Design: keine
 
 ## QA Test Results
 _To be added by /qa_

@@ -7,7 +7,7 @@ quelle: migriert aus gruenschnitt-wissen (Prozess Bauprojekt End-to-End, Stand 2
 
 # Prozess Bauprojekt End-to-End
 
-Kernprozess des Geschäftsfelds Bau: von der Anfrage bis zur Rechnung. Teil der Prozesslandkarte.
+Kernprozess des Geschäftsfelds Bau: von der Anfrage bis zur Rechnung. Teil der [[Prozesslandkarte]].
 
 **Erfassungsstand:** umgesetzt, im Echtbetrieb erprobt (Stand 14.07.2026).
 
@@ -40,10 +40,10 @@ Kernprozess des Geschäftsfelds Bau: von der Anfrage bis zur Rechnung. Teil der 
 - **Terminvorbereitung aus dem Logbuch:** Anfrage-Eintrag und Kunden-Recap (beides seit B1 im Logbuch) als kompakte Vorbereitung für Marvin
 - Vor Ort nimmt Marvin auf: **Maße, Notizen, Fotos** — zunächst frei, ohne Vorgaben; Notizen landen danach als Logbuch-Eintrag im Projekt
 
-**Abgrenzung:** Aufträge ohne Vor-Ort-Termin gibt es — das sind die anderen Prozesswege (Zielbild 14.07.2026, siehe Prozesslandkarte):
+**Abgrenzung:** Aufträge ohne Vor-Ort-Termin gibt es — das sind die anderen Prozesswege (Zielbild 14.07.2026, siehe [[Prozesslandkarte]]):
 - **Mit Angebot** = dieser Prozess (Bauvorhaben und größere Pflegeprojekte)
-- **Ohne Angebot** = Direktauftrag → Prozess Projekt ohne Angebot
-- **Abo** = wiederkehrende Dauerpflege → Prozess Abo-Einsatz
+- **Ohne Angebot** = Direktauftrag → [[Prozess Projekt ohne Angebot]]
+- **Abo** = wiederkehrende Dauerpflege → [[Prozess Abo-Einsatz]]
 
 **Systeme:** Hero (Kalender)
 
@@ -54,8 +54,8 @@ Kernprozess des Geschäftsfelds Bau: von der Anfrage bis zur Rechnung. Teil der 
 **Auslöser:** Aufmaß liegt vor
 
 **Bekannt (aus n8n-Agent):**
-- Projekttyp identifizieren (Projekttypen-Wissensbasis mit Keywords, typischen Positionen, Preisspannen)
-- Jede Position gegen Katalog abgleichen (Produkte 4000–7000, Leistungen 1000–3000); fehlende Positionen erst als Stammdatum anlegen → Prozess Stammdatenpflege
+- Projekttyp identifizieren ([[Projekttypen-Wissensbasis]] mit Keywords, typischen Positionen, Preisspannen)
+- Jede Position gegen Katalog abgleichen (Produkte 4000–7000, Leistungen 1000–3000); fehlende Positionen erst als Stammdatum anlegen → [[Prozess Stammdatenpflege]]
 - Cross-Selling-Check: fehlen zwingende Positionen (Unterbau, Maschinen, Entsorgung)?
 - Preisfindung: 1. historische Preise des Kunden, 2. Preisspannen aus der Projekttypen-Wissensbasis, 3. finale Entscheidung beim Menschen
 - Zwei Phasen: Entwurf → explizite Freigabe → erst dann Projekt + Angebots-Draft in Hero (publish: false)
@@ -92,7 +92,7 @@ Kernprozess des Geschäftsfelds Bau: von der Anfrage bis zur Rechnung. Teil der 
 - Mengen kommen aus dem Angebot; auf den Einkaufspreis wird ein Prozentsatz aufgeschlagen
 - Lieferschein gibt es auf die Hand; **Eingangsrechnungen kommen per E-Mail** ins Kundenkonto/Postfach
 
-**Bereits automatisiert (n8n "Email Classifier"):** Eingehende Rechnung wird erkannt → in den Eingangs-Ordner des Postfachs verschoben → per DATEV-E-Mail-Upload in DATEV geladen. Dort erstellt Julian Überweisungen bzw. ordnet bei Lastschrift die Zahlung dem Beleg zu. → Details im Prozess Belegfluss Buchhaltung
+**Bereits automatisiert (n8n "Email Classifier"):** Eingehende Rechnung wird erkannt → in den Eingangs-Ordner des Postfachs verschoben → per DATEV-E-Mail-Upload in DATEV geladen. Dort erstellt Julian Überweisungen bzw. ordnet bei Lastschrift die Zahlung dem Beleg zu. → Details im [[Prozess Belegfluss Buchhaltung]]
 
 **Abbildung in Hero:** Status "Termin festgelegt"; die Beschaffung selbst läuft über **Aufgaben/Checklisten im Hero-Projekt** (siehe Abschnitt Hero-Projektfunktionen), der Umsetzungszeitraum als Kalendereintrag (Kategorie Umsetzung).
 
@@ -126,7 +126,7 @@ Kernprozess des Geschäftsfelds Bau: von der Anfrage bis zur Rechnung. Teil der 
 - Teilrechnungen möglich (einzelne Positionen oder prozentual, siehe B4)
 - Zahlungsziel 14 Tage, fest im Systemtext
 
-**Prozessende & Übergabepunkt:** Mit der Rechnungserstellung ist Marvin raus. Ab hier übernimmt Julian (Buchhaltung): Zahlungseingänge prüfen, Mahnwesen, automatischer Upload der Ausgangsrechnungen in DATEV. → Prozess Belegfluss Buchhaltung
+**Prozessende & Übergabepunkt:** Mit der Rechnungserstellung ist Marvin raus. Ab hier übernimmt Julian (Buchhaltung): Zahlungseingänge prüfen, Mahnwesen, automatischer Upload der Ausgangsrechnungen in DATEV. → [[Prozess Belegfluss Buchhaltung]]
 
 **Systeme:** Hero (Dokument), n8n-Agent, DATEV
 
@@ -151,7 +151,7 @@ Die in Hero angelegte Projekt-Pipeline spiegelt die Prozessphasen. Zuordnung (Co
 | Abgeschlossen (2000) | Ende |
 | Archiviert (2100) | Ende |
 
-Dazu Sammelansichten "Überfällige Projekte" und "Alle Offenen". Nicht alle Status müssen genutzt werden. **Entscheidung 12.07.2026:** Die Prozessschritte übernehmen die Hero-Statusnamen als Hauptschritte (gleiche Begriffe überall); die Beschaffung gehört zu "Termin festgelegt" (B5). Die Codes sind über alle drei Projekttypen konsistent — siehe Prozesslandkarte (Zielbild) und die Praxiswissen-Notiz „Gewerke und Projekttypen (Measure, ProjectType)" (folgt mit PROJ-4).
+Dazu Sammelansichten "Überfällige Projekte" und "Alle Offenen". Nicht alle Status müssen genutzt werden. **Entscheidung 12.07.2026:** Die Prozessschritte übernehmen die Hero-Statusnamen als Hauptschritte (gleiche Begriffe überall); die Beschaffung gehört zu "Termin festgelegt" (B5). Die Codes sind über alle drei Projekttypen konsistent — siehe [[Prozesslandkarte]] (Zielbild) und die Praxiswissen-Notiz „Gewerke und Projekttypen (Measure, ProjectType)" (folgt mit PROJ-4).
 
 ## Hero-Projektfunktionen (Stand 2026-07-12, aus der Oberfläche)
 
@@ -180,6 +180,6 @@ Ein Hero-Projekt bietet folgende Bereiche — relevant für die Frage, welche Pr
 
 ## Abhängigkeiten zu Supportprozessen
 
-- Prozess Kundenstammdaten — Voraussetzung für B1, B3
-- Prozess Stammdatenpflege — Voraussetzung für B3, B7
-- Prozess Belegfluss Buchhaltung — nimmt Belege aus B5 und B7 auf
+- [[Prozess Kundenstammdaten]] — Voraussetzung für B1, B3
+- [[Prozess Stammdatenpflege]] — Voraussetzung für B3, B7
+- [[Prozess Belegfluss Buchhaltung]] — nimmt Belege aus B5 und B7 auf
