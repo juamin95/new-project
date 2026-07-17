@@ -102,12 +102,61 @@ vault/
 <!-- Added by /architecture -->
 | Decision | Rationale | Date |
 |----------|-----------|------|
+| Git als einziger Speicher, keine Datenbank | Wissen ist Markdown; Git liefert Versionierung und Änderungshistorie kostenlos | 2026-07-17 |
+| Obsidian-Konfig minimal versionieren, workspace/Cache ignorieren | Bewährtes Muster aus dem alten Vault; verhindert Sync-Konflikte zwischen Geräten | 2026-07-17 |
+| Governance über `.claude/rules/vault.md` | Bestehender Auto-Lade-Mechanismus des Repos; keine neue Infrastruktur nötig | 2026-07-17 |
+| Konventionen einmal im Vault, Regeln verlinken nur | Eine Pflegestelle statt driftender Kopien (Prinzip aus dem Schreibstil-Ansatz) | 2026-07-17 |
+| Schicht-Unterordner erst mit Inhalt anlegen (außer Lernlog) | Git kann leere Ordner nicht tracken; Platzhalter wären Pflege-Ballast; Lernlog braucht der Agent ab Tag 1 | 2026-07-17 |
+| Gates toolneutral („der Agent") formuliert | Gleiche Regeln gelten für Claude Code heute und Cockpit-Chat/Lernkreislauf später (PROJ-10/15) | 2026-07-17 |
 
 ---
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+_Erstellt: 2026-07-17_
+
+### Was gebaut wird (Dateibaum statt UI — dieses Feature hat keine App-Oberfläche)
+
+```
+vault/
++-- Start.md                      ← Hub-Notiz: Struktur, Einsortier-Regel, Migrations-Filter
++-- .obsidian/                    ← minimale Obsidian-Konfiguration (versioniert)
++-- 00 Betrieb/00 Betrieb.md      ← Übersichtsnotiz der Schicht
++-- 01 Prozess/01 Prozess.md
++-- 02 Technik/02 Technik.md
++-- 03 AI/
+|   +-- 03 AI.md
+|   +-- Notiz-Konventionen.md     ← Frontmatter-Regeln, Statusstufen, Wikilink-Prinzip
+|   +-- Lernlog/Lernlog-Konventionen.md  ← einziger autonomer Schreibbereich des Agenten
++-- 04 User/04 User.md
++-- 05 Anhänge/05 Anhänge.md
+
+.claude/rules/vault.md            ← Governance: Schreibgates, Arbeitsgrundlage, Migrations-Filter
+.gitignore                        ← ergänzt um Obsidian-Arbeitsdateien (Muster aus altem Vault)
+```
+
+Die Unterordner der Schichten (Kernprozesse/, Hero/, n8n/ …) entstehen erst mit den Inhalten in PROJ-3 bis PROJ-6 — leere Ordner kann Git nicht versionieren, und Platzhalter ohne Inhalt wären Pflege-Ballast. Ausnahme: `Lernlog/` wird sofort angelegt, weil der Agent dort ab Tag 1 schreiben darf.
+
+### Datenmodell (in einfacher Sprache)
+
+Jede Vault-Notiz ist eine Markdown-Datei mit einem Kopfbereich (Frontmatter):
+- **tags** — Liste von Schlagworten (z. B. prozess, kernprozess)
+- **status** — `erfasst` oder `verifiziert`; nur Verifiziertes ist Arbeitsgrundlage des Agenten
+- **date** — Erstell-/Änderungsdatum
+- **quelle** — nur bei migrierten Notizen: Herkunft + Validierungsdatum
+
+Gespeichert wird ausschließlich in Git — keine Datenbank, kein Server. Die Historie jeder Wissensänderung liefert Git kostenlos mit (wer, wann, was).
+
+### Tech-Entscheidungen (Warum)
+
+1. **Keine App-Änderung, keine Pakete.** Das Feature ist reines Datei- und Regelwerk — die Next.js-App bleibt unberührt. Das hält PROJ-2 klein und risikofrei.
+2. **Obsidian-Konfiguration minimal versionieren.** Nur Grundeinstellungen (Editor, Darstellung, Plugin-Liste) werden eingecheckt, damit jedes Gerät denselben Vault-Zustand bekommt. Gerätespezifisches (Fensterlayout `workspace.json`, Cache, Papierkorb) wird ignoriert — exakt das Muster, das sich im alten Vault bewährt hat und dort Sync-Konflikte verhindert.
+3. **Governance als `.claude/rules/vault.md`.** Das Repo lädt alle Dateien unter `.claude/rules/` automatisch in jede Claude-Session (so funktionieren schon general/security/frontend/backend). Die Vault-Regeln bekommen damit dieselbe Verbindlichkeit — ohne neuen Mechanismus.
+4. **Verweisen statt kopieren.** Die Notiz-Konventionen stehen einmal im Vault (`03 AI/Notiz-Konventionen.md`); Start.md und vault.md verlinken darauf. Gleiche Logik wie beim Schreibstil im alten Vault: eine Pflegestelle, keine Kopien, die auseinanderlaufen.
+5. **Gates toolneutral formuliert.** Die Schreibregeln sprechen vom „Agenten", nicht von „Claude Code" — dieselben Regeln gelten später unverändert für den Cockpit-Chat (PROJ-10) und den Lernkreislauf (PROJ-15).
+
+### Abhängigkeiten (Pakete)
+- Keine.
 
 ## QA Test Results
 _To be added by /qa_
