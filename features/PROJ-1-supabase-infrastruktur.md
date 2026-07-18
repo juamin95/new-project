@@ -178,7 +178,7 @@ Keine.
 ### Automatisierte Tests
 - Erweitert: `src/test/tools-governance.test.ts` um den PROJ-1-Block (Skript + Notiz + Konventionen + Ignore-Regeln, statisch, ohne Netzwerk)
 - Live-Verifikation wiederholbar über `node scripts/supabase-check.mjs`
-- Gesamt: 1.337 Tests grün
+- Gesamt: 1.334 Tests grün
 
 ### Summary
 - **Acceptance Criteria:** 6/6 passed
