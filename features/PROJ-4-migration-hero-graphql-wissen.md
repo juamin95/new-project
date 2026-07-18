@@ -156,7 +156,7 @@ Keine. (Ein Test schlug während der Umsetzung planmäßig fehl — der PROJ-3-T
 
 ### Automatisierte Tests
 - Erweitert: `src/test/vault-migration.test.ts` — Referenz-Struktur (Mindestbestand), Praxiswissen-Status, Hub-Links, Link-Aktivierung
-- Gesamt: 1.256 Tests grün (3 Testdateien) — inkl. Governance-Prüfung über alle Referenz-Dateien
+- Gesamt: 1.250 Tests grün (3 Testdateien) — inkl. Governance-Prüfung über alle Referenz-Dateien
 
 ### Summary
 - **Acceptance Criteria:** 7/7 passed
