@@ -22,7 +22,7 @@ Jede Abwicklung läuft als Hero-Projekt. Zwei unabhängige Achsen:
 | **Ohne Angebot** (einfach) | "Projekt ohne Angebot" (65686) | Anfrage eingegangen → Termin festgelegt → In Umsetzung → Rechnung → Abgeschlossen | `projekt-ohne-angebot` | [[Prozess Projekt ohne Angebot]] |
 | **Abo** (wiederkehrend) | "Abo" (65869) | offener Auftrag → Termin festgelegt → In Umsetzung → Abgeschlossen | `abo` | [[Prozess Abo-Einsatz]] |
 
-Status-Codes sind über alle Typen konsistent (gleicher Schritt = gleicher Code): 201 / 400–1001 (nur Vertriebsphase) / 1101 / 1111 / 1150 / 2000 / 2100. Details: Praxiswissen-Notiz „Gewerke und Projekttypen (Measure, ProjectType)" (folgt mit PROJ-4).
+Status-Codes sind über alle Typen konsistent (gleicher Schritt = gleicher Code): 201 / 400–1001 (nur Vertriebsphase) / 1101 / 1111 / 1150 / 2000 / 2100. Details: [[Gewerke und Projekttypen (Measure, ProjectType)]].
 
 **Regeln aus dem Zielbild:**
 - Bauvorhaben → Typ "Projekt" + Gewerk GES; größeres Pflegeprojekt mit Angebot → Typ "Projekt" + Gewerk PFL

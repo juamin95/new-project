@@ -1,6 +1,6 @@
 # PROJ-4: Migration Hero-GraphQL-Wissen
 
-## Status: Architected
+## Status: In Progress
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
@@ -118,6 +118,18 @@ Analyse des Probelaufs (360 Dateien, 803 Wikilinks):
 
 ### Abhängigkeiten (Pakete)
 - Keine neuen. Genutzt wird Vorhandenes: `introspect.py` + venv (PROJ-16), `scripts/hero-abgleich.mjs` (PROJ-3).
+
+## Implementation Notes
+_Umgesetzt: 2026-07-18_
+
+- **Spot-Check:** 12 Schema-/Live-Prüfungen, alle bestanden (u. a. kein create_task, kein update_document, Calendar_* nicht freigeschaltet, alle 6 Kalender-Kategorien wortgleich)
+- **Praxiswissen:** 5 Notizen migriert (`verifiziert`, quelle mit Spot-Check-/Review-Vermerk); private Verweise neutralisiert; Prozess-Wikilinks aktiv; zwei Review-Gates wie geplant
+- **Konventionen:** Ausnahme-Absatz für den Referenz-Ordner in Notiz-Konventionen ergänzt
+- **Tests präzisiert:** Frontmatter-Pflicht mit Referenz-Ausnahme, escape-fähiger Wikilink-Regex (`\|`), Scalar-Whitelist (5 Namen); PROJ-3-Test auf den neuen Link-Zustand aktualisiert
+- **Referenz generiert:** 360 Dateien (58 Queries, 76 Mutations, 225 Typen) direkt in den Vault; **Delta zur alten Referenz: +2 Typen** (Receipt_ReceiptDocumentSync, Receipt_ReceiptPayment — Hero baut den Payment-Bereich aus), nichts entfallen
+- **Hub-Notiz:** Hero.md erklärt beide Ebenen, verlinkt Schema-Übersicht und alle 5 Praxiswissen-Notizen, inkl. Warnung und Delta-Vermerk
+- **Link-Aktivierung:** „folgt mit PROJ-4"-Platzhalter in Bauprozess + Landkarte durch echte Wikilinks ersetzt
+- Abweichungen vom Design: keine
 
 ## QA Test Results
 _To be added by /qa_

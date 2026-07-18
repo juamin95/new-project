@@ -36,7 +36,7 @@ Kernprozess des Geschäftsfelds Bau: von der Anfrage bis zur Rechnung. Teil der 
 **Auslöser:** Anfrage qualifiziert, Termin mit dem Kunden abgestimmt
 
 **Soll:**
-- Der Vor-Ort-Termin wird im **Hero-Kalender** eingetragen (CalendarEvent — verifizierte Erkenntnisse dazu in der Praxiswissen-Notiz „Kalender und Termine (CalendarEvent)", folgt mit PROJ-4)
+- Der Vor-Ort-Termin wird im **Hero-Kalender** eingetragen (CalendarEvent — verifizierte Erkenntnisse in [[Kalender und Termine (CalendarEvent)]])
 - **Terminvorbereitung aus dem Logbuch:** Anfrage-Eintrag und Kunden-Recap (beides seit B1 im Logbuch) als kompakte Vorbereitung für Marvin
 - Vor Ort nimmt Marvin auf: **Maße, Notizen, Fotos** — zunächst frei, ohne Vorgaben; Notizen landen danach als Logbuch-Eintrag im Projekt
 
@@ -151,7 +151,7 @@ Die in Hero angelegte Projekt-Pipeline spiegelt die Prozessphasen. Zuordnung (Co
 | Abgeschlossen (2000) | Ende |
 | Archiviert (2100) | Ende |
 
-Dazu Sammelansichten "Überfällige Projekte" und "Alle Offenen". Nicht alle Status müssen genutzt werden. **Entscheidung 12.07.2026:** Die Prozessschritte übernehmen die Hero-Statusnamen als Hauptschritte (gleiche Begriffe überall); die Beschaffung gehört zu "Termin festgelegt" (B5). Die Codes sind über alle drei Projekttypen konsistent — siehe [[Prozesslandkarte]] (Zielbild) und die Praxiswissen-Notiz „Gewerke und Projekttypen (Measure, ProjectType)" (folgt mit PROJ-4).
+Dazu Sammelansichten "Überfällige Projekte" und "Alle Offenen". Nicht alle Status müssen genutzt werden. **Entscheidung 12.07.2026:** Die Prozessschritte übernehmen die Hero-Statusnamen als Hauptschritte (gleiche Begriffe überall); die Beschaffung gehört zu "Termin festgelegt" (B5). Die Codes sind über alle drei Projekttypen konsistent — siehe [[Prozesslandkarte]] (Zielbild) und [[Gewerke und Projekttypen (Measure, ProjectType)]].
 
 ## Hero-Projektfunktionen (Stand 2026-07-12, aus der Oberfläche)
 

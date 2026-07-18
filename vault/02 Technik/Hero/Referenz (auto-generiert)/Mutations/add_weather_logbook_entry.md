@@ -1,0 +1,51 @@
+# add_weather_logbook_entry
+
+**Typ:** Mutation  
+**Rückgabe:** [[History]]
+
+Creates a weather entry
+
+---
+
+## Argumente & Filter
+
+| Argument | Typ | Standard | Beschreibung |
+|----------|-----|----------|--------------|
+| `project_match_id` | `Int` | — |  |
+
+
+
+## Rückgabe-Felder (`History`)
+
+| Feld | Typ | Beschreibung |
+|------|-----|--------------|
+| `user_id` | `Int` |  |
+| `target_project_match_id` | `Int` |  |
+| `target_company_id` | `Int` |  |
+| `target` | `String` |  |
+| `target_id` | `Int` |  |
+| `target_job` | [[FieldService_Job\|`FieldService_Job`]] |  |
+| `type_code` | `Int` |  |
+| `associated_outbox_mail_id` | `Int` |  |
+| `custom_title` | `String` |  |
+| `custom_text` | `String` |  |
+| `user` | [[User\|`User`]] |  |
+| `target_project_match` | [[ProjectMatch\|`ProjectMatch`]] |  |
+| `target_company` | [[Company\|`Company`]] |  |
+| `associated_outbox_mail` | [[OutboxMail\|`OutboxMail`]] |  |
+| `additional_file_uploads` | [[FileUpload\|`[FileUpload]`]] |  |
+| `role_visibility` | `String` |  |
+| `created` | `DateTime` |  |
+| `modified` | `DateTime` |  |
+| `id` | `Int` |  |
+| `target_user` *(veraltet)* | [[User\|`User`]] |  |
+| `target_project` *(veraltet)* | [[Project\|`Project`]] |  |
+| `target_user_id` *(veraltet)* | `Int` |  |
+| `target_project_id` *(veraltet)* | `Int` |  |
+| `type` *(veraltet)* | `String` |  |
+| `weather_attachment` | [[HistoryWeatherAttachment\|`HistoryWeatherAttachment`]] |  |
+| `is_editable` | `Boolean` |  |
+| `author_name` | `String!` |  |
+
+---
+*Quelle: Hero Software GraphQL API — automatisch generiert*

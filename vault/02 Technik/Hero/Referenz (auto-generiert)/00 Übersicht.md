@@ -1,0 +1,150 @@
+# Hero Software GraphQL API
+
+Automatisch generiert via Introspection.
+
+**Endpoint:** `https://login.hero-software.de/api/external/v7/graphql`
+
+---
+
+## Queries
+
+- [[EmailTemplate_EmailTemplates|EmailTemplate_EmailTemplates]] → `EmailTemplate_EmailTemplateConnection`
+- [[Receipt_Receipts|Receipt_Receipts]] → `Receipt_ReceiptConnection`
+- [[absence_balance|absence_balance]] → `AbsencesBalances`
+- [[absence_budget|absence_budget]] → `Employees_Absence`
+- [[absences|absences]] → `[Employees_Absence]`
+- [[aggregate_webhooks|aggregate_webhooks]] → `Int`
+- [[bookaccounts|bookaccounts]] → `[Accounting_BookAccount]`
+- [[calendar_event_categories|calendar_event_categories]] → `[CalendarEventCategories]`
+- [[calendar_events|calendar_events]] → `[CalendarEvent]`
+- [[calendar_imports|calendar_imports]] → `[CalendarImport]`
+- [[company|company]] → `Company`
+- [[configuration|configuration]] → `Configuration`
+- [[contacts|contacts]] → `[Customer]`
+- [[costcenters|costcenters]] → `[Accounting_CostCenter]`
+- [[countries|countries]] → `[Country]`
+- [[custom_field_records|custom_field_records]] → `[CustomFields_Record]`
+- [[custom_fields_schemas|custom_fields_schemas]] → `[CustomFields_Schema]`
+- [[customer_document_types|customer_document_types]] → `[CustomerDocumentType]`
+- [[customer_documents|customer_documents]] → `[CustomerDocument]`
+- [[document_types|document_types]] → `[Documents_DocumentType]`
+- [[echo|echo]] → `String`
+- [[email_template|email_template]] → `EmailTemplate`
+- [[field_service_checklist_template|field_service_checklist_template]] → `FieldService_ChecklistTemplate`
+- [[field_service_checklist_templates|field_service_checklist_templates]] → `[FieldService_ChecklistTemplate]`
+- [[field_service_job|field_service_job]] → `FieldService_Job`
+- [[field_service_jobs|field_service_jobs]] → `[FieldService_Job]`
+- [[field_service_object|field_service_object]] → `FieldService_ServiceObject`
+- [[file_upload_folders|file_upload_folders]] → `[FileUploadFolder]`
+- [[file_uploads|file_uploads]] → `[FileUpload]`
+- [[global_search|global_search]] → `[SearchResult]`
+- [[histories|histories]] → `[History]`
+- [[holidays|holidays]] → `[Holiday]`
+- [[job_checklists|job_checklists]] → `[FieldService_Checklist]`
+- [[new_supply_product_version|new_supply_product_version]] → `[Documents_SupplyProductVersion]`
+- [[new_supply_service|new_supply_service]] → `[Documents_SupplyService]`
+- [[notifications|notifications]] → `[Notification]`
+- [[partner_birthdays|partner_birthdays]] → `[Employees_PartnerBirthday]`
+- [[project_histories|project_histories]] → `[History]`
+- [[project_leads|project_leads]] → `[Leads_ProjectLead]`
+- [[project_match|project_match]] → `ProjectMatch`
+- [[project_match_checklists|project_match_checklists]] → `[FieldService_Checklist]`
+- [[project_matches|project_matches]] → `[ProjectMatch]`
+- [[project_types|project_types]] → `[ProjectType]`
+- [[receipts|receipts]] → `[Accounting_Receipt]`
+- [[resources|resources]] → `[CompanyResource]`
+- [[search_calendar_events|search_calendar_events]] → `[CalendarEvent]`
+- [[supply_product_versions|supply_product_versions]] → `[Documents_SupplyProductVersion]`
+- [[supply_products|supply_products]] → `[Documents_SupplyProduct]`
+- [[supply_services|supply_services]] → `[Documents_SupplyService]`
+- [[supply_texts|supply_texts]] → `[Documents_SupplyText]`
+- [[tasks|tasks]] → `[Task]`
+- [[tracking_time_balance|tracking_time_balance]] → `Employees_TimeTrackingBalance`
+- [[tracking_times|tracking_times]] → `[Employees_TrackingTime]`
+- [[tracking_times_categories|tracking_times_categories]] → `[Employees_TrackingTimesCategory]`
+- [[upload_image_categories|upload_image_categories]] → `[String]`
+- [[user|user]] → `User`
+- [[webhook_event_types|webhook_event_types]] → `[Webhooks_WebhookEventType]`
+- [[webhooks|webhooks]] → `[Webhooks_Webhook]`
+
+## Mutations
+
+- [[Receipt_CreateReceipt|Receipt_CreateReceipt]] → `Receipt_Receipt`
+- [[Receipt_DeleteReceipt|Receipt_DeleteReceipt]] → `Receipt_Receipt`
+- [[Receipt_UpdateReceipt|Receipt_UpdateReceipt]] → `Receipt_Receipt`
+- [[add_custom_fields_to_schema|add_custom_fields_to_schema]] → `CustomFields_Schema`
+- [[add_field_service_job_assignment|add_field_service_job_assignment]] → `FieldService_Job`
+- [[add_logbook_entry|add_logbook_entry]] → `History`
+- [[add_partner|add_partner]] → `Partner`
+- [[add_project_match_assignments|add_project_match_assignments]] → `ProjectMatch`
+- [[add_weather_logbook_entry|add_weather_logbook_entry]] → `History`
+- [[create_absence|create_absence]] → `Employees_Absence`
+- [[create_calendar_event|create_calendar_event]] → `CalendarEvent`
+- [[create_calendar_import|create_calendar_import]] → `CalendarImport`
+- [[create_calendar_share_link|create_calendar_share_link]] → `CalendarShareLink`
+- [[create_contact|create_contact]] → `Customer`
+- [[create_custom_field_schema|create_custom_field_schema]] → `CustomFields_Schema`
+- [[create_customer_address|create_customer_address]] → `CustomerAddress`
+- [[create_document|create_document]] → `Documents_CustomerDocumentDraft`
+- [[create_document_note|create_document_note]] → `Documents_CustomerDocumentNote`
+- [[create_email_template|create_email_template]] → `EmailTemplate`
+- [[create_field_service_checklist|create_field_service_checklist]] → `FieldService_Checklist`
+- [[create_field_service_checklist_template|create_field_service_checklist_template]] → `FieldService_ChecklistTemplate`
+- [[create_field_service_job|create_field_service_job]] → `FieldService_Job`
+- [[create_payment|create_payment]] → `CustomerDocument`
+- [[create_project_export|create_project_export]] → `Boolean`
+- [[create_project_match|create_project_match]] → `ProjectMatch`
+- [[create_project_type|create_project_type]] → `ProjectType`
+- [[create_stock_material|create_stock_material]] → `Stock_StockMaterial`
+- [[create_supply_product_version|create_supply_product_version]] → `Documents_SupplyProductVersion`
+- [[create_supply_service|create_supply_service]] → `Documents_SupplyService`
+- [[create_webhook|create_webhook]] → `Webhooks_Webhook`
+- [[delete_calendar_event|delete_calendar_event]] → `CalendarEvent`
+- [[delete_calendar_import|delete_calendar_import]] → `Boolean`
+- [[delete_checklist|delete_checklist]] → `FieldService_Checklist`
+- [[delete_company_account|delete_company_account]] → `Boolean`
+- [[delete_document|delete_document]] → `CustomerDocument`
+- [[delete_document_note|delete_document_note]] → `Boolean`
+- [[delete_project_match_assignments|delete_project_match_assignments]] → `ProjectMatch`
+- [[delete_webhook|delete_webhook]] → `Boolean`
+- [[read_notifications|read_notifications]] → `[Notification]`
+- [[remove_custom_field_from_schema|remove_custom_field_from_schema]] → `CustomFields_Schema`
+- [[remove_field_service_job_assignment|remove_field_service_job_assignment]] → `FieldService_Job`
+- [[rotate_image|rotate_image]] → `FileUpload`
+- [[send_mail|send_mail]] → `OutboxMail`
+- [[set_custom_field_value|set_custom_field_value]] → `CustomFields_Record`
+- [[set_user_password|set_user_password]] → `Boolean`
+- [[submit_document_signature|submit_document_signature]] → `Documents_CustomerDocumentDraft`
+- [[transition_customer_document_status|transition_customer_document_status]] → `CustomerDocument`
+- [[transition_payment_relevance_status|transition_payment_relevance_status]] → `CustomerDocument`
+- [[unreadNotifications|unreadNotifications]] → `[TopNavigationNotification]`
+- [[update_absence|update_absence]] → `Employees_Absence`
+- [[update_calendar_event|update_calendar_event]] → `CalendarEvent`
+- [[update_calendar_import|update_calendar_import]] → `CalendarImport`
+- [[update_company|update_company]] → `Company`
+- [[update_contact|update_contact]] → `Customer`
+- [[update_custom_fields_in_schema|update_custom_fields_in_schema]] → `CustomFields_Schema`
+- [[update_customer_address|update_customer_address]] → `CustomerAddress`
+- [[update_document_note|update_document_note]] → `Documents_CustomerDocumentNote`
+- [[update_email_template|update_email_template]] → `EmailTemplate`
+- [[update_field_service_checklist|update_field_service_checklist]] → `FieldService_Checklist`
+- [[update_field_service_checklist_template|update_field_service_checklist_template]] → `FieldService_ChecklistTemplate`
+- [[update_field_service_job|update_field_service_job]] → `FieldService_Job`
+- [[update_field_service_object|update_field_service_object]] → `FieldService_ServiceObject`
+- [[update_file_upload|update_file_upload]] → `FileUpload`
+- [[update_partner|update_partner]] → `Partner`
+- [[update_project_match|update_project_match]] → `ProjectMatch`
+- [[update_project_match_assignments|update_project_match_assignments]] → `ProjectMatch`
+- [[update_project_type|update_project_type]] → `ProjectType`
+- [[update_stock_material|update_stock_material]] → `Stock_StockMaterial`
+- [[update_supply_product_version|update_supply_product_version]] → `Documents_SupplyProductVersion`
+- [[update_supply_service|update_supply_service]] → `Documents_SupplyService`
+- [[update_task|update_task]] → `Task`
+- [[update_tracking_time|update_tracking_time]] → `Employees_TrackingTime`
+- [[update_user_data|update_user_data]] → `User`
+- [[update_webhook|update_webhook]] → `Webhooks_Webhook`
+- [[upload_document|upload_document]] → `CustomerDocument`
+- [[upload_image|upload_image]] → `FileUpload`
+
+---
+*Automatisch generiert*

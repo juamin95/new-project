@@ -37,6 +37,14 @@ quelle: migriert aus gruenschnitt-wissen, validiert 2026-07-20
 
 Die Beförderung von `erfasst` zu `verifiziert` ist eine bewusste menschliche Entscheidung (Gate), nie automatisch.
 
+## Ausnahme: Auto-generierte Referenz
+
+Der Ordner `02 Technik/Hero/Referenz (auto-generiert)/` ist ein maschineller Spiegel des Hero-Schemas (erzeugt von `tools/hero-graphql/introspect.py`) und vom Frontmatter- und Statusmodell **ausgenommen**:
+
+- Kein Frontmatter, kein `status` — die Dateien sind weder „erfasst" noch „verifiziert", sie SIND das Schema
+- **Nicht händisch editieren** — der nächste Generator-Lauf überschreibt den Ordner komplett
+- Eigene Erkenntnisse gehören ins `Praxiswissen (verifiziert)/`, nie in die Referenz
+
 ## Verlinkung
 
 - **Atomare Notizen:** eine Idee pro Notiz, wo möglich — das hält den Vault verlinkbar und den Agenten-Kontext schlank

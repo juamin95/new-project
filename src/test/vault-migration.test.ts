@@ -69,13 +69,23 @@ describe('AC-6: Migrations-Filter — keine privaten Inhalte im Vault', () => {
   })
 })
 
-describe('AC-8: Verweise auf noch nicht migrierte Ziele sind Klartext', () => {
-  const all = globSync('vault/**/*.md', { cwd: root })
-    .map((n) => read(n))
-    .join(' ')
+describe('Link-Aktivierung: Hero-Praxiswissen ist seit PROJ-4 verlinkt', () => {
+  it('Bauprozess verlinkt Kalender- und Projekttypen-Praxiswissen', () => {
+    const bau = read('vault/01 Prozess/Kernprozesse/Prozess Bauprojekt End-to-End.md')
+    expect(bau).toContain('[[Kalender und Termine (CalendarEvent)]]')
+    expect(bau).toContain('[[Gewerke und Projekttypen (Measure, ProjectType)]]')
+  })
 
-  it('PROJ-4-Ziele (Hero-Praxiswissen) sind nicht als Wikilink gesetzt', () => {
-    expect(all).not.toContain('[[Kalender und Termine')
-    expect(all).not.toContain('[[Gewerke und Projekttypen')
+  it('Prozesslandkarte verlinkt das Projekttypen-Praxiswissen', () => {
+    expect(read('vault/01 Prozess/Prozesslandkarte.md')).toContain(
+      '[[Gewerke und Projekttypen (Measure, ProjectType)]]'
+    )
+  })
+
+  it('kein "folgt mit PROJ-4"-Platzhalter mehr im Vault', () => {
+    const all = globSync('vault/**/*.md', { cwd: root })
+      .map((n) => read(n))
+      .join(' ')
+    expect(all).not.toContain('folgt mit PROJ-4')
   })
 })

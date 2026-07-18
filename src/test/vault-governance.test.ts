@@ -13,6 +13,15 @@ import { globSync } from 'node:fs'
 const root = process.cwd()
 const vaultNotes = globSync('vault/**/*.md', { cwd: root }).sort()
 
+// Der Referenz-Ordner ist ein maschineller Spiegel des Hero-Schemas:
+// vom Frontmatter-/Statusmodell ausgenommen (siehe Notiz-Konventionen),
+// Links und Secrets werden weiterhin geprüft.
+const isReferenz = (n: string) => n.includes('Referenz (auto-generiert)')
+const authoredNotes = vaultNotes.filter((n) => !isReferenz(n))
+// GraphQL-Standard-Scalars werden vom Generator bewusst nicht als Dateien
+// geschrieben, vereinzelt aber verlinkt — eng begrenzte Whitelist.
+const GRAPHQL_SCALARS = new Set(['Boolean', 'String', 'Int', 'Float', 'ID'])
+
 const read = (p: string) => readFileSync(join(root, p), 'utf-8')
 const frontmatterOf = (content: string) => content.match(/^---\n([\s\S]*?)\n---\n/)?.[1]
 
@@ -41,8 +50,8 @@ describe('AC-1: Vault-Struktur ist vollständig und Obsidian-kompatibel', () => 
   )
 })
 
-describe('Notiz-Konventionen: Frontmatter jeder Vault-Notiz', () => {
-  it.each(vaultNotes)('%s hat tags, status und date mit gültigem Statuswert', (note) => {
+describe('Notiz-Konventionen: Frontmatter jeder Vault-Notiz (außer Referenz)', () => {
+  it.each(authoredNotes)('%s hat tags, status und date mit gültigem Statuswert', (note) => {
     const fm = frontmatterOf(read(note))
     expect(fm, `${note}: Frontmatter fehlt`).toBeDefined()
     expect(fm).toMatch(/^tags:/m)
@@ -56,10 +65,13 @@ describe('Wikilinks: jeder Link außerhalb von Code-Backticks hat ein Ziel', () 
 
   it.each(vaultNotes)('%s enthält keine toten Wikilinks', (note) => {
     const withoutCode = read(note).replace(/`[^`]*`/g, '')
-    const targets = [...withoutCode.matchAll(/\[\[([^\]|#]+)(?:[|#][^\]]*)?\]\]/g)].map((m) =>
-      m[1].trim()
+    // \| ist Obsidians escaptes Alias-Pipe in Tabellen — wie | behandeln
+    const targets = [...withoutCode.matchAll(/\[\[((?:[^\]\\|#]|\\(?!\|))+?)(?:\\?\|[^\]]*|#[^\]]*)?\]\]/g)].map(
+      (m) => m[1].trim()
     )
-    const dead = targets.filter((t) => !stems.has(t))
+    const dead = targets.filter(
+      (t) => !stems.has(t) && !(isReferenz(note) && GRAPHQL_SCALARS.has(t))
+    )
     expect(dead, `tote Links: ${dead.join(', ')}`).toEqual([])
   })
 })

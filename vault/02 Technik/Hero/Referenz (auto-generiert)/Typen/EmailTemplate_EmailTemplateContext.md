@@ -1,0 +1,47 @@
+# EmailTemplate_EmailTemplateContext
+
+**Art:** ENUM
+
+## Mögliche Werte (Enum)
+
+| Wert | Beschreibung |
+|------|--------------|
+| `COMPANY` |  |
+| `CUSTOMER` |  |
+| `CUSTOMER_DOCUMENT` |  |
+| `CUSTOMER_DOCUMENT_CONFIRMATION` |  |
+| `CUSTOMER_DOCUMENT_DELIVERY_NOTE` |  |
+| `CUSTOMER_DOCUMENT_DUNNING` |  |
+| `CUSTOMER_DOCUMENT_GENERIC` |  |
+| `CUSTOMER_DOCUMENT_INFORMATION` |  |
+| `CUSTOMER_DOCUMENT_INVOICE` |  |
+| `CUSTOMER_DOCUMENT_INVOICE_NOTICE` |  |
+| `CUSTOMER_DOCUMENT_LETTER` |  |
+| `CUSTOMER_DOCUMENT_MAINTENANCE` |  |
+| `CUSTOMER_DOCUMENT_MEASUREMENT` |  |
+| `CUSTOMER_DOCUMENT_OFFER` |  |
+| `CUSTOMER_DOCUMENT_ORDER_FORM` |  |
+| `CUSTOMER_DOCUMENT_REPAIR` |  |
+| `CUSTOMER_DOCUMENT_REVERSAL_INVOICE` |  |
+| `CUSTOMER_PRIVACY` |  |
+| `INVOICE` |  |
+| `INVOICE_NOTICE` |  |
+| `JOB` |  |
+| `JOB_CONTACT` |  |
+| `MATCH` |  |
+| `MATCHING` |  |
+| `PARTNER` |  |
+| `PARTNER_CUSTOMER` |  |
+| `PARTNER_EMPLOYEE` |  |
+| `PARTNER_EXTERNAL` |  |
+| `PARTNER_PROCESS_FILES` |  |
+| `PAYMENT_REMINDER` |  |
+| `PROJECT` |  |
+| `PROJECT_START` |  |
+| `SERVICE_OBJECT` |  |
+| `SUBSCRIPTION` |  |
+| `SYSTEM` |  |
+| `UNKNOWN` |  |
+
+---
+*Quelle: Hero Software GraphQL API — automatisch generiert*
