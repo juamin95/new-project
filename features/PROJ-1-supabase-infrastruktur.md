@@ -1,6 +1,6 @@
 # PROJ-1: Supabase-Infrastruktur
 
-## Status: In Progress
+## Status: Approved
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
@@ -47,12 +47,12 @@ PROJ-1 macht die Infrastruktur **funktionsfähig** (Auth konfiguriert, Konto ang
 
 **Format:** Angenommen [Vorbedingung] / Wenn [Aktion] / Dann [Ergebnis]
 
-- [ ] Angenommen das Cockpit-Konto ist angelegt, wenn für dessen E-Mail-Adresse ein Magic Link angefordert wird, dann kommt der Link an und der Login gelingt (technischer Nachweis ohne UI)
-- [ ] Angenommen eine fremde E-Mail-Adresse fordert einen Magic Link an, dann entsteht kein Konto und kein Zugang
-- [ ] Angenommen die Umsetzung ist abgeschlossen, wenn man `leads`/`projekte` und deren Policies vergleicht, dann sind sie unverändert und ein Test-Insert über das Website-Formular funktioniert weiter
-- [ ] Angenommen ein Produktions-Build wird erstellt, wenn man das Client-Bundle nach dem Service-Role-Key durchsucht, dann ist er nicht enthalten
-- [ ] Angenommen das RLS-Grundmuster ist dokumentiert, wenn PROJ-9/10/11 Tabellen anlegen, dann existiert eine verbindliche Vorlage (Konvention + Beispiel-Policy)
-- [ ] Angenommen die Supabase-Notiz liegt im Vault, wenn man sie liest, dann beschreibt sie Projekt, Bestand, Auth-Modell und Konventionen (`status` nach Review)
+- [x] Angenommen das Cockpit-Konto ist angelegt, wenn für dessen E-Mail-Adresse ein Magic Link angefordert wird, dann kommt der Link an und der Login gelingt (technischer Nachweis ohne UI)
+- [x] Angenommen eine fremde E-Mail-Adresse fordert einen Magic Link an, dann entsteht kein Konto und kein Zugang
+- [x] Angenommen die Umsetzung ist abgeschlossen, wenn man `leads`/`projekte` und deren Policies vergleicht, dann sind sie unverändert und ein Test-Insert über das Website-Formular funktioniert weiter
+- [x] Angenommen ein Produktions-Build wird erstellt, wenn man das Client-Bundle nach dem Service-Role-Key durchsucht, dann ist er nicht enthalten
+- [x] Angenommen das RLS-Grundmuster ist dokumentiert, wenn PROJ-9/10/11 Tabellen anlegen, dann existiert eine verbindliche Vorlage (Konvention + Beispiel-Policy)
+- [x] Angenommen die Supabase-Notiz liegt im Vault, wenn man sie liest, dann beschreibt sie Projekt, Bestand, Auth-Modell und Konventionen (`status` nach Review)
 
 ## Edge Cases
 - **Magic-Link-Mail kommt nicht an / Spam** → dokumentierter Prüfpfad; siehe offene Frage SMTP
@@ -149,7 +149,43 @@ _Umgesetzt: 2026-07-19_
 - Abweichungen vom Design: Auth-Konfiguration lief per Management-API statt Dashboard (Token war verfügbar — schneller und reproduzierbar)
 
 ## QA Test Results
-_To be added by /qa_
+
+**Tested:** 2026-07-19
+**Testart:** Live-Prüfung gegen Supabase (Auth-, REST- und Management-API) + statische Checks; kein UI (Login-Seite = PROJ-7)
+**Tester:** QA Engineer (AI)
+
+### Acceptance Criteria Status
+- [x] AC-1: Magic Link zugestellt (Standard-Mailer, von Julian bestätigt) und Login serverseitig vollzogen (last_sign_in_at 18.07. 22:07 UTC)
+- [x] AC-2: Fremde Adresse abgelehnt (HTTP 422), kein Konto entstanden — Kontenzahl bleibt exakt 1
+- [x] AC-3: Bestandsschutz — leads (13) und projekte (3) unverändert; Formular-Pfad end-to-end getestet: Insert mit exakter Feldliste der Website-API-Route erfolgreich, Test-Lead sofort gelöscht, Bestand wieder 13
+- [x] AC-4: Produktions-Build gescannt — Service-Role-Key nicht im Client-Bundle
+- [x] AC-5: RLS-Grundmuster + cockpit_-Konvention + Migrations-Disziplin verbindlich dokumentiert (Vault-Notiz, per Test abgesichert)
+- [x] AC-6: Vault-Notiz [[Supabase]] beschreibt Projekt, Bestand, Auth-Modell, Konventionen (status: verifiziert nach Julians Freigabe)
+
+### Befund mit Aufklärung (kein Bug)
+Anonymer Direkt-Insert in `leads` wird von RLS blockiert (HTTP 401). Aufklärung am Website-Code: Das echte Kontaktformular schreibt serverseitig über `api/contact` mit dem Service-Key — die RLS-Sperre für anonyme Schreibzugriffe ist gewollt und ein Sicherheits-Plus. Testdesign entsprechend korrigiert.
+
+### Security Audit Results (Red Team)
+- [x] anon-Key hat keinen Admin-Zugriff auf die Nutzerverwaltung (HTTP 403)
+- [x] anon-Key kann nicht in Website-Tabellen schreiben (RLS, HTTP 401)
+- [x] Selbstregistrierung serverseitig deaktiviert — nicht nur im Client versteckt
+- [x] Credential-Dateien (.env.local, .mcp.json) git-ignoriert; keine Secrets im Repo
+- [x] Supabase-Rate-Limits auf Auth-Endpunkten aktiv (Plattform-Standard)
+
+### Bugs Found
+Keine.
+
+### Automatisierte Tests
+- Erweitert: `src/test/tools-governance.test.ts` um den PROJ-1-Block (Skript + Notiz + Konventionen + Ignore-Regeln, statisch, ohne Netzwerk)
+- Live-Verifikation wiederholbar über `node scripts/supabase-check.mjs`
+- Gesamt: 1.337 Tests grün
+
+### Summary
+- **Acceptance Criteria:** 6/6 passed
+- **Bugs Found:** 0
+- **Security:** Pass
+- **Production Ready:** YES — mit dokumentierter Vor-Go-Live-Bedingung: Strato-SMTP vor dem Deploy einrichten (Julians Entscheidung 19.07.: Standard-Mailer bis dahin)
+- **Recommendation:** Approve
 
 ## Deployment
 _To be added by /deploy_

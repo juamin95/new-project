@@ -81,6 +81,26 @@ describe('Governance-Regel hero-tools.md', () => {
   })
 })
 
+describe('PROJ-1: Supabase-Infrastruktur (statisch)', () => {
+  it('Verifikationsskript und Vault-Notiz existieren', () => {
+    expect(existsSync(join(root, 'scripts/supabase-check.mjs'))).toBe(true)
+    expect(existsSync(join(root, 'vault/02 Technik/Supabase/Supabase.md'))).toBe(true)
+  })
+
+  it('Supabase-Notiz trägt die verbindlichen Cockpit-Konventionen', () => {
+    const s = read('vault/02 Technik/Supabase/Supabase.md')
+    for (const k of ['cockpit_', 'row level security', 'supabase/migrations']) {
+      expect(s.toLowerCase()).toContain(k)
+    }
+  })
+
+  it('Credential-Dateien sind git-ignoriert (.mcp.json, .env.local)', () => {
+    for (const f of ['.mcp.json', '.env.local']) {
+      expect(() => execFileSync('git', ['check-ignore', '-q', f], { cwd: root })).not.toThrow()
+    }
+  })
+})
+
 describe('Umgebung und Laufzeitdaten bleiben unversioniert', () => {
   it.each([
     'tools/hero-tools/venv/pyvenv.cfg',
