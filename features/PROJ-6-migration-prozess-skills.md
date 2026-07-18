@@ -1,6 +1,6 @@
 # PROJ-6: Migration Prozess-Skills
 
-## Status: In Progress
+## Status: Approved
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
@@ -50,13 +50,13 @@
 
 **Format:** Angenommen [Vorbedingung] / Wenn [Aktion] / Dann [Ergebnis]
 
-- [ ] Angenommen die Migration ist abgeschlossen, wenn man `.claude/skills/` prüft, dann liegen dort alle 13 Skill-Dateien der vier Prozess-Skills
-- [ ] Angenommen eine migrierte Skill-Datei wird durchsucht, wenn man nach `/root/` oder alten Vault-Pfaden sucht, dann gibt es keine Treffer
-- [ ] Angenommen die statische Validierung läuft, wenn sie jeden in den Skills referenzierten Pfad prüft, dann existieren alle Ziele (dokumentierte Liste in der Spec)
-- [ ] Angenommen der E2E-Test läuft, wenn der Skill projekt-ohne-angebot den Testkunden-Durchlauf macht, dann durchläuft das Testprojekt die Pipeline-Schritte, die Rechnung bleibt Entwurf, das Projekt endet archiviert (2100) — und jede Schreibaktion hatte Julians Einzelfreigabe
-- [ ] Angenommen der E2E-Test ist abgeschlossen, wenn man die Spec liest, dann ist der Durchlauf protokolliert (Aktionen, IDs, Ergebnis)
-- [ ] Angenommen die Skills-Übersicht existiert in `03 AI/`, wenn man sie öffnet, dann nennt sie die vier Skills, verlinkt die Prozessnotizen und dokumentiert die Repo-Root-Konvention der CLI-Aufrufe
-- [ ] Angenommen die Migration ist abgeschlossen, wenn `npm test` läuft, dann sind alle Tests grün — Phase 1 ist komplett
+- [x] Angenommen die Migration ist abgeschlossen, wenn man `.claude/skills/` prüft, dann liegen dort alle 13 Skill-Dateien der vier Prozess-Skills
+- [x] Angenommen eine migrierte Skill-Datei wird durchsucht, wenn man nach `/root/` oder alten Vault-Pfaden sucht, dann gibt es keine Treffer
+- [x] Angenommen die statische Validierung läuft, wenn sie jeden in den Skills referenzierten Pfad prüft, dann existieren alle Ziele (dokumentierte Liste in der Spec)
+- [x] Angenommen der E2E-Test läuft, wenn der Skill projekt-ohne-angebot den Testkunden-Durchlauf macht, dann durchläuft das Testprojekt die Pipeline-Schritte, die Rechnung bleibt Entwurf, das Projekt endet archiviert (2100) — und jede Schreibaktion hatte Julians Einzelfreigabe
+- [x] Angenommen der E2E-Test ist abgeschlossen, wenn man die Spec liest, dann ist der Durchlauf protokolliert (Aktionen, IDs, Ergebnis)
+- [x] Angenommen die Skills-Übersicht existiert in `03 AI/`, wenn man sie öffnet, dann nennt sie die vier Skills, verlinkt die Prozessnotizen und dokumentiert die Repo-Root-Konvention der CLI-Aufrufe
+- [x] Angenommen die Migration ist abgeschlossen, wenn `npm test` läuft, dann sind alle Tests grün — Phase 1 ist komplett
 
 ## Edge Cases
 - **Skill referenziert etwas nicht Migriertes** → statische Prüfung findet es → Rückfrage, nicht stillschweigend umbiegen
@@ -151,7 +151,42 @@ _Umgesetzt: 2026-07-18_
 - Abweichungen vom Design: keine
 
 ## QA Test Results
-_To be added by /qa_
+
+**Tested:** 2026-07-18
+**Testart:** Dateisystem-/Referenz-Prüfung + protokollierter E2E-Live-Test (kein UI)
+**Tester:** QA Engineer (AI)
+
+### Acceptance Criteria Status
+- [x] AC-1: 13 Skill-Dateien in `.claude/skills/` (bauprojekt 8, projekt-ohne-angebot 1, abo 1, hero-stammdaten 3)
+- [x] AC-2: Keine Alt-Pfade — auch die zwei während der Umsetzung gefundenen relativen Lernlog-Reste sind bereinigt
+- [x] AC-3: Alle referenzierten Ziele existieren (unabhängige Zweitprüfung; dauerhaft in skills-governance.test.ts)
+- [x] AC-4: E2E-Test bestanden — PFL-158 durchlief die komplette Pipeline, Rechnung blieb Draft (publish: false), Projekt archiviert (2100), jede Schreibaktion mit Einzelfreigabe
+- [x] AC-5: Durchlauf vollständig protokolliert (Implementation Notes: Aktionen, IDs, Freigaben, Endzustand live verifiziert)
+- [x] AC-6: Skills-Übersicht nennt die 4 Skills, verlinkt die Prozessnotizen, dokumentiert die Repo-Root-Konvention
+- [x] AC-7: `npm test` grün — Phase 1 komplett
+
+### Edge Cases Status
+- [x] Nicht-migrierte Referenz: trat auf (2 relative Lernlog-Pfade) → gefunden, ausgewiesen, korrigiert
+- [x] Offenes Fremd-Projekt beim Testkunden (UNB-157): korrekt NICHT wiederverwendet (kein Direktauftrag), als Aufräumkandidat im Lernlog
+- [x] Leere Rechnungs-Historie: Fallback auf Wissensbasis-Preisanker hat funktioniert (55 €/Std, 35 €/m³)
+
+### Security Audit Results
+- [x] Keine Secrets in Skill-Dateien; alle Writes im Test einzeln menschlich freigegeben (Gate-Protokoll)
+- [x] Rechnung nachweislich nur als Draft; Draft nach Test gelöscht, Termin soft-gelöscht — kein Testmüll beim Kunden sichtbar
+
+### Bugs Found
+Keine. (Die drei Hero-Verhaltens-Beobachtungen sind kein Migrationsfehler, sondern Systemwissen — als Lernlog-Einträge erfasst, Beförderung ins Praxiswissen entscheidet Julian.)
+
+### Automatisierte Tests
+- `src/test/skills-governance.test.ts` (aus der Umsetzung) — 13 Dateien, Alt-Pfad-Verbot, Referenz-Existenz, Skills-Übersicht
+- Gesamt: 1.327 Tests grün (4 Testdateien)
+
+### Summary
+- **Acceptance Criteria:** 7/7 passed
+- **Bugs Found:** 0
+- **Security:** Pass
+- **Production Ready:** YES
+- **Recommendation:** Approve — Phase 1 (Wissensmigration) ist damit vollständig abgeschlossen
 
 ## Deployment
 _To be added by /deploy_
