@@ -1,6 +1,6 @@
 # PROJ-1: Supabase-Infrastruktur
 
-## Status: Planned
+## Status: Architected
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
