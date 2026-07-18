@@ -87,6 +87,7 @@ PROJ-1 macht die Infrastruktur **funktionsfähig** (Auth konfiguriert, Konto ang
 | Decision | Rationale | Date |
 |----------|-----------|------|
 | Eigenes SMTP (Strato) von Anfang an | Magic Link ist der einzige Zugangsweg — Zustellzuverlässigkeit ist sicherheitskritisch; Standard-Mailer hat enge Limits | 2026-07-18 |
+| **Revidiert 19.07. (Julian):** Standard-Mailer bleibt vorerst | Zustellung nachweislich ok, 2-Personen-Betrieb; Strato-SMTP als dokumentierte Vor-Go-Live-Bedingung (/deploy) | 2026-07-19 |
 | Migrationen versioniert in supabase/migrations/, angewendet via MCP (Fallback: SQL-Editor) | Schemageschichte im Git wie beim Vault; Service-Role-Key kann kein DDL und bleibt Laufzeit-Zugriff | 2026-07-18 |
 | Keine neue Tabelle in PROJ-1 | Ein Konto lebt in Supabase Auth; ohne Rollen keine Profil-Tabelle nötig | 2026-07-18 |
 | Namensschema cockpit_-Präfix im public-Schema | Klare Trennung von Website-Tabellen ohne Mehraufwand eines separaten Postgres-Schemas | 2026-07-18 |
@@ -142,7 +143,9 @@ _Umgesetzt: 2026-07-19_
 - **Bundle-Nachweis:** Produktions-Build gescannt — Service-Role-Key nicht im Client
 - **Bestandsschutz:** `leads` (13) und `projekte` (3) unversehrt, Website-Policies unangetastet
 - **Vault-Notiz** `02 Technik/Supabase/Supabase.md` mit Freigabe angelegt (Konventionen: cockpit_-Präfix, RLS-Vorlage, Migrations-Disziplin)
-- **Noch offen (Julians manuelle Schritte):** Strato-SMTP im Dashboard; Bestätigung, dass die Magic-Link-Mail zugestellt wurde; HERO_API_KEY-Zeile in `.env.local` wieder ergänzen
+- **Nachweis komplett (19.07.):** Magic-Link-Mail zugestellt, Klick als erfolgreicher Login registriert (last_sign_in_at 18.07. 22:07 UTC)
+- **Julians Entscheidung 19.07.:** Standard-Mailer bleibt vorerst; Strato-SMTP wird Vor-Go-Live-Bedingung (/deploy)
+- **Noch offen:** HERO_API_KEY-Zeile in `.env.local` wieder ergänzen (für Hero-Arbeiten, nicht PROJ-1-relevant)
 - Abweichungen vom Design: Auth-Konfiguration lief per Management-API statt Dashboard (Token war verfügbar — schneller und reproduzierbar)
 
 ## QA Test Results

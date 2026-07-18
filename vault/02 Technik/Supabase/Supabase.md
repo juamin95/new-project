@@ -53,5 +53,5 @@ Alle Credentials folgen dem `.env`-Pattern des Repos: Skripte lesen selbst, der 
 
 ## Offene Punkte
 
-- **Strato-SMTP** für Magic-Link-Mails noch nicht konfiguriert (Standard-Mailer aktiv, enge Limits) — Julians Dashboard-Schritt: Project Settings → Authentication → SMTP Settings
+- **Strato-SMTP**: bewusst noch Standard-Mailer (Entscheidung Julian 19.07.; Zustellung nachgewiesen). Umstellung ist Vor-Go-Live-Bedingung — Dashboard: Project Settings → Authentication → SMTP Settings (Host smtp.strato.de, Port 465)
 - **Vercel-Domain** in die Redirect-URLs aufnehmen — kommt mit `/deploy` (PROJ-7)
