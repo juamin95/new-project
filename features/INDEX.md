@@ -28,7 +28,7 @@
 
 | ID | Feature | Beschreibung | Prio | Abhängigkeiten | Status | Spec | Created |
 |----|---------|--------------|------|----------------|--------|------|---------|
-| PROJ-1 | Supabase-Infrastruktur | Website-Projekt „juamin95's Project" (bnzpdujupmmrwcbunbql) erweitern: Auth, Cockpit-Schema, Env-Setup | P0 | Keine | Architected | [Spec](PROJ-1-supabase-infrastruktur.md) | 2026-07-17 |
+| PROJ-1 | Supabase-Infrastruktur | Website-Projekt „juamin95's Project" (bnzpdujupmmrwcbunbql) erweitern: Auth, Cockpit-Schema, Env-Setup | P0 | Keine | In Progress | [Spec](PROJ-1-supabase-infrastruktur.md) | 2026-07-17 |
 | PROJ-7 | Cockpit-Grundgerüst | Login (Marvin/Julian), mobile-first Navigation im GRÜNSCHNITT-Branding | P0 | PROJ-1, PROJ-5 | Roadmap | — | 2026-07-17 |
 | PROJ-8 | Prozess-Board | Hero-Projekte entlang der 3 Pipelines, Anfrage → Rechnungserstellung auf einen Blick | P0 | PROJ-7 | Roadmap | — | 2026-07-17 |
 | PROJ-9 | Review-Liste (Gate) | Entwürfe (Mails, Angebote, Rechnungen) prüfen/freigeben, Audit-Trail — nie Autoversand | P0 | PROJ-7 | Roadmap | — | 2026-07-17 |
