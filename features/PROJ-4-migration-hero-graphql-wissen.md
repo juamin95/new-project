@@ -1,6 +1,6 @@
 # PROJ-4: Migration Hero-GraphQL-Wissen
 
-## Status: Planned
+## Status: Architected
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
@@ -54,7 +54,7 @@
 - Keine Secrets im Vault; `introspect.py` läuft mit explizitem Zielpfad (PROJ-16-Schutz)
 
 ## Open Questions
-- [ ] Wikilink-Prüfung im Referenz-Ordner: vollständig, angepasst oder ausgenommen? → `/architecture`
+- [x] Wikilink-Prüfung: vollständig, aber mit escape-fähigem Regex + Scalar-Whitelist (mit Probelauf-Daten entschieden in /architecture, 2026-07-18)
 
 ## Decision Log
 
@@ -71,12 +71,53 @@
 <!-- Added by /architecture -->
 | Decision | Rationale | Date |
 |----------|-----------|------|
+| Wikilink-Test-Regex wird escape-fähig (`\|` in Tabellen) | 83 vermeintlich tote Links waren Parsing-Artefakte; Korrektur erhöht vaultweit die Prüfgenauigkeit | 2026-07-18 |
+| Standard-Scalars (Boolean, String, Int, Float, ID) als Whitelist im Referenz-Link-Check | Generator schreibt Scalars bewusst nicht als Dateien; Generator bleibt unverändert (Product Decision); eng begrenzte Ausnahme | 2026-07-18 |
+| Frontmatter-Pflicht künftig mit Referenz-Ordner-Ausnahme im Test | Setzt die Produkt-Entscheidung (maschineller Spiegel) technisch um; Secrets-Scan bleibt überall aktiv | 2026-07-18 |
+| Zwei Review-Gates (Kalender einzeln, 4er-Paket) | Kalender-Notiz trägt das meiste Detailwissen; homogenes Restpaket spart Runden ohne Gate-Verlust | 2026-07-18 |
+| Referenz-Lauf direkt in den Vault (kein Zwischenschritt) | Verfahren im PROJ-16-Probelauf bewiesen; Zielpfad-Pflicht schützt vor Fehlläufen | 2026-07-18 |
 
 ---
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+_Erstellt: 2026-07-18_
+
+### Ablauf (sechs Schritte, kein UI / kein Backend)
+
+```
+1. Spot-Check        → Abgleich-Skript prüft lesbare Fakten der Praxiswissen-Notizen
+2. Praxiswissen      → 5 Notizen kuratieren, Review-Gates: „Kalender und Termine"
+                       einzeln (313 Zeilen, gewichtigste Notiz), die 4 kleineren als Paket
+3. Konventionen      → Ausnahme-Absatz für den Referenz-Ordner ergänzen (gated, Teil des Reviews)
+4. Referenz          → introspect.py mit Vault-Zielpfad, ein Lauf; Delta zur alten
+                       Referenz (358 → aktuell) dokumentieren
+5. Hub-Notiz         → Hero.md erklärt beide Ebenen, verlinkt Referenz-Übersicht + Praxiswissen
+6. Link-Aktivierung  → „folgt mit PROJ-4"-Klartexte in Bauprozess + Landkarte werden Wikilinks
+```
+
+Reihenfolge-Logik: Das review-lastige Praxiswissen zuerst (dort steckt das Urteil), die maschinelle Referenz danach (ein Befehl), Links zuletzt — jeder Commit bleibt testgrün.
+
+### Die Wikilink-Frage (offene Frage aus der Spec — mit Daten entschieden)
+
+Analyse des Probelaufs (360 Dateien, 803 Wikilinks):
+- Die scheinbar 83 toten Ziele waren ein **Parsing-Artefakt**: Der Generator schreibt in Tabellen `[[Typ\|Alias]]` (escaptes Pipe — gültige Obsidian-Syntax), unser Test-Regex las den Backslash als Teil des Ziels. **Konsequenz: Der Test-Regex wird escape-fähig gemacht** — eine Korrektur, die vaultweit die Prüfgenauigkeit erhöht.
+- Danach bleiben **3 echte tote Ziele**: `Boolean`, `String`, `Int` — GraphQL-Standard-Scalars, die der Generator bewusst nicht als Dateien schreibt. **Konsequenz: Standard-Scalars kommen im Referenz-Ordner auf eine Whitelist** — der Generator bleibt unverändert (Product Decision), die wenigen unaufgelösten Scalar-Links in Obsidian sind kosmetisch.
+- Frontmatter-Pflicht: gilt künftig für alle Vault-Notizen **außer** `Referenz (auto-generiert)/`; Secrets-Scan gilt überall.
+
+### Datenmodell (unverändert)
+
+- Praxiswissen-Notizen: PROJ-2-Konventionen (Frontmatter inkl. `quelle` mit Spot-Check-/Review-Vermerk)
+- Referenz-Dateien: rohes, generiertes Markdown ohne Frontmatter (dokumentierte Ausnahme)
+
+### Tech-Entscheidungen (Warum)
+
+1. **Referenz in einem Lauf direkt in den Vault** — der Zielpfad-Schutz aus PROJ-16 (Pflicht-Argument) macht den Lauf explizit; der Probelauf hat das Verfahren bereits bewiesen.
+2. **Test-Anpassungen sind Präzisierungen, keine Aufweichungen:** Escape-Regex = Korrektheit; Scalar-Whitelist = dokumentierte, eng begrenzte Ausnahme (genau 5 Namen: Boolean, String, Int, Float, ID); Frontmatter-Ausnahme = nur der Referenz-Ordner.
+3. **Zwei Review-Gates statt fünf** — die Kalender-Notiz trägt das meiste verifizierte Detailwissen (DateTime-Fallen, Soft-Delete) und verdient ein eigenes Gate; die vier kleineren Notizen sind ein homogenes Paket.
+
+### Abhängigkeiten (Pakete)
+- Keine neuen. Genutzt wird Vorhandenes: `introspect.py` + venv (PROJ-16), `scripts/hero-abgleich.mjs` (PROJ-3).
 
 ## QA Test Results
 _To be added by /qa_
