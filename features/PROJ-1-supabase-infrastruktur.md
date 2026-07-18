@@ -133,6 +133,18 @@ Konto wird im Dashboard angelegt → Signups global deaktiviert → Magic-Link-A
 ### Abhängigkeiten (Pakete)
 - Jetzt keine neuen (`@supabase/supabase-js` ist im Template). `@supabase/ssr` kommt mit PROJ-7.
 
+## Implementation Notes
+_Umgesetzt: 2026-07-19_
+
+- **Verifikationsskript** `scripts/supabase-check.mjs` (Hero-Muster) — fing sofort einen echten Fehler: `.env.local` zeigte aufs inaktive Projekt; nach Korrektur alle Checks grün
+- **Auth konfiguriert** (via Management-API, Token aus `.mcp.json`): Selbstregistrierung deaktiviert, Site-URL `http://localhost:3000`, Magic-Link-Gültigkeit 60 Min
+- **Konto angelegt:** `info@gruenschnitt-amini.de` (bestätigt, passwortlos); Magic-Link-Anforderung erfolgreich, Gegenprobe fremde Adresse → HTTP 422 abgelehnt
+- **Bundle-Nachweis:** Produktions-Build gescannt — Service-Role-Key nicht im Client
+- **Bestandsschutz:** `leads` (13) und `projekte` (3) unversehrt, Website-Policies unangetastet
+- **Vault-Notiz** `02 Technik/Supabase/Supabase.md` mit Freigabe angelegt (Konventionen: cockpit_-Präfix, RLS-Vorlage, Migrations-Disziplin)
+- **Noch offen (Julians manuelle Schritte):** Strato-SMTP im Dashboard; Bestätigung, dass die Magic-Link-Mail zugestellt wurde; HERO_API_KEY-Zeile in `.env.local` wieder ergänzen
+- Abweichungen vom Design: Auth-Konfiguration lief per Management-API statt Dashboard (Token war verfügbar — schneller und reproduzierbar)
+
 ## QA Test Results
 _To be added by /qa_
 
