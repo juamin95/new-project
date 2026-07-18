@@ -33,14 +33,13 @@
 - **Veraltete Pfade aktualisieren:** Wissenskreislauf nennt Ebene 1 unter `/root/hero-tools/` (VPS) → seit PROJ-16 `tools/hero-tools/`; Ebene-3-Pfade (alter Vault) → neue Schichtstruktur
 - **Links:** `[[HERO GraphQL API]]` → `[[Hero]]`; Verweise auf abgelöste Foliensatz-Anleitung und private Notizen (KI-Betriebssystem-Projektnotiz, KI & Automatisierung) entfernen
 - **Schreibstil:** Deutz-Zeile („intern duzen") entfällt; Grundton, Siezen-Regel, komplette Disallow-Liste (Satzzeichen, ~40 Wörter, Metaphern-Regel) wandern vollständig
-- **Branding:** vollständig inkl. Hex-/Tailwind-Tokens, Fonts, CSS-Variablen; leerer „KI-Beratung"-Abschnitt entfällt. Befund: Logo-Datei existiert im alten Vault nicht → dokumentiertes To-do
+- **Branding:** vollständig inkl. Hex-/Tailwind-Tokens, Fonts, CSS-Variablen; leerer „KI-Beratung"-Abschnitt entfällt. Logo: Original aus dem Website-Projekt (`test-projekt/my-first-app/public/logos/`) wird nach `vault/05 Anhänge/gruenschnitt-logo.png` übernommen und in design-system.md eingebunden
 
 ## Out of Scope
 - Alte Foliensatz-Anleitung (vom Blueprint abgelöst) — bleibt im alten Vault
 - ICP, Angebot, Über mich — privat (Deutz + Julians Beratung), Migrations-Filter
 - Skills-Übersichtsnotiz für `03 AI/` — kommt mit PROJ-6
 - Cockpit-spezifische Design-Erweiterungen — Phase 2 (PROJ-7)
-- Logo-Datei-Beschaffung — Julians manueller Schritt, kein Blocker
 
 ## Acceptance Criteria
 
@@ -58,7 +57,7 @@
 - **Blueprint beschreibt Repo-1/Repo-2-Governance** → bleibt 1:1, das ist OS-Methode, kein Privat-Inhalt
 - **Wissenskreislauf-Tabelle nennt alte Speicherorte** → Aktualisierung nur mit Review-Ausweis
 - **Disallow-Liste wirkt content-lastig (LinkedIn-Herkunft)** → komplett übernehmen; Anti-KI-Sound gilt für Kundentexte genauso; Feinschnitt später via Lernlog/`/refine`
-- **Logo fehlt** → To-do in design-system.md, kein Blocker
+- **Logo-Formatwahl** → PNG (transparenter Hintergrund) als führende Datei; JPG bleibt im Website-Projekt
 - **Blueprint-Erwähnung „Claude wird das Cockpit über n8n"** → bleibt (Konzept), Umsetzung ist PROJ-14
 
 ## Technical Requirements (optional)
@@ -66,7 +65,7 @@
 - `docs/design-system.md` ist kein Vault-Inhalt → kein Frontmatter-/Statusmodell
 
 ## Open Questions
-- [ ] Logo-Datei: Wo liegt das Original (Website-Projekt?) → Julian, unabhängig vom Feature-Abschluss
+- [x] Logo-Original gefunden: `test-projekt/my-first-app/public/logos/logo-amini.png` (+ .jpg) — wird bei der Umsetzung nach `vault/05 Anhänge/gruenschnitt-logo.png` übernommen und in design-system.md referenziert (geklärt 2026-07-18)
 
 ## Decision Log
 
