@@ -19,7 +19,7 @@ Dieses Repo ist der übergabefähige „Repo-2-Schnitt" aus dem Blueprint: valid
 | P0 (MVP) | Migration Prozesswissen | Prozesslandkarte, 3 Kernprozesse (Projekt / ohne Angebot / Abo), Supportprozesse | Approved |
 | P0 (MVP) | Migration Hero-GraphQL-Wissen | Referenz + verifiziertes Praxiswissen | Roadmap |
 | P0 (MVP) | Migration OS-Wissen + Branding | Blueprint, Wissenskreislauf; Branding → `docs/design-system.md`, Schreibstil in den Vault | Roadmap |
-| P0 (MVP) | Migration Tool-Ebene | hero-tools CLI + introspect.py (Fähigkeiten-Ebene vom VPS) ins Repo, Funktionstest gegen Hero | Planned |
+| P0 (MVP) | Migration Tool-Ebene | hero-tools CLI + introspect.py (Fähigkeiten-Ebene vom VPS) ins Repo, Funktionstest gegen Hero | Architected |
 | P0 (MVP) | Migration Prozess-Skills | bauprojekt, projekt-ohne-angebot, abo, hero-stammdaten — mit Validierungstest | Roadmap |
 
 ### Phase 2 — Cockpit (Web-App für Marvin)

@@ -1,6 +1,6 @@
 # PROJ-16: Migration Tool-Ebene (Hero-CLI + Introspection)
 
-## Status: Planned
+## Status: Architected
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
@@ -25,7 +25,7 @@
    - `introspect.py` hat den VPS-Vault-Pfad hart codiert (`/root/gruenschnitt-wissen/…`) → Zielpfad parametrisieren
    - `hero`-Starter erwartet `venv/` im Toolordner → Setup dokumentieren
 3. **Setup:** Python-venv lokal (nicht versioniert), Abhängigkeiten `requests` + `python-dotenv`, Setup-README in `tools/`
-4. **Governance:** Regel — Schreibbefehle der CLI (`anlegen`, `status`, `aufgabe-*`, `checkliste-*`, `gewerk`, `logbuch`, …) nur nach ausdrücklicher Freigabe im Vorgang; Lesebefehle frei („Reads erkunden, Writes gaten")
+4. **Governance:** Regel-Datei mit zwei Ebenen — (a) Entwurf-first: Angebote/Rechnungen nur als Hero-Draft (`publish: false`), künftige Kanäle (Mail) nur als Entwurf, Versand immer durch Menschen; Lockerung später nur als bewusste Entscheidung. (b) Lesebefehle frei, Schreibbefehle nur nach Freigabe im Vorgang
 5. **Funktionstest (rein lesend):** `hero kontakt suchen`, `hero projekt suchen`, `hero kalender kategorien` gegen das Live-System; `introspect.py`-Probelauf in ein Temp-Verzeichnis
 6. **Abschluss:** Transport-Kiste im alten Vault entfernen (Commit + Push dort); Vermerk im Tools-README, dass `/root/hero-tools` (VPS) Alt-Stand ist — VPS selbst bleibt unangetastet (n8n läuft dort weiter)
 
@@ -46,6 +46,7 @@
 - [ ] Angenommen `introspect.py` läuft im Probelauf, wenn ein Temp-Zielpfad übergeben wird, dann entstehen dort Referenz-Dateien — und niemals im alten VPS-Pfad
 - [ ] Angenommen venv und `__pycache__` existieren nach dem Setup, wenn `git status` läuft, dann tauchen sie nicht auf (`.gitignore`)
 - [ ] Angenommen der Agent soll einen Schreibbefehl der CLI ausführen, wenn keine ausdrückliche Freigabe im Vorgang vorliegt, dann untersagt die Governance-Regel die Ausführung
+- [ ] Angenommen der Agent erstellt ein Angebot oder eine Rechnung über die Tools, wenn das Dokument entsteht, dann immer als Entwurf (`publish: false`) — Versand/Veröffentlichung bleibt beim Menschen
 - [ ] Angenommen der Funktionstest ist bestanden, wenn PROJ-16 abgeschlossen wird, dann ist `_tooling-uebergabe/` im alten Vault entfernt (Commit dort) und `npm test` hier weiterhin grün
 
 ## Edge Cases
@@ -60,8 +61,8 @@
 - Kein Key im Code, im Chat oder im Repo — ausschließlich `.env.local` (deny-Regeln aktiv)
 
 ## Open Questions
-- [ ] Zielpfad-Übergabe für `introspect.py`: Kommandozeilen-Argument oder Env-Variable? → `/architecture`
-- [ ] Python-Version auf diesem Mac prüfen (venv-Setup) → `/architecture`
+- [x] Zielpfad-Übergabe: Pflicht-Kommandozeilen-Argument (entschieden in /architecture, 2026-07-18)
+- [x] Python: Mac hat nur 3.9 → Kompatibilitäts-Anpassung per Future-Import (entschieden in /architecture, 2026-07-18)
 
 ## Decision Log
 
@@ -79,12 +80,68 @@
 <!-- Added by /architecture -->
 | Decision | Rationale | Date |
 |----------|-----------|------|
+| Python-3.9-Kompatibilität per Future-Import statt Python-Installation | Kein Systemeingriff, sofort lauffähig; vorwärtskompatibel mit neuerem Python auf dem künftigen VPS | 2026-07-18 |
+| Key aus Repo-Root-`.env.local` | Ein Key, eine Stelle; gleiches Muster wie hero-abgleich.mjs; deny-Regeln schützen weiter | 2026-07-18 |
+| introspect.py-Zielpfad als Pflicht-Argument (nicht Env-Variable) | Generator überschreibt ganze Ordner — explizite Übergabe verhindert Fehlläufe; ohne Argument sauberer Abbruch | 2026-07-18 |
+| Eigene Regel-Datei `.claude/rules/hero-tools.md` | Entwurf-first (Außenwirksames nur als Draft, Lockerung nur als bewusste Entscheidung) + Lese-/Schreib-Gate; toolneutral, gilt später auch für Cockpit-Chat und Mail-Anbindung | 2026-07-18 |
+| venv + __pycache__ + Laufzeitdaten nicht versioniert | Umgebung und Laufzeitdaten gehören nicht ins Wissens-/Code-Repo | 2026-07-18 |
 
 ---
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+_Erstellt: 2026-07-18_
+
+### Was gebaut wird (Dateibaum — kein UI, kein Backend)
+
+```
+tools/
++-- README.md                 ← Setup-Anleitung + Source-of-Truth-Vermerk (VPS = Alt-Stand)
++-- hero-tools/
+|   +-- hero                  ← Starter (unverändert im Prinzip, venv-Pfad geprüft)
+|   +-- hero_tools/           ← 10 Python-Module (kontakt, projekt, kalender, katalog,
+|   |                           dokument, historie, stammdaten, export, cli, client)
+|   +-- venv/                 ← lokal erzeugt, NICHT versioniert (.gitignore)
++-- hero-graphql/
+    +-- introspect.py         ← Zielpfad als Pflicht-Argument statt hart codiert
+
+.claude/rules/hero-tools.md   ← Governance: Lesebefehle frei, Schreibbefehle gated
+.gitignore                    ← ergänzt um tools/**/venv/ und __pycache__/
+```
+
+### Die vier Anpassungen (bewusst minimal, sonst 1:1)
+
+1. **Python-3.9-Kompatibilität:** Eine Standard-Import-Zeile (`from __future__ import annotations`) in den 7 betroffenen Modulen. Läuft damit auf dem Mac (System-Python 3.9) und unverändert auf jedem neueren Python — wichtig, weil das OS später wieder auf einen VPS zieht.
+2. **Key-Quelle:** `client.py` und `introspect.py` lesen `.env.local` künftig aus dem **Repo-Root** — ein Key, eine Stelle, dasselbe Muster wie `scripts/hero-abgleich.mjs`.
+3. **introspect.py-Zielpfad:** wird **Pflicht-Kommandozeilen-Argument** (statt hart codiertem VPS-Pfad). Ohne Angabe bricht das Skript mit klarer Meldung ab — versehentliches Schreiben in falsche Pfade ist damit ausgeschlossen. Env-Variable wurde verworfen: ein explizites Argument ist bei einem Generator, der ganze Ordner überschreibt, die sicherere Übergabe.
+4. **Keine weiteren Code-Änderungen** — Befehle, Logik und Verhalten bleiben identisch zum VPS-Stand.
+
+### Datenmodell
+
+Keines — die Tools halten keine eigenen Daten. Laufzeitdaten (z. B. `daten/belege.json` beim Export) entstehen lokal und werden nicht versioniert.
+
+### Governance (`.claude/rules/hero-tools.md`)
+
+Zwei Ebenen, beide toolneutral formuliert (gelten auch für den späteren Cockpit-Chat, PROJ-10):
+
+1. **Entwurf-first (Kernprinzip, von Julian gesetzt):** Alles Außenwirksame entsteht ausschließlich als Entwurf — Angebote und Rechnungen immer als Hero-Draft (`publish: false`), künftige Kanäle (z. B. Mail-Anbindung) analog nur als Entwurf im Postfach. Versand und Veröffentlichung macht immer ein Mensch. Zweck: Das OS baut Vertrauen auf, seine Zuverlässigkeit wird am Entwurf sichtbar, ohne dass etwas beim Kunden ankommt. Die Regel kann später bewusst gelockert werden — das ist dann eine dokumentierte menschliche Entscheidung, nie schleichende Praxis.
+2. **Lese-/Schreib-Gate:** Lesebefehle (suchen, kategorien, termine, logbuch-lesen, historie, export) frei — „Reads erkunden". Schreibbefehle (anlegen, bearbeiten, status, gewerk, logbuch, aufgabe-*, checkliste-*) nur nach ausdrücklicher Anweisung/Freigabe im aktuellen Vorgang — „Writes gaten", keine eigeninitiativen Schreibzugriffe (vgl. Lernlog-Eintrag 12.07.)
+
+### Funktionstest (rein lesend, gegen das Live-System)
+
+1. `hero kontakt suchen` mit bekanntem Testkunden → Treffer
+2. `hero projekt suchen` → Projektliste
+3. `hero kalender kategorien` → Kategorienliste
+4. `introspect.py` mit Temp-Zielpfad → Referenz-Dateien entstehen im Scratch-Verzeichnis
+5. Negativtest: Key-Zeile temporär auskommentiert → klare Fehlermeldung (macht Julian manuell oder wird per Kopie der Datei simuliert — die echte `.env.local` fasst Claude nicht an)
+
+### Abschluss-Sequenz
+
+Funktionstest bestanden → Commit hier → Transport-Kiste im alten Vault löschen (Commit + Push im alten Vault-Repo) → Vermerk im `tools/README.md`: Source of Truth ist dieses Repo, `/root/hero-tools` (VPS) ist Alt-Stand.
+
+### Abhängigkeiten (Pakete)
+- Python-venv lokal mit `requests` + `python-dotenv` (die einzigen zwei Abhängigkeiten der CLI)
+- Keine npm-Pakete
 
 ## QA Test Results
 _To be added by /qa_
