@@ -1,6 +1,6 @@
 # PROJ-6: Migration Prozess-Skills
 
-## Status: Architected
+## Status: In Progress
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
@@ -18,11 +18,11 @@
 
 ## Migrationsumfang
 
-**Die vier Skills** (12 Dateien) aus dem alten Vault (`.claude/skills/`) in dieses Repo:
+**Die vier Skills** (13 Dateien) aus dem alten Vault (`.claude/skills/`) in dieses Repo:
 
 | Skill | Dateien | Prozess-Bezug |
 |---|---|---|
-| `bauprojekt` | SKILL.md + 7 Schritt-Dateien (Progressive Disclosure) | Prozess Bauprojekt End-to-End |
+| `bauprojekt` | SKILL.md + 7 Schritt-Dateien = 8 (Progressive Disclosure) | Prozess Bauprojekt End-to-End |
 | `projekt-ohne-angebot` | SKILL.md | Prozess Projekt ohne Angebot |
 | `abo` | SKILL.md | Prozess Abo-Einsatz |
 | `hero-stammdaten` | SKILL.md + kunde.md + katalog.md | Supportprozesse S1/S2 |
@@ -50,7 +50,7 @@
 
 **Format:** Angenommen [Vorbedingung] / Wenn [Aktion] / Dann [Ergebnis]
 
-- [ ] Angenommen die Migration ist abgeschlossen, wenn man `.claude/skills/` prüft, dann liegen dort alle 12 Skill-Dateien der vier Prozess-Skills
+- [ ] Angenommen die Migration ist abgeschlossen, wenn man `.claude/skills/` prüft, dann liegen dort alle 13 Skill-Dateien der vier Prozess-Skills
 - [ ] Angenommen eine migrierte Skill-Datei wird durchsucht, wenn man nach `/root/` oder alten Vault-Pfaden sucht, dann gibt es keine Treffer
 - [ ] Angenommen die statische Validierung läuft, wenn sie jeden in den Skills referenzierten Pfad prüft, dann existieren alle Ziele (dokumentierte Liste in der Spec)
 - [ ] Angenommen der E2E-Test läuft, wenn der Skill projekt-ohne-angebot den Testkunden-Durchlauf macht, dann durchläuft das Testprojekt die Pipeline-Schritte, die Rechnung bleibt Entwurf, das Projekt endet archiviert (2100) — und jede Schreibaktion hatte Julians Einzelfreigabe
