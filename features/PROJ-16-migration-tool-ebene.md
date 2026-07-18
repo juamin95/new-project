@@ -179,8 +179,8 @@ _Umgesetzt: 2026-07-18_
 #### AC-5: Umgebung unversioniert
 - [x] venv, `__pycache__`, `daten/` per `git check-ignore` bestätigt
 
-#### AC-6: Governance-Regel
-- [x] `.claude/rules/hero-tools.md` lädt in jeder Session; Entwurf-first (publish: false, Versand durch Menschen) und Lese-/Schreib-Gate verankert
+#### AC-6 + Entwurf-first-AC: Governance-Regel
+- [x] `.claude/rules/hero-tools.md` lädt in jeder Session; Entwurf-first (publish: false, Versand durch Menschen) und Lese-/Schreib-Gate verankert; Draft-Erzeugung im Dokument-Code bestätigt
 
 #### AC-7: Abschluss-Sequenz
 - [x] Transport-Kiste im alten Vault entfernt (Commit 7b6b477, gepusht); `npm test` hier grün
@@ -199,7 +199,7 @@ Keine. (Bekannte Kosmetik aus der Umsetzung: urllib3/LibreSSL-Warnung des System
 - Gesamt: 137/137 Tests grün (3 Testdateien)
 
 ### Summary
-- **Acceptance Criteria:** 7/7 passed
+- **Acceptance Criteria:** 8/8 passed
 - **Bugs Found:** 0
 - **Security:** Pass
 - **Production Ready:** YES
