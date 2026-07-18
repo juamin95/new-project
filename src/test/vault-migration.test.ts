@@ -63,7 +63,7 @@ describe('AC-6: Migrations-Filter — keine privaten Inhalte im Vault', () => {
 
   it.each(notes)('%s enthält keine privaten Verweise', (note) => {
     const s = read(note)
-    for (const term of ['Systemdatenanalyse', '[[KI-Betriebssystem', 'Deutz', 'Daily Note']) {
+    for (const term of ['Systemdatenanalyse', '[[KI-Betriebssystem]]', 'Deutz', 'Daily Note']) {
       expect(s, `privater Begriff „${term}"`).not.toContain(term)
     }
   })

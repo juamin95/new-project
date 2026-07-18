@@ -7,7 +7,7 @@ quelle: migriert aus gruenschnitt-wissen (Prozesslandkarte, Stand 2026-07-14); H
 
 # Prozesslandkarte GRÜNSCHNITT
 
-Übersicht aller Prozesse des Betriebs. Grundlage für das KI-Betriebssystem (Blueprint folgt mit PROJ-5): Jeder Kernprozess ist als Hero-Projekttyp konfiguriert und als Skill + Tools codebasiert abgebildet.
+Übersicht aller Prozesse des Betriebs. Grundlage für das KI-Betriebssystem ([[KI-Betriebssystem Blueprint]]): Jeder Kernprozess ist als Hero-Projekttyp konfiguriert und als Skill + Tools codebasiert abgebildet.
 
 ## Zielbild (Entscheidung 14.07.2026): Projekttyp × Gewerk
 

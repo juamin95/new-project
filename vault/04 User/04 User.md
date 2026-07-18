@@ -8,9 +8,8 @@ date: 2026-07-17
 
 Der Mensch im OS: Er steuert, prüft, gibt frei und versendet. Dadurch entsteht das Lernsignal für den Wissenskreislauf.
 
-**Hier liegt (nach der Migration, PROJ-5):**
-- Gate-Regeln — was immer ein Mensch freigibt (Kundenmails, Angebote, Rechnungen, Zahlungen, Löschungen) und was der Agent autonom darf (Lesen, interne Entwürfe, To-dos, Lernlog)
-- Rollen und Freigaben — wer was darf: Marvin (operativ, Freigaben im Tagesgeschäft), Julian (Aufbau und Betrieb des OS)
+**Hier liegt:**
+- [[Gate-Regeln & Rollen]] — was immer ein Mensch freigibt, was der Agent autonom darf, und wer welche Rolle spielt (Marvin, Julian, Agent, Git)
 
 Grundsatz aus dem Blueprint: Das Gate ist risiko-gestuft und dauerhaft. Autonom gestartet heißt nie ungeprüft versendet.
 

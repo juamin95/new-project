@@ -10,7 +10,7 @@ Das Prozess-Fundament des OS: Kernprozesse in Schritten, standardisiert und rege
 
 **Hierarchie:** Prozessszenario → Prozess → Prozessschritt. Jeder Schritt ist als Input → Transformation → Output beschrieben (SIPOC-Denken).
 
-**Hier liegt (nach der Migration, PROJ-3):**
+**Hier liegt:**
 - `Prozesslandkarte.md` — Überblick aller Prozesse, Zielbild Projekttyp × Gewerk
 - `Kernprozesse/` — die drei Prozesswege: Bauprojekt (mit Angebot), Projekt ohne Angebot, Abo-Einsatz
 - `Supportprozesse/` — Stammdatenpflege Katalog, Kundenstammdaten, Belegfluss Buchhaltung

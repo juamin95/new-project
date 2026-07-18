@@ -128,6 +128,16 @@ Reines Markdown mit Tabellen — dieselbe Struktur wie die Branding-Quelle (Farb
 ### Abhängigkeiten (Pakete)
 - Keine.
 
+## Implementation Notes
+_Umgesetzt: 2026-07-18_
+
+- **Gate 1 (OS-Methode):** Blueprint + Wissenskreislauf nach `03 AI/`, verifiziert; ausgewiesene Aktualisierungen umgesetzt (Ebenen-Tabelle auf Repo-Pfade, Links auf [[Hero]], private/abgelöste Verweise entfernt)
+- **Gate 2 (heikle Schnitte):** Schreibstil nach `00 Betrieb/` (Ansprache ohne interne Du-Regel, Disallow-Liste komplett); neue Notiz `04 User/Gate-Regeln & Rollen.md` als freigegebene Extraktion
+- **Gate 3 (Mechanik):** n8n-IMAP-Notiz 1:1 nach `02 Technik/n8n/`; `docs/design-system.md` mit allen Token-Tabellen + eingebundenem Logo; Logo-PNG nach `05 Anhänge/`; `.claude/rules/schreibstil.md` aktiv; alle 5 Schicht-Übersichten auf aktuellen Bestand
+- **Link-Aktivierung:** Landkarte verlinkt jetzt den [[KI-Betriebssystem Blueprint]] (letzter PROJ-5-Platzhalter aufgelöst)
+- **Testlauf-Befund:** Privat-Scan schlug zunächst 3× an — 2× falscher Präfix-Treffer auf den legitimen neuen Blueprint-Link (Scan auf exakten privaten Notiznamen präzisiert), 1× das Scan-Wort im eigenen quelle-Vermerk (neutral umformuliert). Kein echter Privat-Inhalt.
+- 1.270 Tests grün; Abweichungen vom Design: keine
+
 ## QA Test Results
 _To be added by /qa_
 
