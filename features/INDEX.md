@@ -20,7 +20,7 @@
 | PROJ-2 | Vault-Gerüst & Governance | Repo-2-Struktur, Ordnerlogik, Regeln, Migrations-Filter (nur GRÜNSCHNITT + OS) | P0 | Keine | Approved | [Spec](PROJ-2-vault-geruest-governance.md) | 2026-07-17 |
 | PROJ-3 | Migration Prozesswissen | Prozesslandkarte, 3 Kernprozesse (Projekt / ohne Angebot / Abo), Supportprozesse | P0 | PROJ-2 | Approved | [Spec](PROJ-3-migration-prozesswissen.md) | 2026-07-17 |
 | PROJ-4 | Migration Hero-GraphQL-Wissen | API-Referenz + verifiziertes Praxiswissen (Referenz via introspect.py neu generiert) | P0 | PROJ-2, PROJ-16 | Approved | [Spec](PROJ-4-migration-hero-graphql-wissen.md) | 2026-07-17 |
-| PROJ-5 | Migration OS-Wissen + Branding | Blueprint, Wissenskreislauf; Branding → `docs/design-system.md`, Schreibstil in den Vault | P0 | PROJ-2 | Planned | [Spec](PROJ-5-migration-os-wissen-branding.md) | 2026-07-17 |
+| PROJ-5 | Migration OS-Wissen + Branding | Blueprint, Wissenskreislauf; Branding → `docs/design-system.md`, Schreibstil in den Vault | P0 | PROJ-2 | In Progress | [Spec](PROJ-5-migration-os-wissen-branding.md) | 2026-07-17 |
 | PROJ-16 | Migration Tool-Ebene (Hero-CLI + Introspection) | hero-tools CLI + introspect.py vom VPS ins Repo, Setup + Funktionstest gegen Hero | P0 | PROJ-2 | Approved | [Spec](PROJ-16-migration-tool-ebene.md) | 2026-07-18 |
 | PROJ-6 | Migration Prozess-Skills | bauprojekt, projekt-ohne-angebot, abo, hero-stammdaten — mit Validierungstest | P0 | PROJ-3, PROJ-4, PROJ-16 | Roadmap | — | 2026-07-17 |
 

@@ -1,6 +1,6 @@
 # PROJ-5: Migration OS-Wissen + Branding
 
-## Status: Planned
+## Status: In Progress
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
@@ -83,12 +83,50 @@
 <!-- Added by /architecture -->
 | Decision | Rationale | Date |
 |----------|-----------|------|
+| Logo im Vault (05 Anhänge), design-system.md referenziert relativ | Logo ist Betriebs-Asset (Obsidian-einbindbar); PROJ-7 kopiert bei Bedarf nach public/ | 2026-07-18 |
+| Schreibstil-Regel ohne Pfad-Filter, verweist auf Vault-Notiz | Kundentexte entstehen in jedem Kontext; eine Pflegestelle statt Kopien | 2026-07-18 |
+| Drei Review-Gates nach Risikoprofil (Methode / heikle Schnitte / Mechanik) | Aktualisierungen und Extraktionen brauchen Urteil, 1:1-Mechanik nicht | 2026-07-18 |
+| design-system.md als reines Markdown mit Token-Tabellen | /frontend liest die Datei direkt; Komponenten-Styles entstehen erst in PROJ-7 | 2026-07-18 |
 
 ---
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+_Erstellt: 2026-07-18_
+
+### Was entsteht (Dateibaum — kein UI, kein Backend, keine Pakete)
+
+```
+docs/design-system.md                                  ← Branding: Tokens, Fonts, CSS-Variablen, Logo
+vault/00 Betrieb/Schreibstil.md                        ← GRÜNSCHNITT-Teil (ohne Deutz)
+vault/02 Technik/n8n/n8n IMAP Community Node ….md      ← erste n8n-Notiz (Ordner entsteht damit)
+vault/03 AI/KI-Betriebssystem Blueprint.md             ← die OS-Methode
+vault/03 AI/Wissenskreislauf KI-Betriebssystem.md      ← wie das System lernt
+vault/04 User/Gate-Regeln & Rollen.md                  ← Extraktion aus Blueprint Schicht 4
+vault/05 Anhänge/gruenschnitt-logo.png                 ← Original aus dem Website-Projekt
+.claude/rules/schreibstil.md                           ← Kundentexte-Regel (lädt jede Session)
+```
+
+Zusätzlich werden die Schicht-Übersichtsnotizen (00 Betrieb, 02 Technik, 03 AI, 04 User) aktualisiert: Die „Hier liegt (nach der Migration, PROJ-5)"-Formulierungen werden zu aktuellen Bestandslisten — Teil der Review-Pakete.
+
+### Review-Paketierung (drei Gates)
+
+1. **Gate 1 — OS-Methode:** Blueprint + Wissenskreislauf. Hier liegen die ausgewiesenen Aktualisierungen (VPS-Pfade → `tools/`, alte Vault-Pfade → Schichtstruktur, Link-Umbau)
+2. **Gate 2 — die heiklen Schnitte:** Schreibstil (Grenzfall Deutz raus) + Gate-Regeln & Rollen (Extraktion statt 1:1 — braucht deine inhaltliche Abnahme)
+3. **Gate 3 — Mechanik:** n8n-Notiz (1:1), design-system.md, Logo-Übernahme, Schreibstil-Regel
+
+### Form der design-system.md
+
+Reines Markdown mit Tabellen — dieselbe Struktur wie die Branding-Quelle (Farb-Token-Tabellen mit Hex + Verwendungszweck, Font-Tabelle mit Tailwind-Klassen, CSS-Variablen, Gradient-Definition), plus eingebundenes Logo und ein kurzer Kopf, wofür die Datei gilt (Cockpit + alle künftigen UI-Arbeiten; `/frontend` liest sie laut Template automatisch). Kein Code, keine Komponenten-Definitionen — die entstehen in PROJ-7 gegen diese Tokens.
+
+### Tech-Entscheidungen (Warum)
+
+1. **Logo liegt im Vault (`05 Anhänge/`), design-system.md referenziert es relativ** — das Logo ist Betriebs-Asset (Obsidian-einbindbar per `![[gruenschnitt-logo.png]]`), die design-system.md nur ein Verbraucher. PROJ-7 kopiert es bei Bedarf nach `public/`.
+2. **Schreibstil-Regel als eigene Datei ohne Pfad-Filter** — Kundentexte können in jedem Kontext entstehen (Chat, Skills, später Cockpit); die Regel verweist auf die Vault-Notiz statt Regeln zu kopieren (eine Pflegestelle).
+3. **Drei Gates statt sieben** — gruppiert nach Risikoprofil: Methode (Aktualisierungen), heikle Schnitte (Urteil), Mechanik (1:1).
+
+### Abhängigkeiten (Pakete)
+- Keine.
 
 ## QA Test Results
 _To be added by /qa_
