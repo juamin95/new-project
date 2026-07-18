@@ -1,6 +1,6 @@
 # PROJ-3: Migration Prozesswissen
 
-## Status: In Progress
+## Status: Approved
 **Created:** 2026-07-17
 **Last Updated:** 2026-07-17
 
@@ -59,14 +59,14 @@
 
 **Format:** Angenommen [Vorbedingung] / Wenn [Aktion] / Dann [Ergebnis]
 
-- [ ] Angenommen die Migration ist abgeschlossen, wenn man die 9 Quellnotizen mit dem neuen Vault vergleicht, dann existiert für jede eine Ziel-Notiz am definierten Ort mit `quelle`-Feld (Herkunft + Datum)
-- [ ] Angenommen eine Kernprozess-Notiz oder die Landkarte hat Hero-Abgleich UND Julians Review bestanden, wenn man ihr Frontmatter liest, dann steht dort `status: verifiziert`
-- [ ] Angenommen eine Notiz hat den Abgleich nicht bestanden oder ist als unvollständig bekannt (Supportprozesse, Lernlog, Wissensbasis), wenn man ihr Frontmatter liest, dann steht dort `status: erfasst`
-- [ ] Angenommen der Hero-Abgleich findet eine Abweichung zwischen Notiz und System, wenn die Migration fortgesetzt wird, dann wird die Notiz nicht verifiziert, die Abweichung dokumentiert und Julian gefragt — nie stillschweigend korrigiert
-- [ ] Angenommen die Migration ist abgeschlossen, wenn man die Prozesslandkarte öffnet, dann verlinkt sie alle 6 Prozessnotizen in der neuen Struktur und die Links lösen auf
-- [ ] Angenommen die Migration ist abgeschlossen, wenn man den neuen Vault nach privaten Inhalten durchsucht (SAP, Deutz, Daily Notes, private Projektnotizen), dann findet sich nichts davon
-- [ ] Angenommen die Migration ist abgeschlossen, wenn `npm test` läuft, dann sind alle Vault-Governance-Tests grün (Frontmatter, keine toten Wikilinks, keine Secrets)
-- [ ] Angenommen eine migrierte Notiz referenziert Wissen aus PROJ-4/PROJ-5, wenn man sie liest, dann ist der Verweis als Klartext erkennbar (kein toter Wikilink)
+- [x] Angenommen die Migration ist abgeschlossen, wenn man die 9 Quellnotizen mit dem neuen Vault vergleicht, dann existiert für jede eine Ziel-Notiz am definierten Ort mit `quelle`-Feld (Herkunft + Datum)
+- [x] Angenommen eine Kernprozess-Notiz oder die Landkarte hat Hero-Abgleich UND Julians Review bestanden, wenn man ihr Frontmatter liest, dann steht dort `status: verifiziert`
+- [x] Angenommen eine Notiz hat den Abgleich nicht bestanden oder ist als unvollständig bekannt (Supportprozesse, Lernlog, Wissensbasis), wenn man ihr Frontmatter liest, dann steht dort `status: erfasst`
+- [x] Angenommen der Hero-Abgleich findet eine Abweichung zwischen Notiz und System, wenn die Migration fortgesetzt wird, dann wird die Notiz nicht verifiziert, die Abweichung dokumentiert und Julian gefragt — nie stillschweigend korrigiert
+- [x] Angenommen die Migration ist abgeschlossen, wenn man die Prozesslandkarte öffnet, dann verlinkt sie alle 6 Prozessnotizen in der neuen Struktur und die Links lösen auf
+- [x] Angenommen die Migration ist abgeschlossen, wenn man den neuen Vault nach privaten Inhalten durchsucht (SAP, Deutz, Daily Notes, private Projektnotizen), dann findet sich nichts davon
+- [x] Angenommen die Migration ist abgeschlossen, wenn `npm test` läuft, dann sind alle Vault-Governance-Tests grün (Frontmatter, keine toten Wikilinks, keine Secrets)
+- [x] Angenommen eine migrierte Notiz referenziert Wissen aus PROJ-4/PROJ-5, wenn man sie liest, dann ist der Verweis als Klartext erkennbar (kein toter Wikilink)
 
 ## Edge Cases
 - **Hero nicht erreichbar während der Validierung** → Migration läuft weiter, betroffene Notizen bleiben `erfasst`, Abgleich wird nachgeholt (Notiz im Lernlog)
@@ -170,7 +170,59 @@ _Umgesetzt: 2026-07-18_
 - Abweichungen vom Tech Design: keine
 
 ## QA Test Results
-_To be added by /qa_
+
+**Tested:** 2026-07-18
+**Testart:** Dateisystem-/Regelwerk-Prüfung + Live-Abgleich gegen Hero (kein UI — Browser-/E2E-Tests nicht anwendbar)
+**Tester:** QA Engineer (AI)
+
+### Acceptance Criteria Status
+
+#### AC-1/2/3: Vollständigkeit, quelle-Feld, Statusvergabe
+- [x] Alle 9 Ziel-Notizen am definierten Ort, jede mit `quelle` (Herkunft + Datum)
+- [x] 4× `verifiziert` (Landkarte + 3 Kernprozesse) — quelle dokumentiert jeweils Hero-Abgleich UND Review
+- [x] 5× `erfasst` (3 Supportprozesse, Lernlog, Wissensbasis) — ehrliche Statusvergabe
+
+#### AC-4: Abweichungen dokumentiert statt still korrigiert
+- [x] Abo-Notiz: beide Abweichungen (nächster Lauf 13.09. statt ~13.08.; Erinnerung 4 Wochen) mit Live-Abgleich-Vermerk und ursprünglicher Erwartung dokumentiert; Julian-Entscheidung eingeholt
+
+#### AC-5: Prozesslandkarte als Hub
+- [x] Verlinkt alle 6 Prozessnotizen, alle Links lösen auf
+
+#### AC-6: Migrations-Filter
+- [x] Keine privaten Inhalte/Verweise (Systemdatenanalyse, KI-Betriebssystem-Projektnotiz, Deutz, SAP, Daily Notes) — automatisiert gescannt, Start.md-Filterbeschreibung ausgenommen
+
+#### AC-7: Governance-Tests
+- [x] `npm test` grün: 114/114 (Frontmatter, Wikilinks, Secrets, Migration)
+
+#### AC-8: Klartext-Verweise auf PROJ-4-Ziele
+- [x] „folgt mit PROJ-4"-Vermerke vorhanden, keine Wikilinks auf noch nicht migrierte Ziele
+
+### Edge Cases Status
+- [x] Widerspruch Notiz ↔ Hero: eingetreten (Abo-Werte) und regelkonform behandelt (Rückfrage statt Stillkorrektur)
+- [x] Privater Verweis mitten im Text: eingetreten (Wissensbasis, Abo) und neutral umformuliert
+- [x] Alte Statuswerte (`aktiv`/`entwurf`): korrekt auf `verifiziert`/`erfasst` gemappt
+
+### Zusätzliche Prüfung: 1:1-Treue
+- [x] Stichprobe Stammdatenpflege + Kundenstammdaten: Body nach Normalisierung (Frontmatter/Wikilink-Marker entfernt) identisch mit der Quelle
+
+### Security Audit Results
+- [x] Keine Secrets im Vault (automatisiert); Hero-Zugriff ausschließlich lesend, `query`-Befehl lehnt Mutations ab
+- [x] API-Key nie im Chat/Repo — nur `.env.local`, per deny-Regeln für Claude unlesbar
+- [x] Keine Änderungen an App-Code (`src/app`, `package.json`) durch PROJ-3
+
+### Bugs Found
+Keine.
+
+### Automatisierte Tests
+- Neu: `src/test/vault-migration.test.ts` — sichert Migrationsbestand, Statusvergabe, Hub-Links und Migrations-Filter dauerhaft
+- Gesamt: 114/114 Tests grün (2 Testdateien)
+
+### Summary
+- **Acceptance Criteria:** 8/8 passed
+- **Bugs Found:** 0
+- **Security:** Pass
+- **Production Ready:** YES
+- **Recommendation:** Approve — Migration vollständig, validiert und dauerhaft abgesichert
 
 ## Deployment
 _To be added by /deploy_

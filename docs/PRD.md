@@ -16,7 +16,7 @@ Dieses Repo ist der übergabefähige „Repo-2-Schnitt" aus dem Blueprint: valid
 | Priorität | Feature | Inhalt | Status |
 |----------|---------|--------|--------|
 | P0 (MVP) | Vault-Gerüst & Governance | Repo-2-Struktur, Ordnerlogik, Regeln, Migrations-Filter (nur GRÜNSCHNITT + OS) | Approved |
-| P0 (MVP) | Migration Prozesswissen | Prozesslandkarte, 3 Kernprozesse (Projekt / ohne Angebot / Abo), Supportprozesse | Architected |
+| P0 (MVP) | Migration Prozesswissen | Prozesslandkarte, 3 Kernprozesse (Projekt / ohne Angebot / Abo), Supportprozesse | Approved |
 | P0 (MVP) | Migration Hero-GraphQL-Wissen | Referenz + verifiziertes Praxiswissen | Roadmap |
 | P0 (MVP) | Migration OS-Wissen + Branding | Blueprint, Wissenskreislauf; Branding → `docs/design-system.md`, Schreibstil in den Vault | Roadmap |
 | P0 (MVP) | Migration Tool-Ebene | hero-tools CLI + introspect.py (Fähigkeiten-Ebene vom VPS) ins Repo, Funktionstest gegen Hero | Roadmap |
