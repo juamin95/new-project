@@ -5,7 +5,7 @@
  * als Hub, Migrations-Filter (keine privaten Inhalte).
  */
 import { describe, it, expect } from 'vitest'
-import { readFileSync, globSync } from 'node:fs'
+import { readFileSync, globSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 const root = process.cwd()
@@ -66,6 +66,38 @@ describe('AC-6: Migrations-Filter — keine privaten Inhalte im Vault', () => {
     for (const term of ['Systemdatenanalyse', '[[KI-Betriebssystem', 'Deutz', 'Daily Note']) {
       expect(s, `privater Begriff „${term}"`).not.toContain(term)
     }
+  })
+})
+
+describe('PROJ-4: Hero-Wissen ist vollständig migriert', () => {
+  const REF = 'vault/02 Technik/Hero/Referenz (auto-generiert)'
+  const praxiswissen = [
+    'Aufgaben (Task)',
+    'Checklisten (FieldService_Checklist)',
+    'Dokument-Entwürfe ändern und ersetzen',
+    'Gewerke und Projekttypen (Measure, ProjectType)',
+    'Kalender und Termine (CalendarEvent)',
+  ]
+
+  it('Referenz hat Übersicht, Queries, Mutations und Typen', () => {
+    expect(existsSync(join(root, `${REF}/00 Übersicht.md`))).toBe(true)
+    for (const [sub, min] of [['Queries', 50], ['Mutations', 70], ['Typen', 200]] as const) {
+      expect(globSync(`${REF}/${sub}/*.md`, { cwd: root }).length).toBeGreaterThanOrEqual(min)
+    }
+  })
+
+  it.each(praxiswissen)('Praxiswissen „%s" ist verifiziert mit quelle', (name) => {
+    const fm = read(`vault/02 Technik/Hero/Praxiswissen (verifiziert)/${name}.md`).match(
+      /^---\n([\s\S]*?)\n---\n/
+    )![1]
+    expect(fm).toMatch(/^status: verifiziert$/m)
+    expect(fm).toContain('Spot-Check')
+  })
+
+  it('Hero.md verlinkt Schema-Übersicht und alle Praxiswissen-Notizen', () => {
+    const hub = read('vault/02 Technik/Hero/Hero.md')
+    expect(hub).toContain('[[00 Übersicht')
+    for (const name of praxiswissen) expect(hub).toContain(`[[${name}]]`)
   })
 })
 

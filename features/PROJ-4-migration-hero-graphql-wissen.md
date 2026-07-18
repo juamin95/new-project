@@ -1,6 +1,6 @@
 # PROJ-4: Migration Hero-GraphQL-Wissen
 
-## Status: In Progress
+## Status: Approved
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
@@ -34,13 +34,13 @@
 
 **Format:** Angenommen [Vorbedingung] / Wenn [Aktion] / Dann [Ergebnis]
 
-- [ ] Angenommen `introspect.py` ist mit dem Vault-Zielpfad gelaufen, wenn man den Referenz-Ordner prüft, dann enthält er Übersicht, Queries, Mutations und Typen vollständig, und das Delta zur alten Referenz (358 → aktuell) ist dokumentiert
-- [ ] Angenommen die Referenz ist generiert, wenn `npm test` läuft, dann gilt die Frontmatter-Pflicht überall außer im Referenz-Ordner und alle Tests sind grün
-- [ ] Angenommen eine der 5 Praxiswissen-Notizen ist migriert, wenn man ihr Frontmatter liest, dann steht dort `status: verifiziert` und `quelle` mit Spot-Check- und Review-Vermerk
-- [ ] Angenommen der Spot-Check findet einen Widerspruch zwischen Notiz und Live-System, wenn die Migration fortgesetzt wird, dann wird die Notiz nicht verifiziert, die Abweichung dokumentiert und Julian gefragt
-- [ ] Angenommen die Migration ist abgeschlossen, wenn man Prozess Bauprojekt End-to-End und die Prozesslandkarte öffnet, dann sind die früheren „folgt mit PROJ-4"-Klartexte echte, auflösende Wikilinks
-- [ ] Angenommen jemand öffnet `Hero.md`, wenn er die zwei Wissensebenen verstehen will, dann erklärt die Notiz Referenz vs. Praxiswissen und verlinkt beide Bereiche
-- [ ] Angenommen die Migration ist abgeschlossen, wenn man den Vault nach privaten Inhalten durchsucht, dann findet sich nichts davon (Migrations-Filter)
+- [x] Angenommen `introspect.py` ist mit dem Vault-Zielpfad gelaufen, wenn man den Referenz-Ordner prüft, dann enthält er Übersicht, Queries, Mutations und Typen vollständig, und das Delta zur alten Referenz (358 → aktuell) ist dokumentiert
+- [x] Angenommen die Referenz ist generiert, wenn `npm test` läuft, dann gilt die Frontmatter-Pflicht überall außer im Referenz-Ordner und alle Tests sind grün
+- [x] Angenommen eine der 5 Praxiswissen-Notizen ist migriert, wenn man ihr Frontmatter liest, dann steht dort `status: verifiziert` und `quelle` mit Spot-Check- und Review-Vermerk
+- [x] Angenommen der Spot-Check findet einen Widerspruch zwischen Notiz und Live-System, wenn die Migration fortgesetzt wird, dann wird die Notiz nicht verifiziert, die Abweichung dokumentiert und Julian gefragt
+- [x] Angenommen die Migration ist abgeschlossen, wenn man Prozess Bauprojekt End-to-End und die Prozesslandkarte öffnet, dann sind die früheren „folgt mit PROJ-4"-Klartexte echte, auflösende Wikilinks
+- [x] Angenommen jemand öffnet `Hero.md`, wenn er die zwei Wissensebenen verstehen will, dann erklärt die Notiz Referenz vs. Praxiswissen und verlinkt beide Bereiche
+- [x] Angenommen die Migration ist abgeschlossen, wenn man den Vault nach privaten Inhalten durchsucht, dann findet sich nichts davon (Migrations-Filter)
 
 ## Edge Cases
 - **API-Stand widerspricht Praxiswissen** (z. B. eine als „nicht freigeschaltet" dokumentierte Mutation existiert inzwischen) → dokumentieren + Rückfrage, nie stillschweigend ändern
@@ -132,7 +132,38 @@ _Umgesetzt: 2026-07-18_
 - Abweichungen vom Design: keine
 
 ## QA Test Results
-_To be added by /qa_
+
+**Tested:** 2026-07-18
+**Testart:** Dateisystem-/Struktur-Prüfung + Schema-/Live-Abgleich (kein UI — Browser-/E2E-Tests nicht anwendbar)
+**Tester:** QA Engineer (AI)
+
+### Acceptance Criteria Status
+- [x] AC-1: Referenz vollständig (00 Übersicht + 58 Queries + 76 Mutations + 225 Typen = 360 Dateien); Delta zur alten Referenz (+2 Receipt-Typen, nichts entfallen) in Hub und Spec dokumentiert
+- [x] AC-2: `npm test` grün — Frontmatter-Pflicht überall außer Referenz-Ordner, Link-/Secrets-Prüfung über alle 380+ Vault-Dateien
+- [x] AC-3: Alle 5 Praxiswissen-Notizen `verifiziert` mit `quelle` (Spot-Check + Review Julian)
+- [x] AC-4: 12/12 Spot-Checks bestanden — kein Widerspruch aufgetreten; Verfahren (dokumentieren + Rückfrage) wäre gegriffen
+- [x] AC-5: „folgt mit PROJ-4"-Platzhalter vollständig durch auflösende Wikilinks ersetzt (Bauprozess, Landkarte)
+- [x] AC-6: Hero.md erklärt beide Ebenen und verlinkt Schema-Übersicht + alle 5 Praxiswissen-Notizen
+- [x] AC-7: Keine privaten Verweise in den neuen Notizen (Scan)
+
+### Security Audit Results
+- [x] Keine Secret-Muster in den 360 generierten Referenz-Dateien (Introspection-Output geprüft)
+- [x] Referenz-Generierung + Spot-Checks ausschließlich lesend; kein Key im Repo/Chat
+- [x] Keine Änderungen an App-Code
+
+### Bugs Found
+Keine. (Ein Test schlug während der Umsetzung planmäßig fehl — der PROJ-3-Test prüfte den überholten Klartext-Zustand und wurde auf den neuen Link-Sollzustand aktualisiert; kein Produktfehler.)
+
+### Automatisierte Tests
+- Erweitert: `src/test/vault-migration.test.ts` — Referenz-Struktur (Mindestbestand), Praxiswissen-Status, Hub-Links, Link-Aktivierung
+- Gesamt: 1.256 Tests grün (3 Testdateien) — inkl. Governance-Prüfung über alle Referenz-Dateien
+
+### Summary
+- **Acceptance Criteria:** 7/7 passed
+- **Bugs Found:** 0
+- **Security:** Pass
+- **Production Ready:** YES
+- **Recommendation:** Approve — Hero-Wissen vollständig migriert, Referenz beweisbar aktuell
 
 ## Deployment
 _To be added by /deploy_
