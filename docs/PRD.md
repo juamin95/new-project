@@ -26,7 +26,7 @@ Dieses Repo ist der übergabefähige „Repo-2-Schnitt" aus dem Blueprint: valid
 
 | Priorität | Feature | Inhalt | Status |
 |----------|---------|--------|--------|
-| P0 (MVP) | Supabase-Infrastruktur | Bestehendes Website-Projekt („juamin95's Project", leads + projekte) erweitern: Auth, Cockpit-Schema | Planned |
+| P0 (MVP) | Supabase-Infrastruktur | Bestehendes Website-Projekt („juamin95's Project", leads + projekte) erweitern: Auth, Cockpit-Schema | Architected |
 | P0 (MVP) | Cockpit-Grundgerüst | Login (Marvin/Julian), mobile-first Navigation im GRÜNSCHNITT-Branding | Roadmap |
 | P0 (MVP) | Prozess-Board | Alle Hero-Projekte entlang der drei Pipelines, Anfrage → Rechnungserstellung, auf einen Blick | Roadmap |
 | P0 (MVP) | Review-Liste (Gate) | Entwürfe (Mails, Angebote, Rechnungen) prüfen/freigeben, Audit-Trail — nie Autoversand | Roadmap |

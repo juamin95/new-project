@@ -66,10 +66,10 @@ PROJ-1 macht die Infrastruktur **funktionsfähig** (Auth konfiguriert, Konto ang
 - Zugriffsweg für Migrationen: Supabase-MCP (neu verbinden) oder Skript mit `SERVICE_ROLE_KEY` aus `.env.local` (Hero-Muster: Skript liest selbst, Agent sieht den Key nie) → `/architecture`
 
 ## Open Questions
-- [ ] E-Mail-Versand: Standard-Mailer vs. eigenes SMTP (Strato vorhanden) → `/architecture`
+- [x] E-Mail-Versand: eigenes SMTP über Strato (entschieden in /architecture, 2026-07-18)
 - [ ] Welche E-Mail-Adresse fürs gemeinsame Konto? → Julian bei der Umsetzung
 - [ ] Magic-Link-Redirect-Domains (lokal + Vercel) → PROJ-7 / `/deploy`
-- [ ] Supabase-MCP neu verbinden oder Skript-Weg? → `/architecture`
+- [x] Migrationsweg: MCP neu verbinden + versionierte Migrationsdateien; SQL-Editor als Fallback (entschieden in /architecture, 2026-07-18)
 
 ## Decision Log
 
@@ -86,12 +86,52 @@ PROJ-1 macht die Infrastruktur **funktionsfähig** (Auth konfiguriert, Konto ang
 <!-- Added by /architecture -->
 | Decision | Rationale | Date |
 |----------|-----------|------|
+| Eigenes SMTP (Strato) von Anfang an | Magic Link ist der einzige Zugangsweg — Zustellzuverlässigkeit ist sicherheitskritisch; Standard-Mailer hat enge Limits | 2026-07-18 |
+| Migrationen versioniert in supabase/migrations/, angewendet via MCP (Fallback: SQL-Editor) | Schemageschichte im Git wie beim Vault; Service-Role-Key kann kein DDL und bleibt Laufzeit-Zugriff | 2026-07-18 |
+| Keine neue Tabelle in PROJ-1 | Ein Konto lebt in Supabase Auth; ohne Rollen keine Profil-Tabelle nötig | 2026-07-18 |
+| Namensschema cockpit_-Präfix im public-Schema | Klare Trennung von Website-Tabellen ohne Mehraufwand eines separaten Postgres-Schemas | 2026-07-18 |
+| Verifikationsskript nach Hero-Muster | Skript liest Env selbst, prüft Projekt-Identität und Unversehrtheit der Website-Tabellen vor jeder Änderung | 2026-07-18 |
 
 ---
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+_Erstellt: 2026-07-18_
+
+### Was entsteht (kein UI — Konfiguration, Konventionen, Nachweis)
+
+```
+supabase/migrations/          ← versionierte SQL-Migrationsdateien im Repo (ab jetzt der
+                                einzige Weg, wie Datenbankänderungen passieren)
+scripts/supabase-check.mjs    ← Verifikationsskript (liest Env selbst, Hero-Muster):
+                                richtiges Projekt? Website-Tabellen unversehrt? Auth erreichbar?
+vault/02 Technik/Supabase/Supabase.md   ← Wissensnotiz: Projekt, Bestand, Auth-Modell,
+                                          RLS-Vorlage, Konventionen (Review-Gate)
+Auth-Konfiguration (Supabase Dashboard, dokumentierte Schritte):
+  Signups deaktiviert · Magic-Link-Gültigkeit · SMTP · Konto angelegt
+```
+
+**Bemerkenswert schlank:** PROJ-1 legt **keine einzige neue Tabelle** an. Das eine Konto lebt in Supabase Auth selbst; ohne Rollen braucht es keine Profil-Tabelle. Das „Fundament" ist Konfiguration + verbindliche Konventionen + Nachweis.
+
+### Die vier offenen Fragen — entschieden
+
+1. **E-Mail-Versand: eigenes SMTP über Strato, von Anfang an.** Der Supabase-Standard-Mailer hat enge Stundenlimits und mittelmäßige Zustellqualität — fürs Login-Verfahren (Magic Link ist der einzige Zugangsweg!) ist Zustellzuverlässigkeit sicherheitskritisch. Ihr habt Strato-SMTP ohnehin; die Konfiguration ist ein einmaliger, dokumentierter Schritt im Supabase-Dashboard (macht Julian, Zugangsdaten bleiben bei ihm).
+2. **Migrationsweg: Supabase-MCP neu verbinden (Primärweg), SQL-Dateien als Fundament.** Jede Änderung wird als Migrationsdatei im Repo versioniert (`supabase/migrations/`) — angewendet dann per MCP (`apply_migration`, hat in dieser Session schon funktioniert). Fällt der MCP aus, ist der Fallback eingebaut: Julian führt dieselbe Datei im SQL-Editor aus. Wichtig: Der Service-Role-Key kann kein DDL ausführen — er bleibt, was er ist: Laufzeit-Zugriff fürs Backend, nie Migrationswerkzeug.
+3. **Konto-Adresse:** bleibt Julians Input bei der Umsetzung (Empfehlung: eine Adresse, auf die beide Zugriff haben und die 2FA trägt).
+4. **Redirect-Domains:** `localhost:3000` wird jetzt eingetragen, die Vercel-Domain kommt mit `/deploy` dazu — dokumentiert als offener Punkt in der Vault-Notiz.
+
+### Konventionen (verbindlich ab jetzt, dokumentiert in der Vault-Notiz)
+
+- **Namensschema:** Alle Cockpit-Tabellen heißen `cockpit_<name>` im public-Schema — die Website-Tabellen (`leads`, `projekte`) sind damit auf einen Blick unterscheidbar und bleiben tabu
+- **RLS-Vorlage:** Jede `cockpit_`-Tabelle aktiviert RLS mit der Grundregel „nur authentifizierte Nutzer" — als Beispiel-Policy in der Notiz hinterlegt, PROJ-9/10/11 übernehmen sie
+- **Migrations-Disziplin:** Keine Änderung ohne versionierte Migrationsdatei — der gleiche Audit-Gedanke wie beim Vault (Git = Wissensgeschichte, Migrationen = Schemageschichte)
+
+### Auth-Ablauf (technisch, ohne UI — die UI kommt in PROJ-7)
+
+Konto wird im Dashboard angelegt → Signups global deaktiviert → Magic-Link-Anforderung akzeptiert nur existierende Konten → Nachweis: Link für das Cockpit-Konto anfordern (kommt über Strato-SMTP an), Login vollziehen; Gegenprobe mit fremder Adresse schlägt ab. Session-Handling mit HttpOnly-Cookies wird in PROJ-7 mit `@supabase/ssr` verdrahtet — PROJ-1 stellt nur sicher, dass die Auth-Seite dafür bereitsteht.
+
+### Abhängigkeiten (Pakete)
+- Jetzt keine neuen (`@supabase/supabase-js` ist im Template). `@supabase/ssr` kommt mit PROJ-7.
 
 ## QA Test Results
 _To be added by /qa_
