@@ -128,6 +128,28 @@ vault/03 AI/Skills-Übersicht.md   ← welcher Skill spiegelt welchen Prozess,
 ### Abhängigkeiten (Pakete)
 - Keine.
 
+## Implementation Notes
+_Umgesetzt: 2026-07-18_
+
+- **Migration:** 13 Skill-Dateien, 44 Pfad-Ersetzungen per Ersetzungstabelle; zwei relative Lernlog-Altpfade zusätzlich gefunden und korrigiert (projekt-ohne-angebot, abo); keine Alt-Pfade mehr
+- **Statische Validierung:** alle 9 eindeutigen referenzierten Ziele existieren (Tools, Prozessnotizen, Wissensbasis, Praxiswissen, Lernlog, Supportprozesse-Ordner); dauerhaft in `src/test/skills-governance.test.ts`
+- **Skills live:** alle vier Prozess-Skills erscheinen im Skill-Listing der Claude-Session
+- **Skills-Übersicht** in `03 AI/` angelegt, von der Schicht-Übersicht verlinkt
+
+### E2E-Protokoll (projekt-ohne-angebot, Testkunde 5711737, 18.07.2026)
+
+| Schritt | Aktion | Freigabe | Ergebnis |
+|---|---|---|---|
+| 0 | Kontext: kontakt suchen + projekt suchen + historie (Reads) | — (frei) | Kunde 5711737, Adresse 11941632; Historie leer → Preise aus Wissensbasis-Ankern |
+| 1 | `projekt anlegen` (Typ ohne-angebot, Gewerk PFL) + Logbuch | Julian 1/5 | **PFL-158** (id 11128763), Typ 65686 ✓, Logbuch 120240367 |
+| 2 | `kalender anlegen` (Kategorie Umsetzung, 21.07. 07:30–12:00) | Julian 2/5 | Termin 5842979 ✓ (Zeitzone korrekt) |
+| 3 | Status 1101 → 1111 | Julian 3/5 | Codes ✓ |
+| 4 | Rechnungs-Draft, 2 Katalog-Positionen (1000, 3000), 290 € netto, publish: false | Julian 4/5 (Entwurf vorab im Chat) | Draft 18980544, „Entwurf erstellt (publish: false)" ✓ |
+| 5 | 1150 → 2000 → 2100; Draft gelöscht; Termin soft-gelöscht | Julian 5/5 | Endzustand verifiziert: PFL-158 „Archiviert (2100)" |
+
+**Beobachtungen** (im Lernlog erfasst, `2026-07-18 E2E-Test Skill-Migration.md`): API-Statusnamen stammen aus der alten Default-Pipeline (Codes führend); `project_matches` blendet Archivierte ohne `statuses`-Filter aus; Streuner UNB-157 beim Testkunden (Aufräumkandidat).
+- Abweichungen vom Design: keine
+
 ## QA Test Results
 _To be added by /qa_
 

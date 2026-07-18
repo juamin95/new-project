@@ -77,4 +77,4 @@ Wie im Skill `bauprojekt` (Abschnitt "Harte Regeln"), zusätzlich:
 - **Keine Dokumente an Abo-Projekten** — Jahresrechnung ist Julians Prozess.
 - Wartungsverträge nie per API verändern, ohne dass der Nutzer es
   ausdrücklich verlangt (sie sind der Taktgeber des Systems).
-- Beobachtungen ins Lernlog (`Prozesse/Lernlog Bauprozess.md`).
+- Beobachtungen ins Lernlog (`vault/03 AI/Lernlog/Lernlog Bauprozess.md`).

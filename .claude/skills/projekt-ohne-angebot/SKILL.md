@@ -96,4 +96,4 @@ Es gelten dieselben Regeln wie im Skill `bauprojekt` (dort Abschnitt "Harte
 Regeln"): Zwei-Phasen-Muster für Dokumente, der Mensch versendet,
 Katalog-Zwang, Preise bestätigt der Nutzer, Suchen vor Anlegen, nichts
 löschen ohne Rückfrage, Tests nur mit Julian Amini (5711737), Beobachtungen
-ins Lernlog (`Prozesse/Lernlog Bauprozess.md`).
+ins Lernlog (`vault/03 AI/Lernlog/Lernlog Bauprozess.md`).
