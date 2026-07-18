@@ -1,6 +1,6 @@
 # PROJ-6: Migration Prozess-Skills
 
-## Status: Planned
+## Status: Architected
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
@@ -86,12 +86,47 @@
 <!-- Added by /architecture -->
 | Decision | Rationale | Date |
 |----------|-----------|------|
+| Pfad-Rewrite per deterministischer Ersetzungstabelle | Bewährtes PROJ-3/5-Verfahren; jede Ersetzung eindeutigkeitsgeprüft, Rest byte-gleich | 2026-07-18 |
+| Statische Referenz-Prüfung als dauerhafter Vitest | Künftige Umbenennungen, die Skills brechen, fallen sofort auf | 2026-07-18 |
+| E2E-Test bewusst nicht in npm test | Automatisierte Writes würden das Gate-Prinzip unterlaufen; einmal beweisen + protokollieren | 2026-07-18 |
+| Prozess- und Workflow-Skills gemischt in .claude/skills/ | Einziger Ort, den die Runtime kennt; Skills-Übersicht im Vault erklärt die Trennung | 2026-07-18 |
 
 ---
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+_Erstellt: 2026-07-18_
+
+### Was entsteht (Dateibaum — kein UI, kein Backend, keine Pakete)
+
+```
+.claude/skills/
++-- bauprojekt/            ← SKILL.md + schritte/ (7 Dateien)
++-- projekt-ohne-angebot/  ← SKILL.md
++-- abo/                   ← SKILL.md
++-- hero-stammdaten/       ← SKILL.md + kunde.md + katalog.md
+
+vault/03 AI/Skills-Übersicht.md   ← welcher Skill spiegelt welchen Prozess,
+                                    Repo-Root-Konvention für CLI-Aufrufe
+```
+
+### Migrationsverfahren
+
+**Pfad-Rewrite als deterministische Ersetzungstabelle** — programmgesteuert, jede Ersetzung wird auf Eindeutigkeit geprüft (dasselbe bewährte Verfahren wie bei PROJ-3/5). Die Tabelle deckt vier Muster ab: CLI-Pfad (`/root/hero-tools/` → `tools/hero-tools/`), Prozessnotizen, Wissensbasis, Praxiswissen/Lernlog. Alles andere bleibt byte-gleich.
+
+### Validierung — zwei unterschiedliche Naturelle
+
+1. **Statisch (automatisierbar, wandert in die Testsuite):** Ein Prüfschritt extrahiert alle Datei-Referenzen aus den 12 Skill-Dateien und prüft ihre Existenz im Repo; dazu der Negativ-Check (kein `/root/`, keine Alt-Vault-Pfade). Wird als dauerhafter Vitest-Block verankert — jede künftige Vault-Umbenennung, die einen Skill bricht, fällt sofort auf.
+2. **E2E-Praxistest (bewusst NICHT in npm test):** Writes bleiben menschlich gegated — der Test ist eine im Chat gesteuerte, protokollierte Sequenz nach dem Skill-Ablauf projekt-ohne-angebot: Kunde lesen → Projekt anlegen (Freigabe) → Termin (Freigabe) → Status (Freigabe) → Rechnungsentwurf `publish: false` (Freigabe) → Abschluss + Archivierung 2100 (Freigabe). Jede Aktion einzeln freigegeben, IDs und Ergebnisse landen im Protokoll der Spec.
+
+### Tech-Entscheidungen (Warum)
+
+1. **E2E-Test nicht automatisieren:** Ein automatisierter Write-Test würde das Gate-Prinzip technisch unterlaufen (Writes ohne Menschen). Die Kette wird einmal bewiesen und protokolliert; dauerhaft abgesichert wird nur das statisch Prüfbare.
+2. **Skills liegen neben den Workflow-Skills:** `.claude/skills/` enthält dann Prozess-Skills (bauprojekt, …) und Entwicklungs-Skills (write-spec, …) gemischt — bewusst: Claude Code kennt nur diesen Ort; die Skills-Übersicht im Vault erklärt die Unterscheidung.
+3. **Session-Hinweis:** Neu abgelegte Skills erscheinen erst nach Session-Start im Skill-Listing. Für den E2E-Test wird der Skill-Ablauf direkt aus den migrierten Dateien gefahren — das prüft exakt denselben Inhalt.
+
+### Abhängigkeiten (Pakete)
+- Keine.
 
 ## QA Test Results
 _To be added by /qa_
