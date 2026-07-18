@@ -1,6 +1,6 @@
 # PROJ-16: Migration Tool-Ebene (Hero-CLI + Introspection)
 
-## Status: Architected
+## Status: In Progress
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
@@ -142,6 +142,22 @@ Funktionstest bestanden → Commit hier → Transport-Kiste im alten Vault lösc
 ### Abhängigkeiten (Pakete)
 - Python-venv lokal mit `requests` + `python-dotenv` (die einzigen zwei Abhängigkeiten der CLI)
 - Keine npm-Pakete
+
+## Implementation Notes
+_Umgesetzt: 2026-07-18_
+
+- Tools aus der Transport-Kiste nach `tools/hero-tools/` + `tools/hero-graphql/` übernommen (13 Dateien)
+- Anpassungen wie im Design: Future-Imports in 7 Modulen (Python-3.9-tauglich, `compileall` grün), `client.py` + `introspect.py` lesen `.env.local` aus dem Repo-Root, `introspect.py`-Zielpfad als Pflicht-Argument mit sauberem Abbruch
+- venv eingerichtet (requests, python-dotenv); `.gitignore` um venv/, daten/, __pycache__/ ergänzt (per `git check-ignore` bestätigt)
+- `tools/README.md` (Setup + Source-of-Truth-Vermerk: VPS = Alt-Stand) und `.claude/rules/hero-tools.md` (Entwurf-first + Lese-/Schreib-Gate) angelegt
+- **Funktionstest gegen Hero live, alles bestanden:**
+  - `hero kontakt suchen "Amini"` → Testkunde 5711737 gefunden
+  - `hero projekt suchen --kunde 5711737` → Testprojekte (u. a. UNB-144) geliefert
+  - `hero kalender kategorien` → Kategorienliste (u. a. Umsetzung, Schlechtwetter)
+  - `introspect.py <Scratch-Pfad>` → 58 Queries, 76 Mutations, 225 Typen, 360 Referenz-Dateien im Scratch-Verzeichnis; ohne Argument klarer Abbruch
+  - Negativtest leerer Key → „Fehler: HERO_API_KEY fehlt in .env.local"
+- Bekannte Kosmetik: urllib3-Warnung (LibreSSL) beim CLI-Start — funktionslos, Ausgabe bleibt korrekt
+- Abweichungen vom Design: keine
 
 ## QA Test Results
 _To be added by /qa_

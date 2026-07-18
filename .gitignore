@@ -38,6 +38,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Hero-Tools: lokale Python-Umgebung und Laufzeitdaten
+tools/hero-tools/venv/
+tools/hero-tools/daten/
+__pycache__/
+*.pyc
+
 # Obsidian-Vault: gerätespezifischer UI-Zustand (verursacht sonst Sync-Konflikte)
 vault/.obsidian/workspace.json
 vault/.obsidian/workspace-mobile.json
