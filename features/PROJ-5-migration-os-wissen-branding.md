@@ -1,6 +1,6 @@
 # PROJ-5: Migration OS-Wissen + Branding
 
-## Status: In Progress
+## Status: Approved
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
@@ -45,13 +45,13 @@
 
 **Format:** Angenommen [Vorbedingung] / Wenn [Aktion] / Dann [Ergebnis]
 
-- [ ] Angenommen eine der 5 Vault-Notizen ist migriert, wenn man ihr Frontmatter liest, dann steht dort `quelle` und `status: verifiziert` erst nach Julians Review
-- [ ] Angenommen `docs/design-system.md` existiert, wenn PROJ-7 das Cockpit baut, dann findet es dort Farb-Tokens (Hex + Tailwind), Fonts (Spectral/Inter) und CSS-Variablen — die PRD-Constraint-Referenz ist erfüllt
-- [ ] Angenommen der Blueprint ist migriert, wenn man seine Links prüft, dann lösen alle auf (Prozesslandkarte, Wissenskreislauf, Hero, Lernlog) und kein Privat-Verweis ist enthalten
-- [ ] Angenommen eine Kuratierung ändert Inhalt (Pfade, Speicherorte), wenn das Review läuft, dann ist die Änderung einzeln ausgewiesen — nie stillschweigend
-- [ ] Angenommen die Migration ist abgeschlossen, wenn man `04 User/` öffnet, dann liegt dort die Notiz Gate-Regeln & Rollen mit den Blueprint-Grundsätzen (Gate risiko-gestuft & dauerhaft, Initiative wächst, Rollen Marvin/Julian)
-- [ ] Angenommen eine neue Claude-Session startet, wenn Kundentexte anstehen, dann ist die Schreibstil-Regel im Kontext (`.claude/rules/`) und verweist auf die Vault-Notiz
-- [ ] Angenommen die Migration ist abgeschlossen, wenn `npm test` läuft, dann sind alle Tests grün und der Vault enthält keine privaten Inhalte
+- [x] Angenommen eine der 5 Vault-Notizen ist migriert, wenn man ihr Frontmatter liest, dann steht dort `quelle` und `status: verifiziert` erst nach Julians Review
+- [x] Angenommen `docs/design-system.md` existiert, wenn PROJ-7 das Cockpit baut, dann findet es dort Farb-Tokens (Hex + Tailwind), Fonts (Spectral/Inter) und CSS-Variablen — die PRD-Constraint-Referenz ist erfüllt
+- [x] Angenommen der Blueprint ist migriert, wenn man seine Links prüft, dann lösen alle auf (Prozesslandkarte, Wissenskreislauf, Hero, Lernlog) und kein Privat-Verweis ist enthalten
+- [x] Angenommen eine Kuratierung ändert Inhalt (Pfade, Speicherorte), wenn das Review läuft, dann ist die Änderung einzeln ausgewiesen — nie stillschweigend
+- [x] Angenommen die Migration ist abgeschlossen, wenn man `04 User/` öffnet, dann liegt dort die Notiz Gate-Regeln & Rollen mit den Blueprint-Grundsätzen (Gate risiko-gestuft & dauerhaft, Initiative wächst, Rollen Marvin/Julian)
+- [x] Angenommen eine neue Claude-Session startet, wenn Kundentexte anstehen, dann ist die Schreibstil-Regel im Kontext (`.claude/rules/`) und verweist auf die Vault-Notiz
+- [x] Angenommen die Migration ist abgeschlossen, wenn `npm test` läuft, dann sind alle Tests grün und der Vault enthält keine privaten Inhalte
 
 ## Edge Cases
 - **Blueprint beschreibt Repo-1/Repo-2-Governance** → bleibt 1:1, das ist OS-Methode, kein Privat-Inhalt
@@ -139,7 +139,42 @@ _Umgesetzt: 2026-07-18_
 - 1.270 Tests grün; Abweichungen vom Design: keine
 
 ## QA Test Results
-_To be added by /qa_
+
+**Tested:** 2026-07-18
+**Testart:** Dateisystem-/Inhalts-Prüfung (kein UI — Browser-/E2E-Tests nicht anwendbar)
+**Tester:** QA Engineer (AI)
+
+### Acceptance Criteria Status
+- [x] AC-1: Alle 5 Vault-Notizen `verifiziert` mit `quelle` + Review-Vermerk (drei Gates dokumentiert)
+- [x] AC-2: `docs/design-system.md` vollständig — Farb-Tokens (Hex + Tailwind), Spectral/Inter, CSS-Variablen, Gradient, eingebundenes Logo; PRD-Constraint erfüllt
+- [x] AC-3: Blueprint-Links lösen auf (Landkarte, Wissenskreislauf, Hero, Lernlog); keine Privat-/Altverweise
+- [x] AC-4: Kuratierungen ausgewiesen (quelle-Vermerke + Implementation Notes inkl. Testlauf-Befund)
+- [x] AC-5: Gate-Regeln & Rollen mit allen Grundsätzen (risiko-gestuft, Initiative wächst, autonom gestartet ≠ ungeprüft, 4 Rollen, Entwurf-first-Verweis)
+- [x] AC-6: Schreibstil-Regel lädt in jeder Session, verweist auf die Vault-Notiz statt zu kopieren
+- [x] AC-7: 1.279 Tests grün; Privat-Scan sauber (nach Präzisierung auf exakten Notiznamen)
+
+### Zusätzliche Prüfungen
+- [x] Logo byte-identisch mit dem Original aus dem Website-Projekt
+- [x] Wissenskreislauf ohne VPS-Pfade (Pfad-Aktualisierung vollständig)
+- [x] Schicht-Übersichten zeigen aktuellen Bestand, keine PROJ-5-Platzhalter mehr im Vault
+
+### Security Audit Results
+- [x] Keine Secrets in den neuen Dateien; SSH-Hostname in der n8n-Notiz ist bewusst enthalten (kein Credential, Review-Entscheidung Gate 3)
+- [x] Keine Änderungen an App-Code
+
+### Bugs Found
+Keine. (Die 3 Testfehlschläge während der Umsetzung waren Scan-Präzisionsthemen, kein Produktfehler — dokumentiert in den Implementation Notes.)
+
+### Automatisierte Tests
+- Erweitert: `src/test/vault-migration.test.ts` um den PROJ-5-Block (5 Notizen, design-system, Logo, Pfade, Regel)
+- Gesamt: 1.279 Tests grün (3 Testdateien)
+
+### Summary
+- **Acceptance Criteria:** 7/7 passed
+- **Bugs Found:** 0
+- **Security:** Pass
+- **Production Ready:** YES
+- **Recommendation:** Approve — OS-Wissen und Branding vollständig migriert, alle Vault-Schichten gefüllt
 
 ## Deployment
 _To be added by /deploy_

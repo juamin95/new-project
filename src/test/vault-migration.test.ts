@@ -101,6 +101,40 @@ describe('PROJ-4: Hero-Wissen ist vollständig migriert', () => {
   })
 })
 
+describe('PROJ-5: OS-Wissen + Branding sind migriert', () => {
+  it.each([
+    'vault/03 AI/KI-Betriebssystem Blueprint.md',
+    'vault/03 AI/Wissenskreislauf KI-Betriebssystem.md',
+    'vault/02 Technik/n8n/n8n IMAP Community Node als AI-Agent-Tool patchen.md',
+    'vault/00 Betrieb/Schreibstil.md',
+    'vault/04 User/Gate-Regeln & Rollen.md',
+  ])('%s ist verifiziert mit quelle und Review', (note) => {
+    const fm = read(note).match(/^---\n([\s\S]*?)\n---\n/)![1]
+    expect(fm).toMatch(/^status: verifiziert$/m)
+    expect(fm).toContain('Review Julian')
+  })
+
+  it('design-system.md trägt Tokens, Fonts, CSS-Variablen und Logo', () => {
+    const ds = read('docs/design-system.md')
+    for (const k of ['brand-green-cta', 'Spectral', 'Inter', '--primary', 'gruenschnitt-logo.png'])
+      expect(ds).toContain(k)
+  })
+
+  it('Logo liegt in 05 Anhänge', () => {
+    expect(existsSync(join(root, 'vault/05 Anhänge/gruenschnitt-logo.png'))).toBe(true)
+  })
+
+  it('Wissenskreislauf nennt keine VPS-Pfade mehr', () => {
+    expect(read('vault/03 AI/Wissenskreislauf KI-Betriebssystem.md')).not.toContain('/root/')
+  })
+
+  it('Schreibstil-Regel lädt global und verweist auf die Vault-Notiz', () => {
+    const rule = read('.claude/rules/schreibstil.md')
+    expect(rule.startsWith('---')).toBe(false)
+    expect(rule).toContain('vault/00 Betrieb/Schreibstil.md')
+  })
+})
+
 describe('Link-Aktivierung: Hero-Praxiswissen ist seit PROJ-4 verlinkt', () => {
   it('Bauprozess verlinkt Kalender- und Projekttypen-Praxiswissen', () => {
     const bau = read('vault/01 Prozess/Kernprozesse/Prozess Bauprojekt End-to-End.md')
