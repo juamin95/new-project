@@ -1,6 +1,6 @@
 # PROJ-16: Migration Tool-Ebene (Hero-CLI + Introspection)
 
-## Status: In Progress
+## Status: Approved
 **Created:** 2026-07-18
 **Last Updated:** 2026-07-18
 
@@ -40,14 +40,14 @@
 
 **Format:** Angenommen [Vorbedingung] / Wenn [Aktion] / Dann [Ergebnis]
 
-- [ ] Angenommen die Tools liegen unter `tools/` und das venv ist eingerichtet, wenn `./hero kontakt suchen "<Testkunde>"` ausgeführt wird, dann liefert die CLI ein Ergebnis ohne Fehler (Key aus Repo-Root-`.env.local`)
-- [ ] Angenommen die drei Lese-Funktionstests laufen (kontakt suchen, projekt suchen, kalender kategorien), wenn sie abgeschlossen sind, dann sind alle drei erfolgreich und das Ergebnis ist in der Spec dokumentiert
-- [ ] Angenommen `HERO_API_KEY` fehlt in `.env.local`, wenn ein CLI-Befehl läuft, dann erscheint eine klare Fehlermeldung statt eines Stacktraces
-- [ ] Angenommen `introspect.py` läuft im Probelauf, wenn ein Temp-Zielpfad übergeben wird, dann entstehen dort Referenz-Dateien — und niemals im alten VPS-Pfad
-- [ ] Angenommen venv und `__pycache__` existieren nach dem Setup, wenn `git status` läuft, dann tauchen sie nicht auf (`.gitignore`)
-- [ ] Angenommen der Agent soll einen Schreibbefehl der CLI ausführen, wenn keine ausdrückliche Freigabe im Vorgang vorliegt, dann untersagt die Governance-Regel die Ausführung
-- [ ] Angenommen der Agent erstellt ein Angebot oder eine Rechnung über die Tools, wenn das Dokument entsteht, dann immer als Entwurf (`publish: false`) — Versand/Veröffentlichung bleibt beim Menschen
-- [ ] Angenommen der Funktionstest ist bestanden, wenn PROJ-16 abgeschlossen wird, dann ist `_tooling-uebergabe/` im alten Vault entfernt (Commit dort) und `npm test` hier weiterhin grün
+- [x] Angenommen die Tools liegen unter `tools/` und das venv ist eingerichtet, wenn `./hero kontakt suchen "<Testkunde>"` ausgeführt wird, dann liefert die CLI ein Ergebnis ohne Fehler (Key aus Repo-Root-`.env.local`)
+- [x] Angenommen die drei Lese-Funktionstests laufen (kontakt suchen, projekt suchen, kalender kategorien), wenn sie abgeschlossen sind, dann sind alle drei erfolgreich und das Ergebnis ist in der Spec dokumentiert
+- [x] Angenommen `HERO_API_KEY` fehlt in `.env.local`, wenn ein CLI-Befehl läuft, dann erscheint eine klare Fehlermeldung statt eines Stacktraces
+- [x] Angenommen `introspect.py` läuft im Probelauf, wenn ein Temp-Zielpfad übergeben wird, dann entstehen dort Referenz-Dateien — und niemals im alten VPS-Pfad
+- [x] Angenommen venv und `__pycache__` existieren nach dem Setup, wenn `git status` läuft, dann tauchen sie nicht auf (`.gitignore`)
+- [x] Angenommen der Agent soll einen Schreibbefehl der CLI ausführen, wenn keine ausdrückliche Freigabe im Vorgang vorliegt, dann untersagt die Governance-Regel die Ausführung
+- [x] Angenommen der Agent erstellt ein Angebot oder eine Rechnung über die Tools, wenn das Dokument entsteht, dann immer als Entwurf (`publish: false`) — Versand/Veröffentlichung bleibt beim Menschen
+- [x] Angenommen der Funktionstest ist bestanden, wenn PROJ-16 abgeschlossen wird, dann ist `_tooling-uebergabe/` im alten Vault entfernt (Commit dort) und `npm test` hier weiterhin grün
 
 ## Edge Cases
 - **Hero nicht erreichbar** → CLI-Fehlerbehandlung greift (Timeout/Fehlerpfad in `client.py`); Funktionstest dokumentiert das Verhalten
@@ -160,7 +160,50 @@ _Umgesetzt: 2026-07-18_
 - Abweichungen vom Design: keine
 
 ## QA Test Results
-_To be added by /qa_
+
+**Tested:** 2026-07-18
+**Testart:** CLI-Live-Tests gegen Hero + statische Prüfung (kein UI — Browser-/E2E-Tests nicht anwendbar)
+**Tester:** QA Engineer (AI)
+
+### Acceptance Criteria Status
+
+#### AC-1/2: Lesebefehle liefern Ergebnisse (unabhängig wiederholt)
+- [x] `kontakt suchen "Amini"` → 1 Treffer (Testkunde), `projekt suchen --kunde` → 3 Projekte, `kalender kategorien` → 6 Kategorien
+
+#### AC-3: Fehlender Key
+- [x] Leerer Key → „Fehler: HERO_API_KEY fehlt in .env.local" (kein Stacktrace)
+
+#### AC-4: introspect.py-Zielpfad
+- [x] Kein `/root/`-Pfad mehr im Code; ohne Argument klarer Abbruch; Probelauf schrieb 360 Dateien ausschließlich ins Scratch-Verzeichnis
+
+#### AC-5: Umgebung unversioniert
+- [x] venv, `__pycache__`, `daten/` per `git check-ignore` bestätigt
+
+#### AC-6: Governance-Regel
+- [x] `.claude/rules/hero-tools.md` lädt in jeder Session; Entwurf-first (publish: false, Versand durch Menschen) und Lese-/Schreib-Gate verankert
+
+#### AC-7: Abschluss-Sequenz
+- [x] Transport-Kiste im alten Vault entfernt (Commit 7b6b477, gepusht); `npm test` hier grün
+
+### Security Audit Results
+- [x] Kein Key-Wert im Tools-Code oder in Doku (Pattern-Scan)
+- [x] Dokument-Erzeugung im Code als Draft (`publish: false`) bestätigt
+- [x] Key nur in `.env.local` (deny-Regeln aktiv); CLI-Ausgaben enthalten keinen Key
+- [x] 1:1-Treue-Stichprobe: `cli.py` byte-identisch zur Quelle (Vergleich gegen Git-Historie des alten Vaults)
+
+### Bugs Found
+Keine. (Bekannte Kosmetik aus der Umsetzung: urllib3/LibreSSL-Warnung des System-Python — funktionslos, dokumentiert in den Implementation Notes.)
+
+### Automatisierte Tests
+- Neu: `src/test/tools-governance.test.ts` — statischer Regressionsschutz für die vier Anpassungen und die Governance-Regel (ohne Netzwerk)
+- Gesamt: 137/137 Tests grün (3 Testdateien)
+
+### Summary
+- **Acceptance Criteria:** 7/7 passed
+- **Bugs Found:** 0
+- **Security:** Pass
+- **Production Ready:** YES
+- **Recommendation:** Approve — Tool-Ebene migriert, live getestet, Source of Truth gewechselt
 
 ## Deployment
 _To be added by /deploy_
