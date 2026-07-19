@@ -1,6 +1,6 @@
 # PROJ-7: Cockpit-Grundgerüst
 
-## Status: Planned
+## Status: Architected
 **Created:** 2026-07-17
 **Last Updated:** 2026-07-19
 
@@ -10,22 +10,32 @@
 
 ## Ziel
 
-Die erste sichtbare Version des Cockpits: Marvin kann sich am Handy anmelden und findet eine App vor, die sich nach GRÜNSCHNITT anfühlt — Login-Seite, Heute-Startseite und die Tab-Navigation zu allen künftigen Bereichen. Die Bereiche selbst (Board, Freigaben, Chat, Aufgaben) kommen mit PROJ-8 bis PROJ-11; dieses Feature liefert das Gehäuse, in das sie einziehen.
+Die erste sichtbare Version des Cockpits: Marvin kann sich am Handy anmelden und findet eine App vor, die sich nach GRÜNSCHNITT anfühlt — Login-Seite, Heute-Startseite und die Navigation zu den Herzstücken der App. Das Cockpit ist **kein Hero-Nachbau zum Angucken**, sondern die **interaktive Bedienoberfläche fürs Betriebssystem**: Es zeigt, was das OS in seinen Loops aktiv aufgedeckt hat, lässt Marvin darüber entscheiden und ausführen. Dieses Feature liefert das Gehäuse (Anmeldung, Rahmen, Navigation, Branding); die eigentlichen Bereiche (Offene Punkte, Chat, Lernen) kommen mit ihren Features und sind hier Platzhalter.
+
+## App-Konzept (Leitbild für Phase 2)
+
+Drei Herzstücke, alle vom selben Gedanken getragen — das OS arbeitet, der Mensch entscheidet (Gate):
+
+1. **Offene Punkte** — was das OS aktiv aufgedeckt hat (erkannte Aufgaben aus Mail/Leads/Prozessstatus, außenwirksame Entwürfe). Jeder Punkt ist **interaktiv**: das OS zeigt eine Empfehlung, Marvin kann annehmen, verfeinern oder dagegenhalten (Eingabe), dann führt das OS aus — immer mit Gate. Ein offener Punkt ist im Grunde ein fokussiertes Chat-Gespräch, vorgeladen mit Kontext und Vorschlag.
+2. **Chat** — freies, aktives Bedienen des OS in Alltagssprache (Fragen, Termine anlegen, Zusammenfassungen).
+3. **Lernen (Rückschau)** — der sichtbar gemachte Wissenskreislauf: Das OS zeigt, was es aus Marvins Entscheidungen gelernt hat, welche Muster es erkannt hat und welches Wissen künftig einfließen soll, damit es genauer und zuverlässiger wird. Die Beförderung „erfasst → verifiziert" bleibt eine menschliche Entscheidung (Gate).
+
+**Board (Projektübersicht) entfällt bewusst:** Die Projektübersicht bietet Hero bereits; ein Nachbau im Cockpit wäre Doppelung ohne Mehrwert und widerspricht „Hero führt, nicht spiegeln". Projektkontext erscheint dort, wo er gebraucht wird — innerhalb eines offenen Punktes.
 
 ## User Stories
 - Als Marvin möchte ich mich mit meiner E-Mail-Adresse per Magic Link anmelden, damit ich kein Passwort brauche und trotzdem nur wir beide ins Cockpit kommen
-- Als Marvin möchte ich nach dem Login eine Heute-Startseite mit Begrüßung und den Bereichen der App sehen, damit ich von Anfang an verstehe, wie das Cockpit aufgebaut ist
-- Als Marvin möchte ich unten eine feste Tab-Leiste (Heute · Aufgaben · Board · Chat · Freigaben) haben, damit ich jeden Bereich mit einem Daumentipp erreiche — wie in den Apps, die ich kenne
+- Als Marvin möchte ich nach dem Login eine Heute-Startseite mit Begrüßung sehen, die mir zeigt, was gerade ansteht (offene Punkte, Lernvorschläge), damit ich sofort weiß, wo ich anpacken soll
+- Als Marvin möchte ich unten eine feste Tab-Leiste (Heute · Offene Punkte · Chat) haben, damit ich die Herzstücke mit einem Daumentipp erreiche — wie in den Apps, die ich kenne
 - Als Marvin möchte ich das Cockpit als App-Symbol auf meinem Homescreen ablegen können, damit es sich wie eine echte App anfühlt und nicht wie eine Webseite
 - Als Marvin möchte ich eingeloggt bleiben, wenn ich die App schließe und später wieder öffne, damit ich nicht ständig auf einen neuen Link warten muss
 - Als Julian möchte ich, dass jede Cockpit-Seite ohne gültige Anmeldung auf den Login umleitet, damit keine Betriebsdaten offen im Netz stehen
 
 ## Out of Scope
-- **Inhalte der Bereiche:** Prozess-Board (PROJ-8), Freigaben-Liste (PROJ-9), Chat (PROJ-10) — hier nur Platzhalterseiten mit „Bald verfügbar"
-- **Aufgaben-Logik (PROJ-11):** nur Platzhalter. Vorgabe fürs spätere Bauen: Der Aufgaben-Bereich ist **kein zweiter Aufgabenspeicher neben Hero**, sondern eine Verifikations-/Gate-Fläche. Das System erkennt Aufgaben-Kandidaten aus den unterliegenden Systemen (E-Mail-Anfragen, Website-Leads, Prozessstatus), schlägt eine Projekt-/Kundenzuordnung vor, Marvin verifiziert, und erst nach Freigabe wird die Aufgabe **in Hero** angelegt (`aufgabe-*`, Entwurf-first/Gate). Aufgaben leben in Hero und werden nie doppelt gepflegt.
-- **Tagesdaten auf der Heute-Seite** (Termine, offene Aufgaben, Zusammenfassung) — die Heute-Seite wird von PROJ-11/PROJ-13 mit echten Daten gefüllt; jetzt: Begrüßung + Bereichskacheln
-- **Lernvorschläge-Kachel** auf der Heute-Seite — kommt mit PROJ-15 (Vorgabe: Kachel auf Heute, Freigabe über den Freigaben-Bereich)
-- **Termine-Bereich** — PROJ-13 (P1), bekommt keinen eigenen Tab; Einstieg später über die Heute-Seite/Board
+- **Inhalte der Herzstücke:** die interaktive Offene-Punkte-Liste, der Chat und die Lernen-Rückschau kommen mit ihren Features (siehe unten) — hier nur Platzhalter/Vorschau mit „Bald verfügbar"
+- **Interaktive Punkt-Logik:** wie ein offener Punkt sich aufklappt, wie Empfehlung + Gegenrede-Eingabe aussehen, wie erkannte Aufgaben nach Hero überführt werden (`aufgabe-*`, Entwurf-first/Gate) — Spec des Offene-Punkte-Features. **Vorgabe:** Aufgaben leben in Hero (führendes System) und werden nie doppelt gepflegt; das Cockpit ist Verifikations-/Gate-Fläche für erkannte Kandidaten, kein zweiter Aufgabenspeicher.
+- **Lern-/Wissenskreislauf-Logik** (welche Muster erkannt werden, wie Wissen befördert wird) — PROJ-15; hier nur die Kachel + Platzhalter-Rückschau
+- **Tagesdaten auf der Heute-Seite** (echte Termine, echte Punkte-Inhalte) — werden von den jeweiligen Features gefüllt; jetzt: Begrüßung + Kacheln (mit Platzhalter-Zählern)
+- **Termine-Bereich** — PROJ-13 (P1), kein eigener Tab; Einstieg später über Heute/Chat
 - **Mehrere Konten / Rollen** — bewusst ein gemeinsames Konto (PROJ-1-Entscheidung); Mitarbeiter-Logins siehe PRD-Parkplatz
 - **Offline-Modus** — die PWA-Installierbarkeit liefert nur den App-Charakter (Icon, Vollbild), keine Offline-Datenhaltung
 - **Strato-SMTP** — Mailer-Umstellung ist Vor-Go-Live-Bedingung bei `/deploy` (PROJ-1-Entscheidung)
@@ -37,8 +47,9 @@ Die erste sichtbare Version des Cockpits: Marvin kann sich am Handy anmelden und
 - [ ] Angenommen Marvin ist nicht angemeldet, wenn er eine beliebige Cockpit-Seite aufruft, dann wird er auf die Login-Seite umgeleitet
 - [ ] Angenommen Marvin gibt auf der Login-Seite die Cockpit-Adresse ein, wenn er „Link anfordern" tippt, dann bestätigt die Seite den Versand („Schau in dein Postfach") und der Magic Link aus der Mail führt ihn eingeloggt auf die Heute-Seite
 - [ ] Angenommen jemand gibt eine fremde E-Mail-Adresse ein, wenn er „Link anfordern" tippt, dann erscheint dieselbe neutrale Versand-Bestätigung, aber es kommt weder Mail noch Konto zustande (keine Auskunft, welche Adresse gültig ist)
-- [ ] Angenommen Marvin ist angemeldet, wenn er die Heute-Seite öffnet, dann sieht er das GRÜNSCHNITT-Logo, eine Begrüßung und Kacheln für Aufgaben, Board, Chat und Freigaben — noch nicht gebaute Bereiche sind als „Bald verfügbar" gekennzeichnet
-- [ ] Angenommen Marvin ist angemeldet, wenn er einen Tab in der unteren Leiste antippt, dann wechselt die Ansicht sofort, der aktive Tab ist hervorgehoben, und Platzhalterseiten erklären in einem Satz, was dort entstehen wird
+- [ ] Angenommen Marvin ist angemeldet, wenn er die Heute-Seite öffnet, dann sieht er das GRÜNSCHNITT-Logo, eine Begrüßung und Kacheln für Offene Punkte und Lernen — solange ohne echte Inhalte als „Bald verfügbar" gekennzeichnet
+- [ ] Angenommen Marvin ist angemeldet, wenn er einen Tab in der unteren Leiste (Heute · Offene Punkte · Chat) antippt, dann wechselt die Ansicht sofort, der aktive Tab ist hervorgehoben, und Platzhalterseiten erklären in einem Satz, was dort entstehen wird
+- [ ] Angenommen Marvin ist auf der Heute-Seite, wenn er die Lernen-Kachel antippt, dann öffnet sich die (vorerst leere) Rückschau-Ansicht mit einem Satz, der ihren Zweck erklärt
 - [ ] Angenommen Marvin schließt die App oder das Handy geht aus, wenn er das Cockpit später wieder öffnet, dann ist er weiterhin angemeldet und landet direkt auf der Heute-Seite
 - [ ] Angenommen Marvin tippt im Kopfbereich auf das Konto-Symbol und wählt „Abmelden", dann ist die Sitzung beendet und jede Cockpit-Seite verlangt wieder einen Login
 - [ ] Angenommen Marvin nutzt „Zum Homescreen hinzufügen", wenn er das Cockpit vom Homescreen startet, dann öffnet es sich mit GRÜNSCHNITT-Icon und -Name im Vollbild ohne Browser-Adressleiste
@@ -58,26 +69,30 @@ Die erste sichtbare Version des Cockpits: Marvin kann sich am Handy anmelden und
 - **Mobile-first:** Auslegung primär für 375–430 px Breite; Desktop bekommt die Seitenleisten-Variante
 - **Security:** Jede Route außer Login serverseitig geschützt (Session-Prüfung, nicht nur clientseitig); Sicherheits-Header gemäß `.claude/rules/security.md`
 - **Branding:** ausschließlich Tokens/Fonts aus `docs/design-system.md` (Spectral/Inter, Brand-Grün-Palette, Logo aus `vault/05 Anhänge/`)
-- **Sprache:** komplette UI auf Deutsch, Ansprache gemäß Schreibstil-Regeln (Marvin wird gesiezt? Nein — App-UI duzt nicht/siezt nicht förmlich; neutrale, kurze Beschriftungen)
+- **Sprache:** komplette UI auf Deutsch, neutrale und kurze Beschriftungen
 - **Performance:** Erste Seite < 2 s auf mittlerem Mobilfunknetz; keine schweren Abhängigkeiten fürs Grundgerüst
 
 ## Open Questions
 - [ ] Genauer Begrüßungstext der Heute-Seite (Tageszeit-abhängig? „Moin Marvin"?) — bei `/frontend` mit Julian festlegen
 - [ ] iOS zeigt (anders als Android) keinen automatischen Installations-Hinweis — dezenten einmaligen In-App-Hinweis „Zum Home-Bildschirm hinzufügen" (Teilen → Hinzufügen) bei `/frontend` einbauen
+- [ ] Beschriftung der Lernen-Rückschau final festlegen („Lernen", „Rückschau", „Wissen"?) — bei `/frontend`
 
 ## Decision Log
 
 ### Product Decisions
 | Decision | Rationale | Date |
 |----------|-----------|------|
-| Heute-Startseite mit Bereichskacheln statt leerer Platzhalter | Marvin lernt die App-Struktur von Anfang an; Seite wächst später zur Tagesübersicht | 2026-07-19 |
+| App ist interaktive OS-Bedienoberfläche, kein Hero-Nachbau | Der Wert liegt im aktiven Bedienen des OS + Bestätigen der Loops, nicht im Anschauen gespiegelter Hero-Daten (Korrektur Julian) | 2026-07-19 |
+| Board (Projektübersicht) entfällt | Hero liefert die Projektübersicht bereits; Nachbau = Doppelung ohne Mehrwert, widerspricht „Hero führt, nicht spiegeln" | 2026-07-19 |
+| Herzstücke: Offene Punkte · Chat · Lernen (Rückschau) | Julians Bild: einzelne vom OS aufgedeckte Punkte interaktiv abarbeiten, frei chatten, und eine Rückschau auf das, was das System lernt | 2026-07-19 |
+| Offene Punkte bündeln erkannte Aufgaben **und** außenwirksame Entwürfe | Beide sind dasselbe Muster (Punkt → Empfehlung → Gegenrede → Gate-Ausführung); weniger Tabs, konsequenter | 2026-07-19 |
+| Offene Punkte sind interaktiv (annehmen/verfeinern/dagegenhalten), nicht nur annehmen/ablehnen | Marvin soll Vorschläge im Dialog schärfen können — technisch ein fokussiertes Chat-Gespräch mit vorgeladenem Kontext | 2026-07-19 |
+| Lernen/Rückschau als eigene Kachel auf der Heute-Seite (Aufwertung von PROJ-15) | Wissenskreislauf für Marvin sichtbar machen; Beförderung „erfasst → verifiziert" bleibt menschliche Entscheidung (Gate) | 2026-07-19 |
+| Navigation: Heute · Offene Punkte · Chat (3 Tabs) | Radikal einfach, am nächsten an Julians Beschreibung; Lernen erreichbar über Heute-Kachel statt vierten Tab | 2026-07-19 |
 | Tab-Leiste unten (nicht Burger-Menü) | Vertrauteste Form für einen Papier-Umsteiger (WhatsApp-Muster); alles einen Daumentipp entfernt | 2026-07-19 |
-| Tab-Belegung: Heute · Aufgaben · Board · Chat · Freigaben | Julians Gewichtung: Aufgaben (vom System aktiv erkannt) und Chat sind Marvins Kernwerkzeuge; alle P0-Bereiche direkt erreichbar | 2026-07-19 |
-| Lernvorschläge (PROJ-15) als Kachel auf der Heute-Seite, Freigabe über den Freigaben-Bereich | Julians Wunsch nach sichtbarem Lernkreislauf, ohne einen sechsten Tab zu belegen; alles Prüfpflichtige an einem Ort | 2026-07-19 |
 | PWA-Installierbarkeit ab V1 (nur App-Charakter, kein Offline) | Ein Tipp aufs GRÜNSCHNITT-Icon statt Browser-Lesezeichen — geringer Aufwand, großer Unterschied für Marvin | 2026-07-19 |
-| Termine ohne eigenen Tab | P1 (PROJ-13); Einstieg später über Heute-Seite/Board, Erstellung ohnehin per Chat | 2026-07-19 |
+| Termine ohne eigenen Tab | P1 (PROJ-13); Einstieg später über Heute/Chat, Erstellung ohnehin per Chat | 2026-07-19 |
 | Neutrale Versand-Bestätigung auch bei fremden Adressen | Keine Auskunft, welche Adresse zum Cockpit gehört (Enumeration-Schutz); PROJ-1 blockt fremde Adressen serverseitig | 2026-07-19 |
-| Aufgaben-Bereich ist Verifikations-/Gate-Fläche, kein zweiter Aufgabenspeicher | Aufgaben leben in Hero (führendes System). Die App erkennt Kandidaten aus unterliegenden Systemen, schlägt Projekt-/Kundenzuordnung vor, Marvin verifiziert → Anlage in Hero. Keine Doppelpflege (Korrektur Julian) | 2026-07-19 |
 
 ### Technical Decisions
 <!-- Added by /architecture -->
@@ -121,20 +136,20 @@ Cockpit (App)
     ├── Kopfbereich: kleines Logo + Konto-Menü (》 „Abmelden")
     ├── Seiteninhalt (die jeweilige Seite)
     └── Navigation — eine Bereichsliste, zwei Darstellungen:
-        ├── Handy:   Tab-Leiste unten (Heute · Aufgaben · Board · Chat · Freigaben)
-        └── Desktop: Seitenleiste (gleiche 5 Bereiche, gleiche Reihenfolge)
+        ├── Handy:   Tab-Leiste unten (Heute · Offene Punkte · Chat)
+        └── Desktop: Seitenleiste (gleiche 3 Bereiche, gleiche Reihenfolge)
 
     Seiten hinter dem Rahmen:
-    ├── /heute      Begrüßung + Bereichskacheln (Aufgaben/Board/Chat/Freigaben,
-    │               nicht-gebaute als „Bald verfügbar")
-    ├── /aufgaben   Platzhalter „Bald verfügbar" (Verifikations-/Gate-Fläche, PROJ-11)
-    ├── /board      Platzhalter (PROJ-8)
-    ├── /chat       Platzhalter (PROJ-10)
-    └── /freigaben  Platzhalter (PROJ-9)
+    ├── /heute           Begrüßung + Kacheln:
+    │                      • Offene Punkte (Vorschau/Zähler)
+    │                      • Lernen/Rückschau (Vorschau) → öffnet /lernen
+    ├── /offene-punkte   Platzhalter „Bald verfügbar" (interaktive Liste, eigenes Feature)
+    ├── /chat            Platzhalter (PROJ-10)
+    └── /lernen          Platzhalter-Rückschau, erreichbar über Heute-Kachel (PROJ-15)
 ```
 
 ### B) „Daten"-Modell
-Es wird **nichts Neues in der Datenbank** gespeichert. Die einzige „Information" ist die Anmelde-Sitzung — sie liegt in sicheren, nicht auslesbaren Cookies (HttpOnly), so entschieden in PROJ-1. Die Liste der fünf Bereiche ist eine feste Angabe im Code, keine Datenbank-Tabelle. Damit gibt es auch keine RLS-Policies zu schreiben.
+Es wird **nichts Neues in der Datenbank** gespeichert. Die einzige „Information" ist die Anmelde-Sitzung — sie liegt in sicheren, nicht auslesbaren Cookies (HttpOnly), so entschieden in PROJ-1. Die Liste der Bereiche ist eine feste Angabe im Code, keine Datenbank-Tabelle. Damit gibt es auch keine RLS-Policies zu schreiben.
 
 ### C) Tech-Entscheidungen (für alle verständlich)
 1. **`@supabase/ssr` als Anmelde-Brücke.** Die Spec verlangt, dass *jede* Seite serverseitig geschützt ist — nicht nur im Browser „versteckt". Dieses Paket hält die Sitzung in sicheren Cookies, sodass der Server schon *vor* dem Ausliefern einer Seite weiß, ob jemand angemeldet ist. Es ergänzt das bereits installierte `@supabase/supabase-js`.

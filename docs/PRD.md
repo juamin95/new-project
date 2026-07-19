@@ -28,14 +28,14 @@ Dieses Repo ist der übergabefähige „Repo-2-Schnitt" aus dem Blueprint: valid
 |----------|---------|--------|--------|
 | P0 (MVP) | Supabase-Infrastruktur | Bestehendes Website-Projekt („juamin95's Project", leads + projekte) erweitern: Auth, Cockpit-Schema | Approved |
 | P0 (MVP) | Cockpit-Grundgerüst | Login (Marvin/Julian), mobile-first Navigation im GRÜNSCHNITT-Branding | Architected |
-| P0 (MVP) | Prozess-Board | Alle Hero-Projekte entlang der drei Pipelines, Anfrage → Rechnungserstellung, auf einen Blick | Roadmap |
-| P0 (MVP) | Review-Liste (Gate) | Entwürfe (Mails, Angebote, Rechnungen) prüfen/freigeben, Audit-Trail — nie Autoversand | Roadmap |
-| P0 (MVP) | Chat mit dem OS | Marvin steuert Aktionen in Alltagssprache (Termine anlegen, Fragen, Zusammenfassungen); nutzt die migrierten Skills | Roadmap |
-| P0 (MVP) | Aufgaben & To-dos | System erkennt Aufgaben aus Anfragen und Prozessstatus; Marvin arbeitet sie mit dem OS ab | Roadmap |
+| P0 (MVP) | ~~Prozess-Board~~ | **Verworfen (19.07.):** Projektübersicht liefert Hero bereits — Nachbau widerspricht „Hero führt, nicht spiegeln" | Verworfen |
+| P0 (MVP) | Offene Punkte: Freigaben | Außenwirksame Entwürfe (Mails/Angebote/Rechnungen) als „offener Punkt" interaktiv prüfen/freigeben (Empfehlung + Gegenrede), Audit-Trail — nie Autoversand | Roadmap |
+| P0 (MVP) | Chat mit dem OS | Marvin steuert Aktionen in Alltagssprache (Termine anlegen, Fragen, Zusammenfassungen); nutzt die migrierten Skills — Interaktions-Engine auch für offene Punkte | Roadmap |
+| P0 (MVP) | Offene Punkte: erkannte Aufgaben | System erkennt Aufgaben aus Anfragen/Prozessstatus (Loops); Marvin verifiziert Zuordnung interaktiv → Anlage in Hero (Gate, keine Doppelpflege) | Roadmap |
 | P1 | Anfrage-Eingang | Website-Leads + E-Mail-Anfragen (n8n-klassifiziert) erkennen und Projekten zuordnen | Roadmap |
 | P1 | Termin- & Einsatzansicht | Wochenansicht der Einsätze aus Hero-Terminen; Erstellung läuft übers OS (Chat) | Roadmap |
 | P1 | n8n-Anbindung & Routinen-Monitoring | Agent-Zugriff auf n8n via MCP: Executions auswerten, Fehlläufe melden, nachtriggern | Roadmap |
-| P2 | Feedbackschleifen / Lernkreislauf | Korrekturen bei Freigaben werden erfasst → System lernt (Wissenskreislauf, mit Gate) | Roadmap |
+| P2 | Lernen / Rückschau (Wissenskreislauf) | Sichtbare Rückschau (Kachel auf Heute): erkannte Muster aus Marvins Entscheidungen + Wissensvorschläge fürs OS; Beförderung „erfasst → verifiziert" mit Gate | Roadmap |
 
 ## Success Metrics
 1. **Marvin arbeitet eigenständig:** kompletter Durchlauf Anfrage → Rechnungserstellung übers Cockpit, ohne Julian an der Konsole

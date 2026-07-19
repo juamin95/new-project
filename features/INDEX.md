@@ -30,19 +30,21 @@
 |----|---------|--------------|------|----------------|--------|------|---------|
 | PROJ-1 | Supabase-Infrastruktur | Website-Projekt „juamin95's Project" (bnzpdujupmmrwcbunbql) erweitern: Auth, Cockpit-Schema, Env-Setup | P0 | Keine | Approved | [Spec](PROJ-1-supabase-infrastruktur.md) | 2026-07-17 |
 | PROJ-7 | Cockpit-Grundgerüst | Login (Marvin/Julian), mobile-first Navigation im GRÜNSCHNITT-Branding | P0 | PROJ-1, PROJ-5 | Architected | [Spec](PROJ-7-cockpit-grundgeruest.md) | 2026-07-17 |
-| PROJ-8 | Prozess-Board | Hero-Projekte entlang der 3 Pipelines, Anfrage → Rechnungserstellung auf einen Blick | P0 | PROJ-7 | Roadmap | — | 2026-07-17 |
-| PROJ-9 | Review-Liste (Gate) | Entwürfe (Mails, Angebote, Rechnungen) prüfen/freigeben, Audit-Trail — nie Autoversand | P0 | PROJ-7 | Roadmap | — | 2026-07-17 |
-| PROJ-10 | Chat mit dem OS | Aktionen in Alltagssprache (Termine anlegen, Fragen, Zusammenfassungen); nutzt migrierte Skills | P0 | PROJ-6, PROJ-7 | Roadmap | — | 2026-07-17 |
-| PROJ-11 | Aufgaben & To-dos | System erkennt Aufgaben aus Anfragen/Prozessstatus; Marvin arbeitet sie mit dem OS ab | P0 | PROJ-8, PROJ-10 | Roadmap | — | 2026-07-17 |
+| PROJ-8 | ~~Prozess-Board~~ | **Verworfen (19.07.2026):** Projektübersicht liefert Hero bereits; Nachbau = Doppelung ohne Mehrwert, widerspricht „Hero führt, nicht spiegeln". Projektkontext erscheint innerhalb eines offenen Punktes | P0 | — | Verworfen | — | 2026-07-17 |
+| PROJ-9 | Offene Punkte: Freigaben | Außenwirksame Entwürfe (Mails/Angebote/Rechnungen) als Typ „offener Punkt" interaktiv prüfen/freigeben (Empfehlung + Gegenrede), Audit-Trail — nie Autoversand | P0 | PROJ-7, PROJ-10 | Roadmap | — | 2026-07-17 |
+| PROJ-10 | Chat mit dem OS | Aktionen in Alltagssprache (Termine anlegen, Fragen, Zusammenfassungen); nutzt migrierte Skills. Interaktions-Engine auch für die offenen Punkte | P0 | PROJ-6, PROJ-7 | Roadmap | — | 2026-07-17 |
+| PROJ-11 | Offene Punkte: erkannte Aufgaben | System erkennt Aufgaben aus Anfragen/Prozessstatus (Loops), Marvin verifiziert Projekt-/Kundenzuordnung interaktiv → Anlage in Hero (Gate, keine Doppelpflege) | P0 | PROJ-7, PROJ-10 | Roadmap | — | 2026-07-17 |
 | PROJ-12 | Anfrage-Eingang | Website-Leads + E-Mail-Anfragen (n8n-klassifiziert) erkennen und Projekten zuordnen | P1 | PROJ-7 | Roadmap | — | 2026-07-17 |
-| PROJ-13 | Termin- & Einsatzansicht | Wochenansicht der Einsätze aus Hero-Terminen; Erstellung läuft übers OS (Chat) | P1 | PROJ-8 | Roadmap | — | 2026-07-17 |
+| PROJ-13 | Termin- & Einsatzansicht | Wochenansicht der Einsätze aus Hero-Terminen; Erstellung läuft übers OS (Chat) | P1 | PROJ-7 | Roadmap | — | 2026-07-17 |
 | PROJ-14 | n8n-Anbindung & Routinen-Monitoring | Agent-Zugriff auf n8n via MCP: Executions auswerten, Fehlläufe melden, nachtriggern | P1 | PROJ-7 | Roadmap | — | 2026-07-17 |
-| PROJ-15 | Feedbackschleifen / Lernkreislauf | Korrekturen bei Freigaben werden erfasst → System lernt (Wissenskreislauf, mit Gate) | P2 | PROJ-9, PROJ-10 | Roadmap | — | 2026-07-17 |
+| PROJ-15 | Lernen / Rückschau (Wissenskreislauf) | Sichtbare Rückschau (Kachel auf Heute, PROJ-7): erkannte Muster aus Marvins Entscheidungen + Wissensvorschläge fürs OS; Beförderung „erfasst → verifiziert" mit Gate | P2 | PROJ-9, PROJ-10 | Roadmap | — | 2026-07-17 |
 
 <!-- Add features above this line -->
 
+> **Herzstück „Offene Punkte":** PROJ-9 (außenwirksame Entwürfe) und PROJ-11 (erkannte Aufgaben) sind zwei Typen desselben interaktiven Musters (Punkt → Empfehlung → Gegenrede → Gate-Ausführung) und werden als **eine** Fläche gedacht/gebaut. Board (PROJ-8) entfällt; Lernen/Rückschau (PROJ-15) ist zu einer eigenen Fläche aufgewertet. Reframe am 19.07.2026 (Julian).
+
 ## Empfohlene Build-Reihenfolge
 
-PROJ-2 → PROJ-3 → PROJ-16 → PROJ-4 / PROJ-5 (parallel möglich) → PROJ-6 → PROJ-1 → PROJ-7 → PROJ-8 + PROJ-9 → PROJ-10 → PROJ-11 → P1-Features (PROJ-12, PROJ-13, PROJ-14) → PROJ-15
+PROJ-2 → PROJ-3 → PROJ-16 → PROJ-4 / PROJ-5 (parallel möglich) → PROJ-6 → PROJ-1 → PROJ-7 → PROJ-10 (Chat-/Interaktions-Engine) → PROJ-9 + PROJ-11 (Offene Punkte, gemeinsam) → P1-Features (PROJ-12, PROJ-13, PROJ-14) → PROJ-15 (Lernen/Rückschau)
 
 ## Next Available ID: PROJ-17
