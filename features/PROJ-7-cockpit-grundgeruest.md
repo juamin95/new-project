@@ -21,7 +21,8 @@ Die erste sichtbare Version des Cockpits: Marvin kann sich am Handy anmelden und
 - Als Julian möchte ich, dass jede Cockpit-Seite ohne gültige Anmeldung auf den Login umleitet, damit keine Betriebsdaten offen im Netz stehen
 
 ## Out of Scope
-- **Inhalte der Bereiche:** Prozess-Board (PROJ-8), Freigaben-Liste (PROJ-9), Chat (PROJ-10), Aufgaben (PROJ-11) — hier nur Platzhalterseiten mit „Bald verfügbar"
+- **Inhalte der Bereiche:** Prozess-Board (PROJ-8), Freigaben-Liste (PROJ-9), Chat (PROJ-10) — hier nur Platzhalterseiten mit „Bald verfügbar"
+- **Aufgaben-Logik (PROJ-11):** nur Platzhalter. Vorgabe fürs spätere Bauen: Der Aufgaben-Bereich ist **kein zweiter Aufgabenspeicher neben Hero**, sondern eine Verifikations-/Gate-Fläche. Das System erkennt Aufgaben-Kandidaten aus den unterliegenden Systemen (E-Mail-Anfragen, Website-Leads, Prozessstatus), schlägt eine Projekt-/Kundenzuordnung vor, Marvin verifiziert, und erst nach Freigabe wird die Aufgabe **in Hero** angelegt (`aufgabe-*`, Entwurf-first/Gate). Aufgaben leben in Hero und werden nie doppelt gepflegt.
 - **Tagesdaten auf der Heute-Seite** (Termine, offene Aufgaben, Zusammenfassung) — die Heute-Seite wird von PROJ-11/PROJ-13 mit echten Daten gefüllt; jetzt: Begrüßung + Bereichskacheln
 - **Lernvorschläge-Kachel** auf der Heute-Seite — kommt mit PROJ-15 (Vorgabe: Kachel auf Heute, Freigabe über den Freigaben-Bereich)
 - **Termine-Bereich** — PROJ-13 (P1), bekommt keinen eigenen Tab; Einstieg später über die Heute-Seite/Board
@@ -75,6 +76,7 @@ Die erste sichtbare Version des Cockpits: Marvin kann sich am Handy anmelden und
 | PWA-Installierbarkeit ab V1 (nur App-Charakter, kein Offline) | Ein Tipp aufs GRÜNSCHNITT-Icon statt Browser-Lesezeichen — geringer Aufwand, großer Unterschied für Marvin | 2026-07-19 |
 | Termine ohne eigenen Tab | P1 (PROJ-13); Einstieg später über Heute-Seite/Board, Erstellung ohnehin per Chat | 2026-07-19 |
 | Neutrale Versand-Bestätigung auch bei fremden Adressen | Keine Auskunft, welche Adresse zum Cockpit gehört (Enumeration-Schutz); PROJ-1 blockt fremde Adressen serverseitig | 2026-07-19 |
+| Aufgaben-Bereich ist Verifikations-/Gate-Fläche, kein zweiter Aufgabenspeicher | Aufgaben leben in Hero (führendes System). Die App erkennt Kandidaten aus unterliegenden Systemen, schlägt Projekt-/Kundenzuordnung vor, Marvin verifiziert → Anlage in Hero. Keine Doppelpflege (Korrektur Julian) | 2026-07-19 |
 
 ### Technical Decisions
 <!-- Added by /architecture -->
