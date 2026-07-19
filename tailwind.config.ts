@@ -9,7 +9,31 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  			serif: ['var(--font-serif)', 'ui-serif', 'Georgia', 'serif'],
+  		},
   		colors: {
+  			brand: {
+  				green: {
+  					light: '#eef6e8',
+  					mid: '#f4f7f2',
+  					muted: '#ddebd5',
+  					accent: '#d5e8cb',
+  					soft: '#90d170',
+  					pale: '#c8f0a8',
+  					deep: '#3a632b',
+  					vivid: '#6db33f',
+  					cta: '#4f802e',
+  					'cta-hover': '#3d6624',
+  				},
+  				stone: {
+  					light: '#f5f3ee',
+  					mid: '#ede9e2',
+  					muted: '#e0dbd1',
+  				},
+  				amber: '#d97706',
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

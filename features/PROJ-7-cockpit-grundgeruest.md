@@ -159,6 +159,31 @@ Cockpit (App)
 - Vorhanden: `@supabase/supabase-js`, shadcn/ui, `lucide-react`, `sonner`, `react-hook-form` + `zod`.
 - **Keine** PWA-Bibliothek — natives Manifest. App-Icons aus dem GRÜNSCHNITT-Logo zu erzeugen.
 
+## Implementation Notes (Frontend)
+**Umgesetzt am 2026-07-19.** Reiner Frontend-/Auth-Bau, kein neues DB-Schema.
+
+**Auth (@supabase/ssr):**
+- `src/lib/supabase/client.ts` (Browser), `server.ts` (Server Components/Route Handler), `middleware.ts` (`updateSession`)
+- `src/proxy.ts` — Türsteher (Next 16 „proxy" statt „middleware"): schützt alle Routen außer `/login` und `/auth/*`, frischt die Sitzung auf, leitet Angemeldete von `/login` weg
+- `src/app/auth/callback/route.ts` — tauscht Magic-Link-Code gegen Sitzung → `/offene-punkte`; Fehler → `/login?fehler=link`
+- `src/app/auth/signout/route.ts` — Abmelden per POST
+- `src/app/login/page.tsx` — Magic-Link-Formular (`signInWithOtp`, `shouldCreateUser:false`), Zustände: idle / Versand-Bestätigung (neutral, Enumeration-Schutz) / abgelaufener Link / Rate-Limit
+
+**Shell & Seiten:**
+- `src/components/cockpit-nav.tsx` (`CockpitShell`) — eine Bereichsliste, zwei Darstellungen: Tab-Leiste unten (Handy) / Seitenleiste (Desktop), aktiver Zustand über `usePathname`
+- `src/app/(app)/layout.tsx` — serverseitige Zweitsicherung (kein Nutzer → `/login`)
+- Seiten `offene-punkte`, `chat`, `lernen` als gestaltete Leerzustände; Abmelden liegt auf `lernen`
+- `src/app/page.tsx` → Redirect auf `/offene-punkte`
+
+**Branding & PWA:**
+- Spectral/Inter über `next/font` (lokal, wie die Website), Grün-Palette + heller Sage-Grund mit Punkt-Textur in `globals.css`/`tailwind.config.ts`
+- `src/app/manifest.ts` + Icons (`public/icon-192|512|maskable-512.png`, `src/app/icon.png`, `apple-icon.png`) aus dem GRÜNSCHNITT-Logo (PIL)
+- Sicherheits-Header in `next.config.ts` (X-Frame-Options, nosniff, Referrer-Policy, HSTS)
+
+**Smoke-Test (dev):** `/login` 200; `/` und `/offene-punkte` unangemeldet → 307 `/login`; Manifest 200; Header gesetzt. `npm run build` grün, `npm test` 1.334 grün.
+
+**Offen für /qa:** echter Magic-Link-Durchlauf im Browser (Login → Callback → offene Punkte → abmelden), Homescreen-Installation auf dem iPhone, iOS-Installationshinweis (Open Question), Beschriftung „Lernen".
+
 ## QA Test Results
 _To be added by /qa_
 
