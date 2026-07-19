@@ -1,5 +1,4 @@
-import { Sparkles, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Sparkles } from "lucide-react";
 
 export default function LernenPage() {
   return (
@@ -18,20 +17,6 @@ export default function LernenPage() {
           gelernt hat und welches Wissen es dazugewinnen möchte — damit es
           genauer und zuverlässiger wird.
         </p>
-      </div>
-
-      {/* Konto / Abmelden */}
-      <div className="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-border bg-white/70 px-4 py-3">
-        <div className="text-sm">
-          <p className="font-medium">Gemeinsames Cockpit-Konto</p>
-          <p className="text-muted-foreground">Marvin &amp; Julian</p>
-        </div>
-        <form action="/auth/signout" method="post">
-          <Button type="submit" variant="outline" className="gap-2">
-            <LogOut className="h-4 w-4" />
-            Abmelden
-          </Button>
-        </form>
       </div>
     </div>
   );

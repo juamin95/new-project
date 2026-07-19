@@ -18,7 +18,9 @@ Die App öffnet nach dem Login direkt auf **Offene Punkte**. Drei Seiten (Naviga
 
 1. **Offene Punkte** (Startseite) — was das OS aktiv aufgedeckt hat (erkannte Aufgaben aus Mail/Leads/Prozessstatus, außenwirksame Entwürfe). Darstellung je Punkt: **Kategorie · Titel (einzeilig) · Kontextzeile**. **Farbcodierung:** Amber nur für Wichtiges (Kundenreklamation, kurzfristige Themen), sonst Grün — damit Dringendes sofort auffällt. **Tippen öffnet ein Bottom-Sheet-Popup** mit dem Vorschlag des OS und drei Wegen: **Freigeben** (Vorschlag annehmen), **Anpassen** (selbst gegenlenken) und **Im Chat öffnen** (ins projektbezogene Gespräch überführen, mit vollem Kontext).
 2. **Chat** — freies, aktives Bedienen des OS in Alltagssprache. **Mehrere parallele Gespräche mit eigenem Kontext** (je Projekt/Kunde eins), ChatGPT-artiger Verlauf mit „Neuer Chat". Eingabe per **Text, Bild und Sprachmemo (Sprache-zu-Text)**. Empfehlungen/Entwürfe erscheinen als **Pop-up mit Optionen**, bearbeitbar. Der Chat ist zugleich die Interaktions-Engine der offenen Punkte.
-3. **Lernen (Rückschau)** — der sichtbar gemachte Wissenskreislauf: Das OS zeigt, was es aus Marvins Entscheidungen gelernt hat, welche Muster es erkannt hat und welches Wissen künftig einfließen soll. Die Beförderung „erfasst → verifiziert" bleibt eine menschliche Entscheidung (Gate). Auf dieser Seite liegt auch dezent das **Konto/Abmelden**.
+3. **Lernen (Rückschau)** — der sichtbar gemachte Wissenskreislauf: Das OS zeigt, was es aus Marvins Entscheidungen gelernt hat, welche Muster es erkannt hat und welches Wissen künftig einfließen soll. Die Beförderung „erfasst → verifiziert" bleibt eine menschliche Entscheidung (Gate).
+
+**Konto/Abmelden** liegt in einem dezenten **Konto-Menü** (am Desktop unten in der Seitenleiste, am Handy als Menü-Punkt oben rechts) — nicht als Seiteninhalt.
 
 **Board (Projektübersicht) entfällt bewusst:** Die Projektübersicht bietet Hero bereits; ein Nachbau im Cockpit wäre Doppelung ohne Mehrwert und widerspricht „Hero führt, nicht spiegeln". Projektkontext erscheint dort, wo er gebraucht wird — im offenen Punkt bzw. im projektbezogenen Chat.
 
@@ -28,7 +30,7 @@ Die App öffnet nach dem Login direkt auf **Offene Punkte**. Drei Seiten (Naviga
 - Als Marvin möchte ich unten eine feste Tab-Leiste (Offene Punkte · Chat · Lernen) haben, damit ich die Herzstücke mit einem Daumentipp erreiche — wie in den Apps, die ich kenne
 - Als Marvin möchte ich das Cockpit als App-Symbol auf meinem Homescreen ablegen können, damit es sich wie eine echte App anfühlt und nicht wie eine Webseite
 - Als Marvin möchte ich eingeloggt bleiben, wenn ich die App schließe und später wieder öffne, damit ich nicht ständig auf einen neuen Link warten muss
-- Als Marvin möchte ich mich bei Bedarf abmelden können (auf der Lernen-Seite), ohne dass ein Konto-Symbol Platz vom Bildschirm wegnimmt
+- Als Marvin möchte ich mich bei Bedarf über ein dezentes Konto-Menü abmelden können, ohne dass ein Konto-Symbol Platz vom Bildschirm wegnimmt
 - Als Julian möchte ich, dass jede Cockpit-Seite ohne gültige Anmeldung auf den Login umleitet, damit keine Betriebsdaten offen im Netz stehen
 
 ## Out of Scope
@@ -52,7 +54,7 @@ Die App öffnet nach dem Login direkt auf **Offene Punkte**. Drei Seiten (Naviga
 - [ ] Angenommen Marvin ist angemeldet, wenn die App lädt, dann landet er auf „Offene Punkte" mit dem GRÜNSCHNITT-Look (heller Grund, Grün-/Amber-Akzente, Spectral/Inter); solange es keine echten Inhalte gibt, zeigt die Seite einen gestalteten Leerzustand
 - [ ] Angenommen Marvin ist angemeldet, wenn er einen Tab in der unteren Leiste (Offene Punkte · Chat · Lernen) antippt, dann wechselt die Ansicht sofort, der aktive Tab ist hervorgehoben, und Platzhalterseiten erklären in einem Satz, was dort entstehen wird
 - [ ] Angenommen Marvin schließt die App oder das Handy geht aus, wenn er das Cockpit später wieder öffnet, dann ist er weiterhin angemeldet und landet direkt auf „Offene Punkte"
-- [ ] Angenommen Marvin ist auf der Lernen-Seite, wenn er „Abmelden" wählt, dann ist die Sitzung beendet und jede Cockpit-Seite verlangt wieder einen Login
+- [ ] Angenommen Marvin öffnet das Konto-Menü (Seitenleiste unten am Desktop, oben rechts am Handy), wenn er „Abmelden" wählt, dann ist die Sitzung beendet und jede Cockpit-Seite verlangt wieder einen Login
 - [ ] Angenommen Marvin nutzt „Zum Homescreen hinzufügen", wenn er das Cockpit vom Homescreen startet, dann öffnet es sich mit GRÜNSCHNITT-Icon und -Name im Vollbild ohne Browser-Adressleiste
 - [ ] Angenommen ein abgelaufener oder bereits benutzter Magic Link wird geöffnet, dann erklärt die Seite das verständlich („Der Link ist abgelaufen") und bietet direkt an, einen neuen anzufordern
 - [ ] Angenommen das Cockpit wird am Desktop geöffnet, dann erscheint statt der unteren Tab-Leiste eine Seitenleiste mit denselben drei Bereichen — Inhalte und Reihenfolge identisch
@@ -85,7 +87,8 @@ Die App öffnet nach dem Login direkt auf **Offene Punkte**. Drei Seiten (Naviga
 | App ist interaktive OS-Bedienoberfläche, kein Hero-Nachbau | Wert liegt im aktiven Bedienen + Bestätigen der Loops, nicht im Anschauen gespiegelter Hero-Daten | 2026-07-19 |
 | Board (Projektübersicht) entfällt | Hero liefert die Projektübersicht bereits; Nachbau = Doppelung ohne Mehrwert | 2026-07-19 |
 | Heute-Startseite entfällt; Navigation = drei echte Seiten (Offene Punkte · Chat · Lernen) | Dünne Startseite mit zwei Kacheln bot wenig Mehrwert; App startet direkt auf Offene Punkte, maximal Bildschirm (Korrektur Julian) | 2026-07-19 |
-| Kein Header-Ballast (kein Logo, kein Konto-Symbol oben) | Inhalt soll ganz oben beginnen; es ist egal, wer angemeldet ist. Konto/Abmelden liegt dezent auf der Lernen-Seite | 2026-07-19 |
+| Kein Header-Ballast (kein Logo, kein Konto-Symbol oben) | Inhalt soll ganz oben beginnen; es ist egal, wer angemeldet ist | 2026-07-19 |
+| Abmelden im dezenten Konto-Menü (Seitenleiste unten / Menü oben rechts), nicht als Kachel auf der Lernen-Seite | Julians Wunsch: Abmelden gehört in ein Menü; Lernen-Seite bleibt reiner Inhalt | 2026-07-19 |
 | Offene Punkte: Kategorie · Titel (einzeilig) · Kontextzeile | Informativ, aber ruhige Liste; Titel bricht nicht um | 2026-07-19 |
 | Farbcodierung: Amber nur für Wichtiges (Reklamation/kurzfristig), sonst Grün | Dringendes muss sofort auffallen, ohne die Liste laut zu machen | 2026-07-19 |
 | Offener Punkt öffnet als Bottom-Sheet-Popup mit Freigeben / Anpassen / Im Chat öffnen | Schnelle Entscheidung ohne Seitenwechsel; „Im Chat öffnen" verbindet Offene Punkte und Chat für Kontext/Nachfragen (Julians Interaktionsidee) | 2026-07-19 |
@@ -172,7 +175,8 @@ Cockpit (App)
 **Shell & Seiten:**
 - `src/components/cockpit-nav.tsx` (`CockpitShell`) — eine Bereichsliste, zwei Darstellungen: Tab-Leiste unten (Handy) / Seitenleiste (Desktop), aktiver Zustand über `usePathname`
 - `src/app/(app)/layout.tsx` — serverseitige Zweitsicherung (kein Nutzer → `/login`)
-- Seiten `offene-punkte`, `chat`, `lernen` als gestaltete Leerzustände; Abmelden liegt auf `lernen`
+- Seiten `offene-punkte`, `chat`, `lernen` als gestaltete Leerzustände
+- Konto-Menü (shadcn DropdownMenu in `cockpit-nav.tsx`): Abmelden am Desktop unten in der Seitenleiste, am Handy als Menü-Punkt oben rechts; Abmelden über serverseitigen POST (`/auth/signout`)
 - `src/app/page.tsx` → Redirect auf `/offene-punkte`
 
 **Branding & PWA:**
