@@ -30,7 +30,7 @@ Dieses Repo ist der übergabefähige „Repo-2-Schnitt" aus dem Blueprint: valid
 | P0 (MVP) | Cockpit-Grundgerüst | Login (Marvin/Julian), mobile-first Navigation im GRÜNSCHNITT-Branding | Approved |
 | P0 (MVP) | ~~Prozess-Board~~ | **Verworfen (19.07.):** Projektübersicht liefert Hero bereits — Nachbau widerspricht „Hero führt, nicht spiegeln" | Verworfen |
 | P0 (MVP) | Offene Punkte: Freigaben | Außenwirksame Entwürfe (Mails/Angebote/Rechnungen) als „offener Punkt" interaktiv prüfen/freigeben (Empfehlung + Gegenrede), Audit-Trail — nie Autoversand | Roadmap |
-| P0 (MVP) | Chat mit dem OS | Alltagssprache; mehrere parallele Gespräche mit eigenem Kontext (je Projekt/Kunde, Verlauf wie ChatGPT); Eingabe per Text, Bild und Sprachmemo (Speech-to-Text); Empfehlungen als Pop-up — Interaktions-Engine auch für offene Punkte | Roadmap |
+| P0 (MVP) | Chat mit dem OS | Alltagssprache; mehrere parallele Gespräche mit eigenem Kontext (je Kunde/Projekt, Verlauf wie ChatGPT); Eingabe per Text, Bild und Sprachmemo (Speech-to-Text); Empfehlungen als Pop-up — Interaktions-Engine auch für offene Punkte | Planned |
 | P0 (MVP) | Offene Punkte: erkannte Aufgaben | System erkennt Aufgaben aus Anfragen/Prozessstatus (Loops); Marvin verifiziert Zuordnung interaktiv → Anlage in Hero (Gate, keine Doppelpflege) | Roadmap |
 | P1 | Anfrage-Eingang | Website-Leads + E-Mail-Anfragen (n8n-klassifiziert) erkennen und Projekten zuordnen | Roadmap |
 | P1 | Termin- & Einsatzansicht | Wochenansicht der Einsätze aus Hero-Terminen; Erstellung läuft übers OS (Chat) | Roadmap |
