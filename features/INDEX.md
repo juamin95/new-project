@@ -29,7 +29,7 @@
 | ID | Feature | Beschreibung | Prio | Abhängigkeiten | Status | Spec | Created |
 |----|---------|--------------|------|----------------|--------|------|---------|
 | PROJ-1 | Supabase-Infrastruktur | Website-Projekt „juamin95's Project" (bnzpdujupmmrwcbunbql) erweitern: Auth, Cockpit-Schema, Env-Setup | P0 | Keine | Approved | [Spec](PROJ-1-supabase-infrastruktur.md) | 2026-07-17 |
-| PROJ-7 | Cockpit-Grundgerüst | Login (Marvin/Julian), mobile-first Navigation im GRÜNSCHNITT-Branding | P0 | PROJ-1, PROJ-5 | In Progress | [Spec](PROJ-7-cockpit-grundgeruest.md) | 2026-07-17 |
+| PROJ-7 | Cockpit-Grundgerüst | Login (Marvin/Julian), mobile-first Navigation im GRÜNSCHNITT-Branding | P0 | PROJ-1, PROJ-5 | Approved | [Spec](PROJ-7-cockpit-grundgeruest.md) | 2026-07-17 |
 | PROJ-8 | ~~Prozess-Board~~ | **Verworfen (19.07.2026):** Projektübersicht liefert Hero bereits; Nachbau = Doppelung ohne Mehrwert, widerspricht „Hero führt, nicht spiegeln". Projektkontext erscheint innerhalb eines offenen Punktes | P0 | — | Verworfen | — | 2026-07-17 |
 | PROJ-9 | Offene Punkte: Freigaben | Außenwirksame Entwürfe (Mails/Angebote/Rechnungen) als „offener Punkt"; Tippen öffnet Bottom-Sheet: Freigeben · Anpassen · Im Chat öffnen. Audit-Trail — nie Autoversand | P0 | PROJ-7, PROJ-10 | Roadmap | — | 2026-07-17 |
 | PROJ-10 | Chat mit dem OS | Alltagssprache; mehrere parallele Gespräche mit eigenem Kontext (je Projekt/Kunde, Verlauf wie ChatGPT); Eingabe Text/Bild/Sprachmemo (Speech-to-Text); Empfehlungen als Pop-up. Interaktions-Engine auch für offene Punkte | P0 | PROJ-6, PROJ-7 | Roadmap | — | 2026-07-17 |

@@ -27,7 +27,7 @@ Dieses Repo ist der übergabefähige „Repo-2-Schnitt" aus dem Blueprint: valid
 | Priorität | Feature | Inhalt | Status |
 |----------|---------|--------|--------|
 | P0 (MVP) | Supabase-Infrastruktur | Bestehendes Website-Projekt („juamin95's Project", leads + projekte) erweitern: Auth, Cockpit-Schema | Approved |
-| P0 (MVP) | Cockpit-Grundgerüst | Login (Marvin/Julian), mobile-first Navigation im GRÜNSCHNITT-Branding | Architected |
+| P0 (MVP) | Cockpit-Grundgerüst | Login (Marvin/Julian), mobile-first Navigation im GRÜNSCHNITT-Branding | Approved |
 | P0 (MVP) | ~~Prozess-Board~~ | **Verworfen (19.07.):** Projektübersicht liefert Hero bereits — Nachbau widerspricht „Hero führt, nicht spiegeln" | Verworfen |
 | P0 (MVP) | Offene Punkte: Freigaben | Außenwirksame Entwürfe (Mails/Angebote/Rechnungen) als „offener Punkt" interaktiv prüfen/freigeben (Empfehlung + Gegenrede), Audit-Trail — nie Autoversand | Roadmap |
 | P0 (MVP) | Chat mit dem OS | Alltagssprache; mehrere parallele Gespräche mit eigenem Kontext (je Projekt/Kunde, Verlauf wie ChatGPT); Eingabe per Text, Bild und Sprachmemo (Speech-to-Text); Empfehlungen als Pop-up — Interaktions-Engine auch für offene Punkte | Roadmap |
