@@ -204,6 +204,19 @@ Der OS-Agent braucht für den Chat **keinen** eigenen Supabase-Schlüssel — de
 ### Backend nötig?
 **Ja.** Das Feature braucht Supabase-Schema + Cockpit-Server-Routen **und** den neuen Agent-Dienst auf dem VPS. Reihenfolge: `/frontend` (Chat-UI mit Platzhalter-Anbindung), dann `/backend` (Supabase-Schema, Server-Routen, Agent-Dienst + Verdrahtung), dann `/qa` (E2E-Akzeptanztests mit Testdaten → danach Echtdaten-Freischaltung).
 
+## Implementation Notes (Frontend)
+**Umgesetzt am 2026-07-20.** Sichtbare UI-Hülle mit Beispieldaten; die echte Anbindung (Supabase + OS-Agent + Transkription) folgt im `/backend`-Schritt.
+
+- `src/components/chat/mock-data.ts` — Typen (Conversation, ChatMessage, TerminDraft) + Beispielgespräche (Projekt/Kunde/Allgemein)
+- `src/components/chat/conversation.tsx` — Gesprächsansicht: Nachrichten-Bubbles, Zwischendenken-Schritte, Tipp-Indikator, **Termin-Vorschau-Karte** (Bestätigen→„in Hero angelegt"), Eingabeleiste mit **Text, Bild (Datei-Auswahl), Sprachmemo** (Mock-Transkription, bearbeitbar)
+- `src/components/chat/chat-view.tsx` — Orchestrator: Verlaufsliste + „Neuer Chat"; responsiv über `useIsMobile` — Handy: Liste, Gespräch als Vollbild-Overlay mit Zurück-Pfeil; Desktop: zwei Spalten (Liste links, Gespräch rechts)
+- `src/app/(app)/chat/page.tsx` — rendert `ChatView`
+- Branding aus PROJ-7 (Grün/Sage, Spectral/Inter); shadcn/Button/Textarea, lucide-Icons
+
+**Bewusst noch Platzhalter/Mock (kommt in `/backend`):** echte Antworten des OS-Agenten (localhost-Aufruf), Persistenz in Supabase + Geräte-Sync, echte Sprach-Transkription (Whisper), Bild-Upload in Supabase Storage, Kunden-/Projekt-Zuordnung per Hero-Suche, tatsächliches Schreiben des Termins in Hero. Ein Hinweis in der UI macht den Vorschau-Charakter transparent.
+
+**Geprüft:** `npm run build` grün (`/chat` als Route), `tsc` ohne Fehler in den Chat-Dateien, Dev-Server kompiliert sauber.
+
 ## QA Test Results
 _To be added by /qa_
 
