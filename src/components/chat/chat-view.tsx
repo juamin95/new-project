@@ -8,6 +8,21 @@ import { createClient } from "@/lib/supabase/client";
 import type { Conversation } from "./types";
 import { ConversationPane } from "./conversation";
 
+// Markdown-Zeichen für die einzeilige Vorschau in der Chat-Liste entfernen.
+function plainPreview(text: string): string {
+  return text
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/_{1,2}([^_]+)_{1,2}/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function zeitLabel(iso: string): string {
   const d = new Date(iso);
   const now = new Date();
@@ -81,7 +96,7 @@ function ConversationList({
                 </span>
               </span>
               <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-                {c.last_preview || "Neues Gespräch"}
+                {plainPreview(c.last_preview) || "Neues Gespräch"}
               </span>
             </span>
           </button>
