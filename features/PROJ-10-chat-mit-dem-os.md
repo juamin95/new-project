@@ -238,6 +238,24 @@ Der OS-Agent braucht für den Chat **keinen** eigenen Supabase-Schlüssel — de
 
 **Noch offen (Etappe 2/3):** OS-Agent-Dienst auf dem VPS (echte Antworten + Zwischendenken-Streaming), Whisper-Transkription, Bild-Upload in den Bucket, Termin-Schreibpfad nach Hero.
 
+## Implementation Notes (Backend — Etappe 2: OS-Agent, Code geschrieben)
+**Geschrieben am 2026-07-20 — noch nicht deployt/getestet (gemeinsamer Schritt mit Julian).**
+
+**Wichtige Klärung:** Der „Claude Agent SDK" ist ein eigenes Produkt; für einen Agenten mit **eigenen** Werkzeugen ist der richtige Weg der **Anthropic-SDK Tool Runner** (TypeScript/Node). So gebaut.
+
+**Agent-Dienst** (`agent/`, läuft auf dem VPS, nur `localhost`):
+- `agent/server.mjs` — HTTP-Dienst mit Claude Tool Runner (`@anthropic-ai/sdk`, `betaTool`), Modell `claude-opus-4-8` (per `OS_AGENT_MODEL` z. B. auf `claude-sonnet-5` umstellbar)
+- Werkzeuge: **`vault_suchen`** (durchsucht `vault/`, markiert verifiziert/erfasst) und **`hero_lesen`** (nur Lese-Whitelist der hero-tools-CLI)
+- System-Prompt verankert die Regeln: Vault zuerst, nur Verifiziertes als Fakt, kein Raten, keine außenwirksamen/Schreib-Aktionen (Gate). **Scope Etappe 2 = nur Lesen/Antworten.**
+- Sicherheit: bindet nur `127.0.0.1`, prüft `OS_AGENT_TOKEN`, liest Keys aus der Umgebung
+- `agent/README.md` — Anleitung (lokal testen + VPS-Deploy), `agent/node_modules` git-ignoriert
+
+**Cockpit-Verkabelung** (`src/app/api/conversations/[id]/messages/route.ts`):
+- Ist `OS_AGENT_URL` gesetzt, ruft die Route den Agenten über localhost auf (mit Token, 60 s Timeout) und nutzt dessen Antwort + Zwischendenken-Schritte; sonst bleibt der Platzhalter (Etappe 1 unversehrt)
+- `npm test` 1.344 grün, `npm run build` grün
+
+**Offen (gemeinsamer nächster Schritt):** `ANTHROPIC_API_KEY` in die `.env.local`, Agent starten, `OS_AGENT_URL` + `OS_AGENT_TOKEN` ins Cockpit — erst **lokal** testen (echte Antworten aus Vault/Hero), dann auf den VPS (pm2/systemd). Etappe 3: Termin-Schreibpfad, Whisper-Transkription, Bild-Upload.
+
 ## QA Test Results
 _To be added by /qa_
 

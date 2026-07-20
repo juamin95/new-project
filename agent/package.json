@@ -1,0 +1,13 @@
+{
+  "name": "gruenschnitt-os-agent",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "OS-Agent-Dienst (PROJ-10, Etappe 2) — Claude Tool Runner über Vault + Hero. Läuft auf dem VPS, wird vom Cockpit über localhost aufgerufen.",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.110.0"
+  }
+}

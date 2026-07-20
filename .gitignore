@@ -55,3 +55,6 @@ vault/.obsidian/workspace
 # Obsidian-Vault: Cache und Papierkorb
 vault/.obsidian/cache
 vault/.trash/
+
+# OS-Agent (PROJ-10): lokale Abhängigkeiten
+agent/node_modules/

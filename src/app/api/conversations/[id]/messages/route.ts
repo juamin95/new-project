@@ -4,6 +4,33 @@ import { createClient } from "@/lib/supabase/server";
 
 type Params = { params: Promise<{ id: string }> };
 
+// OS-Agent (Etappe 2). Läuft auf demselben Host (VPS) und wird über localhost
+// aufgerufen. Ist OS_AGENT_URL nicht gesetzt, bleibt der Platzhalter (Etappe 1).
+const AGENT_URL = process.env.OS_AGENT_URL;
+const AGENT_TOKEN = process.env.OS_AGENT_TOKEN ?? "";
+
+async function fragAgent(
+  messages: { role: string; content: string }[],
+): Promise<{ text: string; thinking: string[] } | null> {
+  if (!AGENT_URL || messages.length === 0) return null;
+  try {
+    const res = await fetch(AGENT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-agent-token": AGENT_TOKEN },
+      body: JSON.stringify({ messages }),
+      signal: AbortSignal.timeout(60000),
+    });
+    if (!res.ok) return null;
+    const d = await res.json();
+    return {
+      text: String(d.text ?? ""),
+      thinking: Array.isArray(d.thinking) ? d.thinking : [],
+    };
+  } catch {
+    return null;
+  }
+}
+
 const NewMessage = z
   .object({
     text: z.string().trim().max(4000).optional(),
@@ -65,14 +92,30 @@ export async function POST(request: Request, { params }: Params) {
     return NextResponse.json({ error: userErr.message }, { status: 500 });
   }
 
-  // Etappe 1: Platzhalter-Antwort. Der echte OS-Agent (VPS) wird in Etappe 2 angebunden.
+  // Verlauf für den Agenten aufbauen (inkl. der gerade gespeicherten Nutzer-Nachricht).
+  const { data: hist } = await supabase
+    .from("cockpit_messages")
+    .select("role, text")
+    .eq("conversation_id", id)
+    .order("created_at", { ascending: true });
+  const verlauf = (Array.isArray(hist) ? hist : [])
+    .filter((m) => m.text)
+    .map((m) => ({ role: m.role as string, content: m.text as string }));
+
+  // Etappe 2: echten Agenten fragen; ohne konfigurierten Agenten Platzhalter.
+  const agent = await fragAgent(verlauf);
+  const assistantText =
+    agent?.text ||
+    "Der OS-Agent ist noch nicht angebunden. Sobald der Dienst läuft, beantworte ich das aus Vault und Hero.";
+  const thinking = agent?.thinking ?? ["(Vorschau) Agent noch nicht verbunden"];
+
   const { data: assistantMessage, error: aiErr } = await supabase
     .from("cockpit_messages")
     .insert({
       conversation_id: id,
       role: "assistant",
-      text: "Der OS-Agent wird in Etappe 2 angebunden — dann beantworte ich das aus Vault und Hero.",
-      thinking: ["(Vorschau) Agent noch nicht verbunden"],
+      text: assistantText,
+      thinking,
     })
     .select()
     .single();
