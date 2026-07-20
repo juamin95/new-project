@@ -6,7 +6,9 @@ type Params = { params: Promise<{ id: string }> };
 
 // OS-Agent (Etappe 2). Läuft auf demselben Host (VPS) und wird über localhost
 // aufgerufen. Ist OS_AGENT_URL nicht gesetzt, bleibt der Platzhalter (Etappe 1).
-const AGENT_URL = process.env.OS_AGENT_URL;
+// Standard: OS-Agent auf demselben Host über localhost. Läuft er nicht, scheitert
+// der Aufruf sofort und die Route fällt auf den Platzhalter zurück (Etappe 1).
+const AGENT_URL = process.env.OS_AGENT_URL ?? "http://127.0.0.1:8787";
 const AGENT_TOKEN = process.env.OS_AGENT_TOKEN ?? "";
 
 async function fragAgent(

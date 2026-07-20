@@ -21,6 +21,25 @@ const REPO = join(dirname(fileURLToPath(import.meta.url)), "..");
 const VAULT = join(REPO, "vault");
 const HERO_CLI = join(REPO, "tools", "hero-tools", "hero");
 
+// Secrets aus der Repo-.env.local in die Umgebung laden (Repo-Muster: der Dienst
+// liest den Key selbst zur Laufzeit; explizit gesetzte Umgebungsvariablen gewinnen).
+function loadEnvLocal() {
+  let txt;
+  try {
+    txt = readFileSync(join(REPO, ".env.local"), "utf-8");
+  } catch {
+    return;
+  }
+  for (const line of txt.split("\n")) {
+    const m = line.match(/^\s*(?:export\s+)?([A-Za-z0-9_]+)\s*=\s*(.*)$/);
+    if (!m) continue;
+    const key = m[1];
+    const val = m[2].trim().replace(/^["']|["']$/g, "");
+    if (!(key in process.env)) process.env[key] = val;
+  }
+}
+loadEnvLocal();
+
 const PORT = Number(process.env.OS_AGENT_PORT ?? 8787);
 const TOKEN = process.env.OS_AGENT_TOKEN ?? "";
 const MODEL = process.env.OS_AGENT_MODEL ?? "claude-opus-4-8";
@@ -100,7 +119,7 @@ const vaultTool = betaTool({
     "Durchsucht den GRÜNSCHNITT-Wissensspeicher (Vault) nach einem Stichwort. Nutze dies ZUERST bei Fach-, Prozess- und Nachschlagefragen. Liefert passende Notizen mit Markierung, ob sie verifiziert sind.",
   inputSchema: {
     type: "object",
-    properties: { begriff: { type: "string", description: "Suchbegriff, z. B. „Abo" oder „Bauprojekt"" } },
+    properties: { begriff: { type: "string", description: "Suchbegriff, zum Beispiel Abo oder Bauprojekt" } },
     required: ["begriff"],
     additionalProperties: false,
   },
@@ -114,7 +133,7 @@ const heroTool = betaTool({
   inputSchema: {
     type: "object",
     properties: {
-      befehl: { type: "string", description: "Lesebefehl, z. B. „termine" oder „suchen"" },
+      befehl: { type: "string", description: "Lesebefehl, zum Beispiel termine oder suchen" },
       argument: { type: "string", description: "Optionales Argument, z. B. ein Suchbegriff oder eine Projekt-Nr." },
     },
     required: ["befehl"],
