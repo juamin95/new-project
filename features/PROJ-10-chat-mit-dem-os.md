@@ -256,6 +256,15 @@ Der OS-Agent braucht für den Chat **keinen** eigenen Supabase-Schlüssel — de
 
 **Offen (gemeinsamer nächster Schritt):** `ANTHROPIC_API_KEY` in die `.env.local`, Agent starten, `OS_AGENT_URL` + `OS_AGENT_TOKEN` ins Cockpit — erst **lokal** testen (echte Antworten aus Vault/Hero), dann auf den VPS (pm2/systemd). Etappe 3: Termin-Schreibpfad, Whisper-Transkription, Bild-Upload.
 
+## Erweiterungs-Ideen (Julian, 20.07.2026 — nach erstem echten Test)
+
+1. **Modell-Strategie / Token sparen (Routing).** Nicht ein großes Modell für alles. Standard ein günstigeres Modell für den Alltag (Q&A, Zusammenfassungen, Hero-Reads); ein starkes Modell nur für Schweres (Angebotstexte, kniffliges Planen, hohe Fehlerkosten). Umsetzung: `OS_AGENT_MODEL` als Schalter ist da; später ein einfacher **Router** (Standard günstig → bei Bedarf eskalieren). Zusätzlich **Prompt-Caching** für System-Prompt + Vault-Kontext (spart bei wiederholten Turns stark). Kriterien für „starkes Modell" siehe Antwort im Chat / Decision Log.
+2. **Chat löschen.** Nutzer kann ein Gespräch entfernen (DELETE + Papierkorb in der Liste).
+3. **Projekt-/Kundenzuordnung + Fortschritt.** Ein Gespräch ordnet sich (automatisch, mit Bestätigung) einem Hero-Projekt oder -Kunden zu (Schema hat bereits `hero_project_id`/`hero_customer_id`). Der Chat-Titel = Projekt-/Kundenname; die Liste zeigt **Fortschritt** (Position in der Statuskette des jeweiligen Projekttyps — aus den migrierten Kernprozessen, z. B. Abo: offener Auftrag → Termin → In Umsetzung → Abgeschlossen) plus einen kurzen Kontext-Text.
+4. **Aktiv/Inaktiv.** Abgeschlossene/archivierte Projekte (Status 2000/2100) wandern in einen Bereich „Abgeschlossen/Inaktiv"; aktive Projekt-Chats bleiben im Fokus. Bessere Übersicht.
+
+**Einordnung:** Punkt 1+2 sind kleine Ergänzungen. Punkt 3+4 sind ein eigenständiger Ausbau („Chat-Organisation: Projektzuordnung, Fortschritt, aktiv/inaktiv") — wahrscheinlich eine eigene Feature-Spec, weil er die Statusketten je Projekttyp und die Hero-Zuordnung sauber ausarbeiten muss.
+
 ## QA Test Results
 _To be added by /qa_
 

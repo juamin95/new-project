@@ -38,6 +38,7 @@
 | PROJ-13 | Termin- & Einsatzansicht | Wochenansicht der Einsätze aus Hero-Terminen; Erstellung läuft übers OS (Chat) | P1 | PROJ-7 | Roadmap | — | 2026-07-17 |
 | PROJ-14 | n8n-Anbindung & Routinen-Monitoring | Agent-Zugriff auf n8n via MCP: Executions auswerten, Fehlläufe melden, nachtriggern | P1 | PROJ-7 | Roadmap | — | 2026-07-17 |
 | PROJ-15 | Lernen / Rückschau (Wissenskreislauf) | Sichtbare Rückschau (Kachel auf Heute, PROJ-7): erkannte Muster aus Marvins Entscheidungen + Wissensvorschläge fürs OS; Beförderung „erfasst → verifiziert" mit Gate | P2 | PROJ-9, PROJ-10 | Roadmap | — | 2026-07-17 |
+| PROJ-17 | Chat-Organisation (Projektzuordnung, Fortschritt, aktiv/inaktiv) | Gespräche ordnen sich einem Hero-Projekt/Kunden zu (Titel + Fortschritt in der Statuskette je Projekttyp + Kontext); abgeschlossene/archivierte Projekte wandern in „Inaktiv". Chat löschen. Erweiterung von PROJ-10 | P1 | PROJ-10 | Roadmap | — | 2026-07-20 |
 
 <!-- Add features above this line -->
 
@@ -47,4 +48,4 @@
 
 PROJ-2 → PROJ-3 → PROJ-16 → PROJ-4 / PROJ-5 (parallel möglich) → PROJ-6 → PROJ-1 → PROJ-7 → PROJ-10 (Chat-/Interaktions-Engine) → PROJ-9 + PROJ-11 (Offene Punkte, gemeinsam) → P1-Features (PROJ-12, PROJ-13, PROJ-14) → PROJ-15 (Lernen/Rückschau)
 
-## Next Available ID: PROJ-17
+## Next Available ID: PROJ-18
