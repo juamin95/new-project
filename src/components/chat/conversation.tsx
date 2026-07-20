@@ -12,6 +12,8 @@ import {
   CalendarClock,
   X,
 } from "lucide-react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
@@ -105,7 +107,13 @@ function MessageBubble({
                 : "rounded-bl-md border border-border bg-white",
             )}
           >
-            {message.text}
+            {isUser ? (
+              message.text
+            ) : (
+              <div className="md">
+                <Markdown remarkPlugins={[remarkGfm]}>{message.text}</Markdown>
+              </div>
+            )}
           </div>
         )}
         {message.termin && (

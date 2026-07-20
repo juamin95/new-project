@@ -97,3 +97,75 @@
     background-attachment: fixed;
   }
 }
+
+/* Gerenderte Assistenten-Antworten (Markdown) im Chat */
+.md {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: hsl(var(--foreground));
+  overflow-wrap: anywhere;
+}
+.md > :first-child {
+  margin-top: 0;
+}
+.md > :last-child {
+  margin-bottom: 0;
+}
+.md p {
+  margin: 0.55rem 0;
+}
+.md strong {
+  font-weight: 700;
+  color: hsl(var(--primary));
+}
+.md em {
+  color: hsl(var(--primary));
+}
+.md h1,
+.md h2,
+.md h3 {
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-weight: 700;
+  color: hsl(var(--primary));
+  margin: 0.7rem 0 0.3rem;
+  font-size: 1rem;
+  line-height: 1.25;
+}
+.md ul {
+  margin: 0.5rem 0;
+  padding-left: 1.15rem;
+  list-style: disc;
+}
+.md ol {
+  margin: 0.5rem 0;
+  padding-left: 1.3rem;
+  list-style: decimal;
+}
+.md li {
+  margin: 0.2rem 0;
+}
+.md li::marker {
+  color: hsl(var(--primary));
+}
+.md a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+}
+.md code {
+  background: hsl(var(--secondary));
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.35rem;
+  font-size: 0.8rem;
+  font-family: var(--font-mono, ui-monospace), monospace;
+}
+.md blockquote {
+  border-left: 3px solid hsl(var(--primary) / 0.4);
+  padding-left: 0.75rem;
+  margin: 0.55rem 0;
+  color: hsl(var(--muted-foreground));
+}
+.md hr {
+  border: none;
+  border-top: 1px solid hsl(var(--border));
+  margin: 0.75rem 0;
+}
