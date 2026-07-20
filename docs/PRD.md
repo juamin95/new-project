@@ -30,7 +30,7 @@ Dieses Repo ist der übergabefähige „Repo-2-Schnitt" aus dem Blueprint: valid
 | P0 (MVP) | Cockpit-Grundgerüst | Login (Marvin/Julian), mobile-first Navigation im GRÜNSCHNITT-Branding | Approved |
 | P0 (MVP) | ~~Prozess-Board~~ | **Verworfen (19.07.):** Projektübersicht liefert Hero bereits — Nachbau widerspricht „Hero führt, nicht spiegeln" | Verworfen |
 | P0 (MVP) | Offene Punkte: Freigaben | Außenwirksame Entwürfe (Mails/Angebote/Rechnungen) als „offener Punkt" interaktiv prüfen/freigeben (Empfehlung + Gegenrede), Audit-Trail — nie Autoversand | Roadmap |
-| P0 (MVP) | Chat mit dem OS | Alltagssprache; mehrere parallele Gespräche mit eigenem Kontext (je Kunde/Projekt, Verlauf wie ChatGPT); Eingabe per Text, Bild und Sprachmemo (Speech-to-Text); Empfehlungen als Pop-up — Interaktions-Engine auch für offene Punkte | Planned |
+| P0 (MVP) | Chat mit dem OS | Alltagssprache; mehrere parallele Gespräche mit eigenem Kontext (je Kunde/Projekt, Verlauf wie ChatGPT); Eingabe per Text, Bild und Sprachmemo (Speech-to-Text); Empfehlungen als Pop-up — Interaktions-Engine auch für offene Punkte | Architected |
 | P0 (MVP) | Offene Punkte: erkannte Aufgaben | System erkennt Aufgaben aus Anfragen/Prozessstatus (Loops); Marvin verifiziert Zuordnung interaktiv → Anlage in Hero (Gate, keine Doppelpflege) | Roadmap |
 | P1 | Anfrage-Eingang | Website-Leads + E-Mail-Anfragen (n8n-klassifiziert) erkennen und Projekten zuordnen | Roadmap |
 | P1 | Termin- & Einsatzansicht | Wochenansicht der Einsätze aus Hero-Terminen; Erstellung läuft übers OS (Chat) | Roadmap |
@@ -48,7 +48,7 @@ Dieses Repo ist der übergabefähige „Repo-2-Schnitt" aus dem Blueprint: valid
 - **Gate-Prinzip dauerhaft:** Außenwirksames (Kundenmail, Angebot, Rechnung) gibt immer ein Mensch frei
 - **Arbeitsteilung Agent/n8n:** Event-getriggerte Flows (z. B. E-Mail-Eingang + Klassifizierung) bleiben in n8n; der Agent (Claude Code) erhält über MCP Zugriff auf n8n, um Executions auszuwerten und nachzutriggern. Deterministische Loops, die Skills ausführen, sind ausdrücklich möglich.
 - **Marvin ist papiergewohnt:** UI radikal einfach, mobile-first
-- Bestehende Infrastruktur nutzen: Hero, Strato-Mail, n8n (VPS), Supabase „juamin95's Project" (bnzpdujupmmrwcbunbql), Vercel
+- Bestehende Infrastruktur nutzen: Hero, Strato-Mail, Supabase „juamin95's Project" (bnzpdujupmmrwcbunbql), **Hostinger-VPS** (hostet n8n, hero-tools und künftig Cockpit + OS-Agent — Selbst-Hosting statt Vercel, Entscheidung 20.07.2026)
 - Julian baut allein, neben dem Tagesgeschäft
 - Design-System: siehe `docs/design-system.md` (GRÜNSCHNITT-Branding, wird in Phase 1 migriert)
 
