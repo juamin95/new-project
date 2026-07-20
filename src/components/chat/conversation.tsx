@@ -110,8 +110,45 @@ function MessageBubble({
             {isUser ? (
               message.text
             ) : (
-              <div className="md">
-                <Markdown remarkPlugins={[remarkGfm]}>{message.text}</Markdown>
+              <div className="[overflow-wrap:anywhere]">
+                <Markdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    h1: ({ node, ...p }) => (
+                      <h3 className="mb-1 mt-3 font-serif text-base font-bold text-primary first:mt-0" {...p} />
+                    ),
+                    h2: ({ node, ...p }) => (
+                      <h3 className="mb-1 mt-3 font-serif text-base font-bold text-primary first:mt-0" {...p} />
+                    ),
+                    h3: ({ node, ...p }) => (
+                      <h4 className="mb-1 mt-2 font-serif text-[15px] font-bold text-primary first:mt-0" {...p} />
+                    ),
+                    p: ({ node, ...p }) => (
+                      <p className="my-2 first:mt-0 last:mb-0" {...p} />
+                    ),
+                    ul: ({ node, ...p }) => (
+                      <ul className="my-2 list-disc space-y-1 pl-5 marker:text-primary" {...p} />
+                    ),
+                    ol: ({ node, ...p }) => (
+                      <ol className="my-2 list-decimal space-y-1 pl-5 marker:text-primary" {...p} />
+                    ),
+                    li: ({ node, ...p }) => <li className="pl-1" {...p} />,
+                    strong: ({ node, ...p }) => (
+                      <strong className="font-bold text-primary" {...p} />
+                    ),
+                    a: ({ node, ...p }) => (
+                      <a className="text-primary underline" {...p} />
+                    ),
+                    code: ({ node, ...p }) => (
+                      <code className="rounded bg-secondary px-1 py-0.5 text-[0.8em]" {...p} />
+                    ),
+                    blockquote: ({ node, ...p }) => (
+                      <blockquote className="my-2 border-l-2 border-primary/40 pl-3 text-muted-foreground" {...p} />
+                    ),
+                  }}
+                >
+                  {message.text}
+                </Markdown>
               </div>
             )}
           </div>
