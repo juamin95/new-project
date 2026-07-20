@@ -147,6 +147,18 @@
 .md li::marker {
   color: hsl(var(--primary));
 }
+.md ul ul {
+  list-style: circle;
+  margin: 0.2rem 0;
+}
+.md ul ul ul {
+  list-style: square;
+}
+.md li > ul,
+.md li > ol {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
 .md a {
   color: hsl(var(--primary));
   text-decoration: underline;
