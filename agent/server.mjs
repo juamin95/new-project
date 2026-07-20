@@ -51,13 +51,18 @@ if (!process.env.ANTHROPIC_API_KEY) {
 
 const client = new Anthropic(); // liest ANTHROPIC_API_KEY selbst aus der Umgebung
 
-const SYSTEM = `Du bist das GRÜNSCHNITT-Betriebssystem, der Assistent für Marvin — Inhaber eines Garten- und Landschaftsbaubetriebs. Antworte auf Deutsch, klar und direkt, ohne Floskeln.
+const SYSTEM = `Du bist das GRÜNSCHNITT-Betriebssystem, der Assistent für Marvin — Inhaber eines Garten- und Landschaftsbaubetriebs.
+
+Antwortstil (wichtig):
+- Schreibe kurzen, klaren Fließtext, den ein Handwerker in Sekunden erfasst. Komm sofort zum Punkt.
+- Formuliere SELBST in eigenen Worten. Gib NIEMALS den rohen Notiztext 1:1 wieder.
+- Benutze KEINE Markdown-Zeichen: keine ##, keine ** für Fettdruck, keine Backticks, keine Tabellen. Wenn du aufzählst, dann schlicht mit einem Bindestrich am Zeilenanfang.
+- Lieber 3 klare Sätze als eine lange Notiz.
 
 Arbeitsweise:
-- Bei Fach-, Prozess- und Nachschlagefragen zu GRÜNSCHNITT oder dem OS ZUERST den Vault durchsuchen (Werkzeug vault_suchen). Stütze Fakten nur auf Notizen mit status: verifiziert. Findest du nichts Belastbares, sag das offen und rate nicht.
-- Für Kunden-, Projekt- und Termindaten Hero lesen (Werkzeug hero_lesen, nur Lesebefehle).
-- Du erstellst und versendest nichts nach außen (keine Mails, Angebote, Rechnungen) und schreibst nichts in Hero. Solche Aktionen macht später ein eigener, vom Menschen freigegebener Schritt.
-- Fasse dich kurz und beantworte die konkrete Frage.`;
+- Bei Fach-, Prozess- und Nachschlagefragen ZUERST den Vault durchsuchen (vault_suchen). Die Treffer sind Roh-Notizen im Markdown-Format — nutze sie nur als Quelle und fasse sie zusammen, kopiere sie nicht. Stütze Fakten nur auf verifizierte Notizen; findest du nichts Belastbares, sag das offen und rate nicht.
+- Für Kunden-, Projekt- und Termindaten Hero lesen (hero_lesen, nur Lesebefehle). Für aktuelle/offene Projekte: modul "projekt", aktion "suchen". Für Termine: modul "kalender", aktion "termine" mit --von und --bis. Für Aufgaben eines Projekts: modul "projekt", aktion "aufgaben" mit --projekt und optional --offen.
+- Du erstellst und versendest nichts nach außen (keine Mails, Angebote, Rechnungen) und schreibst nichts in Hero. Solche Aktionen macht später ein eigener, vom Menschen freigegebener Schritt.`;
 
 // ── Werkzeug: Vault durchsuchen ──────────────────────────────
 function listMarkdown(dir, acc = []) {
@@ -95,21 +100,35 @@ function vaultSearch(begriff) {
 }
 
 // ── Werkzeug: Hero lesen (nur Lesebefehle) ───────────────────
+// Echte Hero-CLI-Struktur: hero <modul> <aktion> [args]. Nur Lese-Kombinationen.
 const HERO_READ = new Set([
-  "suchen", "kategorien", "termine", "logbuch-lesen",
-  "aufgaben", "checklisten", "historie", "export", "projekttypen",
+  "kontakt suchen",
+  "projekt suchen",
+  "projekt logbuch-lesen",
+  "projekt aufgaben",
+  "projekt checklisten",
+  "kalender kategorien",
+  "kalender termine",
+  "katalog produkte",
+  "katalog leistungen",
+  "dokument liste",
+  "dokument positionen",
+  "historie rechnungen",
 ]);
 
-function heroRead(befehl, argument) {
-  const cmd = String(befehl ?? "").trim();
-  if (!HERO_READ.has(cmd)) {
-    return `Befehl „${cmd}" ist nicht erlaubt. Nur Lesebefehle: ${[...HERO_READ].join(", ")}.`;
+function heroRead(modul, aktion, argumente) {
+  const m = String(modul ?? "").trim();
+  const a = String(aktion ?? "").trim();
+  const key = `${m} ${a}`.trim();
+  if (!HERO_READ.has(key)) {
+    return `„${key}" ist kein erlaubter Lesebefehl. Erlaubt: ${[...HERO_READ].join("; ")}.`;
   }
-  const args = argument ? [cmd, String(argument)] : [cmd];
+  const args = [m, a, ...(Array.isArray(argumente) ? argumente.map(String) : [])];
   try {
-    return execFileSync(HERO_CLI, args, { cwd: REPO, encoding: "utf-8", timeout: 25000 }).slice(0, 6000);
+    return execFileSync(HERO_CLI, args, { cwd: REPO, encoding: "utf-8", timeout: 30000 }).slice(0, 8000);
   } catch (e) {
-    return `Hero-Lesefehler: ${e?.message ?? e}`;
+    const out = `${e?.stdout ?? ""}${e?.stderr ?? ""}`.trim();
+    return `Hero-Lesefehler: ${(out || e?.message || String(e)).slice(0, 1000)}`;
   }
 }
 
@@ -129,17 +148,22 @@ const vaultTool = betaTool({
 const heroTool = betaTool({
   name: "hero_lesen",
   description:
-    "Liest Daten aus Hero (führendes System für Kunden/Projekte/Termine). NUR Lesebefehle: suchen, termine, aufgaben, historie, kategorien, checklisten, logbuch-lesen, export, projekttypen.",
+    "Liest Daten aus Hero (führendes System für Kunden, Projekte, Termine). Nur Lesebefehle, Struktur modul + aktion + argumente. Wichtige Beispiele: projekt suchen (Projekte auflisten/finden; argumente z. B. --suche Weber, --kunde ID, --typ project|copcontact|alle); projekt aufgaben (--projekt ID, optional --offen); projekt logbuch-lesen (--projekt ID); kontakt suchen (Suchbegriff als argument); kalender termine (--von JJJJ-MM-TT HH:MM --bis ...); historie rechnungen (--kunde ID). Verfügbar außerdem: kalender kategorien, katalog produkte, katalog leistungen, dokument liste, dokument positionen, projekt checklisten.",
   inputSchema: {
     type: "object",
     properties: {
-      befehl: { type: "string", description: "Lesebefehl, zum Beispiel termine oder suchen" },
-      argument: { type: "string", description: "Optionales Argument, z. B. ein Suchbegriff oder eine Projekt-Nr." },
+      modul: { type: "string", description: "z. B. projekt, kontakt, kalender, katalog, dokument, historie" },
+      aktion: { type: "string", description: "z. B. suchen, aufgaben, termine, liste, rechnungen" },
+      argumente: {
+        type: "array",
+        items: { type: "string" },
+        description: "zusätzliche Argumente inkl. Werte, z. B. [--suche, Weber] oder [--projekt, GABO-152, --offen]",
+      },
     },
-    required: ["befehl"],
+    required: ["modul", "aktion"],
     additionalProperties: false,
   },
-  run: async ({ befehl, argument }) => heroRead(befehl, argument),
+  run: async ({ modul, aktion, argumente }) => heroRead(modul, aktion, argumente),
 });
 
 function schrittLabel(name) {
