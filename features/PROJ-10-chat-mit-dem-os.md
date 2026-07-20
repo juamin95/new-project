@@ -107,6 +107,7 @@ Nicht im MVP (siehe Out of Scope): Angebote, Rechnungen, Mail-Entwürfe.
 | Termin nur über Vorschau → Bestätigen | Gate-Prinzip; verhindert Fehleinträge, baut Vertrauen; Marvin kann in der Vorschau korrigieren | 2026-07-19 |
 | Echtes Schreiben erst nach E2E-Akzeptanztests mit Testdaten | Zusammenspiel zuerst nachweisen, dann echte Terminanlage freischalten (Julians Sicherheitstor) | 2026-07-19 |
 | Chat reagiert nur auf Marvin (nicht proaktiv) | Proaktive/aufgedeckte Meldungen sind der Loop-/Offene-Punkte-Teil (PROJ-11), nicht der Chat | 2026-07-19 |
+| Standard-Modell des Agenten: Claude Sonnet 5 (statt Opus 4.8) | Marvins Alltag ist überwiegend Q&A/Zusammenfassen/Hero-Lesen; Sonnet 5 reicht dafür bei ~1/3 der Kosten. Starkes Modell später gezielt per Router eskalieren (Julian 20.07.) | 2026-07-20 |
 
 ### Technical Decisions
 <!-- Added by /architecture -->

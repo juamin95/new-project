@@ -42,7 +42,7 @@ loadEnvLocal();
 
 const PORT = Number(process.env.OS_AGENT_PORT ?? 8787);
 const TOKEN = process.env.OS_AGENT_TOKEN ?? "";
-const MODEL = process.env.OS_AGENT_MODEL ?? "claude-opus-4-8";
+const MODEL = process.env.OS_AGENT_MODEL ?? "claude-sonnet-5";
 
 if (!process.env.ANTHROPIC_API_KEY) {
   console.error("FEHLER: ANTHROPIC_API_KEY ist nicht gesetzt.");
