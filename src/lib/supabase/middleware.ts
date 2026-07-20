@@ -32,7 +32,9 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const path = request.nextUrl.pathname
-  const isPublic = path === '/login' || path.startsWith('/auth')
+  // /api-Routen sichern sich selbst (JSON-401) statt auf /login umzuleiten.
+  const isPublic =
+    path === '/login' || path.startsWith('/auth') || path.startsWith('/api')
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()

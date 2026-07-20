@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   ArrowLeft,
@@ -14,18 +14,12 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import type { ChatMessage, Conversation, TerminDraft } from "./mock-data";
+import { createClient } from "@/lib/supabase/client";
+import type { ChatMessage, Conversation, Scope, TerminDraft } from "./types";
 
-let idCounter = 1000;
-const nextId = () => `m${idCounter++}`;
-
-function ScopeBadge({ conversation }: { conversation: Conversation }) {
+function ScopeBadge({ scope }: { scope: Scope }) {
   const label =
-    conversation.scope === "allgemein"
-      ? "Allgemein"
-      : conversation.scope === "kunde"
-        ? "Kunde"
-        : "Projekt";
+    scope === "allgemein" ? "Allgemein" : scope === "kunde" ? "Kunde" : "Projekt";
   return (
     <span className="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold text-primary">
       {label}
@@ -33,13 +27,7 @@ function ScopeBadge({ conversation }: { conversation: Conversation }) {
   );
 }
 
-function TerminCard({
-  termin,
-  onConfirm,
-}: {
-  termin: TerminDraft;
-  onConfirm: () => void;
-}) {
+function TerminCard({ termin, onConfirm }: { termin: TerminDraft; onConfirm: () => void }) {
   const confirmed = termin.status === "bestaetigt";
   return (
     <div className="mt-2 w-full max-w-[19rem] rounded-2xl border border-primary/25 bg-secondary/60 p-3">
@@ -48,22 +36,17 @@ function TerminCard({
         {confirmed ? "Termin angelegt" : "Termin-Vorschlag"}
       </div>
       <dl className="space-y-1 text-sm">
-        <div className="flex justify-between gap-3">
-          <dt className="text-muted-foreground">Datum</dt>
-          <dd className="font-medium">{termin.datum}</dd>
-        </div>
-        <div className="flex justify-between gap-3">
-          <dt className="text-muted-foreground">Uhrzeit</dt>
-          <dd className="font-medium">{termin.uhrzeit}</dd>
-        </div>
-        <div className="flex justify-between gap-3">
-          <dt className="text-muted-foreground">Kunde/Projekt</dt>
-          <dd className="font-medium">{termin.bezug}</dd>
-        </div>
-        <div className="flex justify-between gap-3">
-          <dt className="text-muted-foreground">Notiz</dt>
-          <dd className="font-medium">{termin.notiz}</dd>
-        </div>
+        {[
+          ["Datum", termin.datum],
+          ["Uhrzeit", termin.uhrzeit],
+          ["Kunde/Projekt", termin.bezug],
+          ["Notiz", termin.notiz],
+        ].map(([k, v]) => (
+          <div key={k} className="flex justify-between gap-3">
+            <dt className="text-muted-foreground">{k}</dt>
+            <dd className="font-medium">{v}</dd>
+          </div>
+        ))}
       </dl>
       {confirmed ? (
         <div className="mt-3 flex items-center gap-1.5 text-sm font-medium text-primary">
@@ -90,10 +73,7 @@ function ThinkingSteps({ steps }: { steps: string[] }) {
   return (
     <div className="mb-1.5 flex flex-col gap-1">
       {steps.map((s, i) => (
-        <div
-          key={i}
-          className="flex items-center gap-1.5 text-[11px] text-muted-foreground"
-        >
+        <div key={i} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
           <Lightbulb className="h-3 w-3 text-primary/70" />
           {s}
         </div>
@@ -113,16 +93,8 @@ function MessageBubble({
   return (
     <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
       <div className={cn("max-w-[85%]", isUser && "flex flex-col items-end")}>
-        {!isUser && message.thinking && <ThinkingSteps steps={message.thinking} />}
-        {message.image && (
-          <Image
-            src={message.image}
-            alt="Angehängtes Bild"
-            width={220}
-            height={160}
-            className="mb-1 h-auto w-40 rounded-xl border border-border object-cover"
-            unoptimized
-          />
+        {!isUser && message.thinking && message.thinking.length > 0 && (
+          <ThinkingSteps steps={message.thinking} />
         )}
         {message.text && (
           <div
@@ -137,10 +109,7 @@ function MessageBubble({
           </div>
         )}
         {message.termin && (
-          <TerminCard
-            termin={message.termin}
-            onConfirm={() => onConfirmTermin(message.id)}
-          />
+          <TerminCard termin={message.termin} onConfirm={() => onConfirmTermin(message.id)} />
         )}
       </div>
     </div>
@@ -172,25 +141,59 @@ export function ConversationPane({
   showBack?: boolean;
   onBack?: () => void;
 }) {
-  const [messages, setMessages] = useState<ChatMessage[]>(conversation.messages);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [loading, setLoading] = useState(true);
   const [input, setInput] = useState("");
-  const [thinking, setThinking] = useState(false);
+  const [sending, setSending] = useState(false);
   const [recording, setRecording] = useState(false);
   const [attached, setAttached] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
+  const addMessage = useCallback((msg: ChatMessage) => {
+    setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+  }, []);
+
+  // Nachrichten laden + Live-Abo (geräteübergreifend)
   useEffect(() => {
-    setMessages(conversation.messages);
-    setInput("");
-    setAttached(null);
-    setRecording(false);
-  }, [conversation.id, conversation.messages]);
+    let active = true;
+    setLoading(true);
+    fetch(`/api/conversations/${conversation.id}/messages`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (active) setMessages(d.messages ?? []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    const supabase = createClient();
+    const channel = supabase
+      .channel(`msgs-${conversation.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "cockpit_messages",
+          filter: `conversation_id=eq.${conversation.id}`,
+        },
+        (payload) => addMessage(payload.new as ChatMessage),
+      )
+      .subscribe();
+
+    return () => {
+      active = false;
+      supabase.removeChannel(channel);
+    };
+  }, [conversation.id, addMessage]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, thinking]);
+  }, [messages, sending]);
 
   function autosize() {
     const el = taRef.current;
@@ -199,43 +202,30 @@ export function ConversationPane({
     el.style.height = Math.min(el.scrollHeight, 128) + "px";
   }
 
-  function send() {
+  async function send() {
     const text = input.trim();
-    if (!text && !attached) return;
-    const wantsTermin = /termin/i.test(text);
-    setMessages((m) => [
-      ...m,
-      { id: nextId(), role: "user", text: text || undefined, image: attached || undefined },
-    ]);
+    if (!text || sending) return;
+    setError(null);
     setInput("");
     setAttached(null);
     if (taRef.current) taRef.current.style.height = "auto";
-    setThinking(true);
-
-    window.setTimeout(() => {
-      setThinking(false);
-      const reply: ChatMessage = wantsTermin
-        ? {
-            id: nextId(),
-            role: "assistant",
-            text: "Ich habe einen Termin vorbereitet — bitte prüfen:",
-            thinking: ["Kunde in Hero suchen", "Freien Slot prüfen"],
-            termin: {
-              datum: "Do, 24. Juli",
-              uhrzeit: "08:00",
-              bezug: conversation.bezug ?? "—",
-              notiz: text || "—",
-              status: "vorschlag",
-            },
-          }
-        : {
-            id: nextId(),
-            role: "assistant",
-            text: "(Beispielantwort) Sobald der OS-Agent angebunden ist, beantworte ich das aus Vault und Hero.",
-            thinking: ["Vault durchsuchen", "Hero lesen"],
-          };
-      setMessages((m) => [...m, reply]);
-    }, 1300);
+    setSending(true);
+    try {
+      const res = await fetch(`/api/conversations/${conversation.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok) throw new Error();
+      const d = await res.json();
+      addMessage(d.userMessage);
+      addMessage(d.assistantMessage);
+    } catch {
+      setError("Konnte nicht senden. Bitte gleich noch einmal versuchen.");
+      setInput(text);
+    } finally {
+      setSending(false);
+    }
   }
 
   function confirmTermin(msgId: string) {
@@ -246,10 +236,6 @@ export function ConversationPane({
           : x,
       ),
     );
-    setMessages((m) => [
-      ...m,
-      { id: nextId(), role: "assistant", text: "Termin ist in Hero angelegt. Alles erledigt." },
-    ]);
   }
 
   function onPickImage(e: React.ChangeEvent<HTMLInputElement>) {
@@ -267,7 +253,7 @@ export function ConversationPane({
   function stopRecording() {
     if (!recording) return;
     setRecording(false);
-    // Mock-Transkription: erkannter Text landet bearbeitbar im Eingabefeld.
+    // Mock-Transkription (echte Whisper-Anbindung kommt in Etappe 3):
     setInput((v) => (v ? v + " " : "") + "Ich brauche nächste Woche einen Termin bei …");
     setTimeout(autosize, 0);
   }
@@ -292,22 +278,22 @@ export function ConversationPane({
           <div className="truncate font-semibold">{conversation.title}</div>
           <div className="text-xs text-primary">Kontext aktiv</div>
         </div>
-        <ScopeBadge conversation={conversation} />
+        <ScopeBadge scope={conversation.scope} />
       </div>
 
       {/* Verlauf */}
       <div className="flex-1 overflow-y-auto px-3 py-4">
         <div className="mx-auto flex max-w-2xl flex-col gap-3">
-          {messages.length === 0 && (
+          {!loading && messages.length === 0 && (
             <div className="mt-10 text-center text-sm text-muted-foreground">
-              Stell dem OS eine Frage, hänge ein Foto an oder diktier eine
-              Sprachmemo.
+              Stell dem OS eine Frage, hänge ein Foto an oder halte das Mikrofon
+              gedrückt für eine Sprachmemo.
             </div>
           )}
           {messages.map((m) => (
             <MessageBubble key={m.id} message={m} onConfirmTermin={confirmTermin} />
           ))}
-          {thinking && <TypingBubble />}
+          {sending && <TypingBubble />}
           <div ref={endRef} />
         </div>
       </div>
@@ -315,6 +301,9 @@ export function ConversationPane({
       {/* Eingabeleiste */}
       <div className="border-t border-border/70 bg-white px-3 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)]">
         <div className="mx-auto max-w-2xl">
+          {error && (
+            <div className="mb-2 text-center text-xs text-destructive">{error}</div>
+          )}
           {attached && (
             <div className="mb-2 flex items-center gap-2">
               <Image
@@ -325,12 +314,17 @@ export function ConversationPane({
                 unoptimized
                 className="h-12 w-12 rounded-lg border border-border object-cover"
               />
-              <button
-                onClick={() => setAttached(null)}
-                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-3.5 w-3.5" /> Bild entfernen
-              </button>
+              <div className="flex flex-col">
+                <button
+                  onClick={() => setAttached(null)}
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-3.5 w-3.5" /> Bild entfernen
+                </button>
+                <span className="text-[11px] text-muted-foreground">
+                  Bild-Upload folgt (Etappe 3) — jetzt wird nur der Text gesendet.
+                </span>
+              </div>
             </div>
           )}
           {recording && (
@@ -389,8 +383,9 @@ export function ConversationPane({
             </button>
             <button
               onClick={send}
+              disabled={sending}
               aria-label="Senden"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
               <Send className="h-5 w-5" />
             </button>

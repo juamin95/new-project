@@ -217,6 +217,27 @@ Der OS-Agent braucht für den Chat **keinen** eigenen Supabase-Schlüssel — de
 
 **Geprüft:** `npm run build` grün (`/chat` als Route), `tsc` ohne Fehler in den Chat-Dateien, Dev-Server kompiliert sauber.
 
+## Implementation Notes (Backend — Etappe 1: Datenbank + Persistenz)
+**Umgesetzt am 2026-07-20.** Gespräche und Nachrichten werden jetzt echt gespeichert und geräteübergreifend synchronisiert. Der OS-Agent (echte Antworten) und Medien-/Termin-Aktionen folgen in Etappe 2/3.
+
+**Supabase-Schema** (`supabase/migrations/20260720120000_cockpit_chat_schema.sql`, selbst angewandt über die Management-API):
+- `cockpit_conversations`, `cockpit_messages`, `cockpit_actions` — alle mit RLS (`authenticated`, ein gemeinsames Konto)
+- Trigger hält `updated_at` + `last_preview` des Gesprächs aktuell
+- Realtime auf `cockpit_messages` + `cockpit_conversations` (Geräte-Sync)
+- privater Storage-Bucket `cockpit-bilder` (+ Storage-Policies) für Etappe 3
+- Website-Tabellen (leads/projekte) unberührt — per Bestandsschutz-Check bestätigt
+
+**Server-Routen** (selbst-gesichert mit 401, Zod-Validierung):
+- `GET/POST /api/conversations` — Liste + Gespräch anlegen
+- `GET/POST /api/conversations/[id]/messages` — Nachrichten lesen + senden (POST speichert die Nutzer-Nachricht und legt eine **Platzhalter-Antwort** an; der echte Agent ersetzt sie in Etappe 2)
+- Türsteher (`proxy`) lässt `/api` durch, damit Routen JSON-401 liefern statt umzuleiten
+
+**Frontend auf echte Daten umgestellt:** `chat-view.tsx` lädt Gespräche aus der API + Realtime-Liste; `conversation.tsx` lädt Nachrichten, sendet echt, dedupliziert per ID und abonniert Live-Updates. Beispieldaten (`mock-data.ts`) entfernt.
+
+**Tests:** 10 neue Integrationstests (401/400/Happy Path) für beide Routen; `npm test` 1.344 grün; `npm run build` grün.
+
+**Noch offen (Etappe 2/3):** OS-Agent-Dienst auf dem VPS (echte Antworten + Zwischendenken-Streaming), Whisper-Transkription, Bild-Upload in den Bucket, Termin-Schreibpfad nach Hero.
+
 ## QA Test Results
 _To be added by /qa_
 
