@@ -7,7 +7,6 @@ import {
   ImagePlus,
   Mic,
   Send,
-  Square,
   Lightbulb,
   Check,
   CalendarClock,
@@ -259,14 +258,18 @@ export function ConversationPane({
     e.target.value = "";
   }
 
-  function toggleRecording() {
-    if (recording) {
-      setRecording(false);
-      setInput((v) => (v ? v + " " : "") + "Ich brauche nächste Woche einen Termin bei …");
-      setTimeout(autosize, 0);
-    } else {
-      setRecording(true);
-    }
+  function startRecording(e: React.PointerEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setRecording(true);
+  }
+
+  function stopRecording() {
+    if (!recording) return;
+    setRecording(false);
+    // Mock-Transkription: erkannter Text landet bearbeitbar im Eingabefeld.
+    setInput((v) => (v ? v + " " : "") + "Ich brauche nächste Woche einen Termin bei …");
+    setTimeout(autosize, 0);
   }
 
   return (
@@ -330,65 +333,68 @@ export function ConversationPane({
               </button>
             </div>
           )}
-          {recording ? (
-            <div className="flex items-center justify-between gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 px-3 py-2.5">
-              <span className="flex items-center gap-2 text-sm text-destructive">
-                <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-destructive" />
-                Aufnahme läuft …
-              </span>
-              <Button size="sm" variant="outline" onClick={toggleRecording}>
-                <Square className="mr-1 h-3.5 w-3.5" /> Stopp
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-end gap-2">
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={onPickImage}
-              />
-              <button
-                onClick={() => fileRef.current?.click()}
-                aria-label="Bild anhängen"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border text-primary hover:bg-secondary"
-              >
-                <ImagePlus className="h-5 w-5" />
-              </button>
-              <textarea
-                ref={taRef}
-                value={input}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                  autosize();
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-                rows={1}
-                placeholder="Nachricht schreiben …"
-                className="max-h-32 flex-1 resize-none rounded-2xl border border-border bg-secondary/40 px-3 py-2.5 text-sm outline-none focus:border-primary/40"
-              />
-              <button
-                onClick={toggleRecording}
-                aria-label="Sprachmemo"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border text-primary hover:bg-secondary"
-              >
-                <Mic className="h-5 w-5" />
-              </button>
-              <button
-                onClick={send}
-                aria-label="Senden"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90"
-              >
-                <Send className="h-5 w-5" />
-              </button>
+          {recording && (
+            <div className="mb-2 flex items-center gap-2 rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-destructive" />
+              Aufnahme läuft — zum Stoppen loslassen
             </div>
           )}
+          <div className="flex items-end gap-2">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={onPickImage}
+            />
+            <button
+              onClick={() => fileRef.current?.click()}
+              aria-label="Bild anhängen"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border text-primary hover:bg-secondary"
+            >
+              <ImagePlus className="h-5 w-5" />
+            </button>
+            <textarea
+              ref={taRef}
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+                autosize();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
+              rows={1}
+              placeholder="Nachricht schreiben …"
+              className="max-h-32 flex-1 resize-none rounded-2xl border border-border bg-secondary/40 px-3 py-2.5 text-sm outline-none focus:border-primary/40"
+            />
+            <button
+              onPointerDown={startRecording}
+              onPointerUp={stopRecording}
+              onPointerCancel={stopRecording}
+              onContextMenu={(e) => e.preventDefault()}
+              aria-label="Sprachmemo — gedrückt halten"
+              title="Gedrückt halten zum Aufnehmen"
+              className={cn(
+                "flex h-10 w-10 shrink-0 touch-none select-none items-center justify-center rounded-full border transition-colors",
+                recording
+                  ? "animate-pulse border-destructive bg-destructive text-white"
+                  : "border-border text-primary hover:bg-secondary",
+              )}
+            >
+              <Mic className="h-5 w-5" />
+            </button>
+            <button
+              onClick={send}
+              aria-label="Senden"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90"
+            >
+              <Send className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
