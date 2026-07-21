@@ -2,40 +2,44 @@ import { describe, it, expect } from "vitest";
 import { berechneFortschritt, istInaktiv, PROJEKTTYP_IDS } from "./prozessketten";
 
 describe("berechneFortschritt", () => {
-  it("Abo, Status 1111 -> Schritt 3 von 5 (60%)", () => {
+  it("Abo, Status 1111 -> Schritt 3 von 4 (75%), Archiviert zählt nicht", () => {
     const f = berechneFortschritt("65869", 1111);
     expect(f.typ).toBe("abo");
     expect(f.stepIndex).toBe(3);
-    expect(f.stepTotal).toBe(5);
-    expect(f.prozent).toBe(60);
+    expect(f.stepTotal).toBe(4);
+    expect(f.prozent).toBe(75);
     expect(f.statusLabel).toBe("In Umsetzung");
     expect(f.isInactive).toBe(false);
   });
 
-  it("Bauprojekt, Status 201 -> Schritt 1 von 12", () => {
+  it("Bauprojekt, Status 201 -> Schritt 1 von 11", () => {
     const f = berechneFortschritt("32646", 201);
     expect(f.typ).toBe("bauprojekt");
     expect(f.stepIndex).toBe(1);
-    expect(f.stepTotal).toBe(12);
-    expect(f.prozent).toBe(8);
+    expect(f.stepTotal).toBe(11);
+    expect(f.prozent).toBe(9);
   });
 
-  it("Projekt ohne Angebot, Status 1150 -> Schritt 4 von 6", () => {
+  it("Projekt ohne Angebot, Status 1150 -> Schritt 4 von 5 (80%)", () => {
     const f = berechneFortschritt("65686", 1150);
     expect(f.typ).toBe("projekt-ohne-angebot");
     expect(f.stepIndex).toBe(4);
-    expect(f.stepTotal).toBe(6);
-    expect(f.prozent).toBe(67);
+    expect(f.stepTotal).toBe(5);
+    expect(f.prozent).toBe(80);
   });
 
-  it("Status 2000 -> inaktiv (abgeschlossen)", () => {
+  it("Status 2000 -> inaktiv, letzter Schritt = 100%", () => {
     const f = berechneFortschritt("65869", 2000);
     expect(f.isInactive).toBe(true);
     expect(f.stepIndex).toBe(4);
+    expect(f.stepTotal).toBe(4);
+    expect(f.prozent).toBe(100);
   });
 
-  it("Status 2100 -> inaktiv (archiviert)", () => {
-    expect(berechneFortschritt("32646", 2100).isInactive).toBe(true);
+  it("Status 2100 (Archiviert) -> inaktiv, aber nicht in der Kette (kein Balken)", () => {
+    const f = berechneFortschritt("32646", 2100);
+    expect(f.isInactive).toBe(true);
+    expect(f.stepIndex).toBeNull();
   });
 
   it("unbekannter Typ -> kein Balken", () => {

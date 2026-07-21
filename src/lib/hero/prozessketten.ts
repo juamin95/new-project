@@ -17,6 +17,8 @@ export const PROJEKTTYP_IDS: Record<string, Projekttyp> = {
 type Schritt = { code: number; label: string };
 
 // Reihenfolge = Prozessreihenfolge. Codes sind typübergreifend konsistent.
+// Hinweis: 2100 (Archiviert) ist bewusst NICHT Teil der Kette — es zählt nicht zum
+// Fortschritt (Abgeschlossen 2000 = 100 %), markiert aber wie 2000 Inaktivität.
 const KETTEN: Record<Projekttyp, Schritt[]> = {
   bauprojekt: [
     { code: 201, label: "Anfrage eingegangen" },
@@ -30,7 +32,6 @@ const KETTEN: Record<Projekttyp, Schritt[]> = {
     { code: 1150, label: "Kundenrechnung" },
     { code: 1500, label: "Reklamation" },
     { code: 2000, label: "Abgeschlossen" },
-    { code: 2100, label: "Archiviert" },
   ],
   "projekt-ohne-angebot": [
     { code: 201, label: "Anfrage eingegangen" },
@@ -38,14 +39,12 @@ const KETTEN: Record<Projekttyp, Schritt[]> = {
     { code: 1111, label: "In Umsetzung" },
     { code: 1150, label: "Rechnung" },
     { code: 2000, label: "Abgeschlossen" },
-    { code: 2100, label: "Archiviert" },
   ],
   abo: [
     { code: 201, label: "Offener Auftrag" },
     { code: 1101, label: "Termin festgelegt" },
     { code: 1111, label: "In Umsetzung" },
     { code: 2000, label: "Abgeschlossen" },
-    { code: 2100, label: "Archiviert" },
   ],
 };
 

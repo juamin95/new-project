@@ -116,7 +116,7 @@ describe("PATCH /api/conversations/[id] (Zuordnung)", () => {
     expect(captured.update?.project_type_id).toBe("65869");
     expect(captured.update?.status_code).toBe(1111);
     expect(captured.update?.step_index).toBe(3);
-    expect(captured.update?.step_total).toBe(5);
+    expect(captured.update?.step_total).toBe(4);
     expect(captured.update?.status_label).toBe("In Umsetzung");
     expect(captured.update?.is_inactive).toBe(false);
   });

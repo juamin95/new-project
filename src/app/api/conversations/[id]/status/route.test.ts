@@ -84,7 +84,7 @@ describe("POST /api/conversations/[id]/status", () => {
     expect(res.status).toBe(200);
     expect((await res.json()).refreshed).toBe(true);
     expect(captured.update?.step_index).toBe(3);
-    expect(captured.update?.step_total).toBe(5);
+    expect(captured.update?.step_total).toBe(4);
   });
 
   it("refreshed:false bei offline-Agent", async () => {

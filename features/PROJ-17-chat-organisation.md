@@ -90,6 +90,7 @@ Chats sind heute eine flache Liste. Dieses Feature gibt ihnen Ordnung: Ein Gespr
 | Projekttyp kommt fest vom Hero-Projekt | Jedes Projekt hat seinen Typ als festes Attribut; daraus folgt direkt die richtige Prozesskette — nichts wird geraten | 2026-07-21 |
 | Kunde ist Stammdatum → kein Fortschritt, nur Name | Eine reine Kundenzuordnung hat keinen Prozessstand; im Chat/Titel steht nur der Kundenname, kein Balken | 2026-07-21 |
 | Balken nur bei genau einem konkreten Projekt | Bei Kunde (Stammdatum, ggf. mehrere Projekte) ist ein einzelner Balken nicht sinnvoll | 2026-07-21 |
+| Archiviert (2100) zählt nicht zum Fortschritt | „Abgeschlossen" (2000) = 100 %; wirkt am Handy natürlicher (Abo In Umsetzung = 3/4 = 75 %) | 2026-07-21 |
 | Titel = Projekt-/Kundenname bei Zuordnung | Wiedererkennbarkeit in der Liste | 2026-07-21 |
 | Aktiv/Inaktiv automatisch aus Hero-Status (2000/2100) | Keine Handpflege; „nichts geht verloren" durch Lesbarkeit im Bereich „Abgeschlossen" | 2026-07-21 |
 | Zuordnung in Supabase am Gespräch, nicht in Hero | Keine Doppelpflege; Hero bleibt führendes System | 2026-07-21 |
@@ -128,10 +129,11 @@ Je Gespräch zusätzlich:
 ```
 Die **Prozessketten** je Typ liegen als feste Nachschlagetabelle im Cockpit (aus dem verifizierten Hero-Wissen, per API ohnehin nicht änderbar):
 ```
-Projekt (Typ 32646, „bauprojekt")        12 Schritte: 201→400→601→701→801→1001→1101→1111→1150→1500→2000→2100
-Projekt ohne Angebot (Typ 65686)          6 Schritte: 201→1101→1111→1150→2000→2100
-Abo (Typ 65869)                           5 Schritte: 201→1101→1111→2000→2100
+Projekt (Typ 32646, „bauprojekt")        11 Schritte: 201→400→601→701→801→1001→1101→1111→1150→1500→2000
+Projekt ohne Angebot (Typ 65686)          5 Schritte: 201→1101→1111→1150→2000
+Abo (Typ 65869)                           4 Schritte: 201→1101→1111→2000
 ```
+**Archiviert (2100) zählt bewusst nicht zur Kette** — „Abgeschlossen" (2000) ist das Ende = 100 %. 2100 markiert (wie 2000) nur Inaktivität; ein archiviertes Projekt zeigt keinen Balken (steht ohnehin unter „Abgeschlossen").
 Quelle der Wahrheit bleibt **Hero**: Typ über `ProjectMatch.type`, Status über `current_project_match_status.status_code`. Die **Zuordnung selbst wird nur in Supabase** am Gespräch gehalten (keine Doppelpflege).
 
 ### C) Komponentenstruktur (Baum)
@@ -166,9 +168,9 @@ Keine neuen Laufzeit-Pakete nötig. Genutzt wird Bestehendes: **Supabase** (Pers
 **Umgesetzt am 2026-07-21.** Deterministische Grundlage (Berechnung + Datenmodell) und die Zuordnungs-/Refresh-API stehen; die UI-Anbindung + der Agent-Vorschlag folgen im `/frontend`-Schritt.
 
 - **hero-tools:** `projekt suchen` liefert jetzt zusätzlich `type { id name }` (der Projekttyp fehlte bisher im Leseergebnis).
-- **`src/lib/hero/prozessketten.ts`** — feste Prozessketten je Typ (bauprojekt 12 / ohne-Angebot 6 / abo 5 Schritte) + `berechneFortschritt(typeId, statusCode)` → Schritt X/Y, Prozent, `is_inactive`. Unit-getestet (10 Fälle; Kontrolle Abo 1111 = 3/5 = 60 %).
+- **`src/lib/hero/prozessketten.ts`** — feste Prozessketten je Typ (bauprojekt 11 / ohne-Angebot 5 / abo 4 Schritte; Archiviert 2100 zählt nicht) + `berechneFortschritt(typeId, statusCode)` → Schritt X/Y, Prozent, `is_inactive`. Unit-getestet (10 Fälle; Kontrolle Abo 1111 = 3/4 = 75 %).
 - **`src/lib/hero/projekt-snapshot.ts`** — holt den Projekt-Status vom OS-Agenten (localhost, nur lesend) und baut daraus den Schnappschuss; bei Agent-/Hero-Ausfall sauberer Fallback (Zuordnung ohne Fortschritt).
-- **Agent (`agent/server.mjs`):** neue Leseop `projekt-status` (ohne LLM, also ohne Token-Kosten) liefert Typ + aktuellen Status strukturiert aus dem hero-tools-JSON. An echtem Projekt **UNB-142** verifiziert (Typ 32646 „Projekt", Status 1111 „In Umsetzung" → Schritt 8/12).
+- **Agent (`agent/server.mjs`):** neue Leseop `projekt-status` (ohne LLM, also ohne Token-Kosten) liefert Typ + aktuellen Status strukturiert aus dem hero-tools-JSON. An echtem Projekt **UNB-142** verifiziert (Typ 32646 „Projekt", Status 1111 „In Umsetzung" → Schritt 8/11).
 - **Migration `20260721120000_cockpit_chat_organisation.sql`** — Schnappschuss-Spalten am Gespräch (`hero_project_nr`, `project_type_id/name`, `status_code/label`, `step_index/total`, `is_inactive`, `hero_synced_at`) + Index auf `is_inactive`. Angewandt auf Projekt bnzpdujupmmrwcbunbql.
 - **API:** `PATCH /api/conversations/[id]` (Zuordnung bestätigen; bei Projekt-Scope Schnappschuss aus Hero, bei Kunde/Allgemein leer) und `POST /api/conversations/[id]/status` (Fortschritt neu abgleichen). Auth + Zod + Integrationstests (401/400/200, Kunde vs. Projekt, Agent offline). Gesamte Testsuite grün (1368).
 
