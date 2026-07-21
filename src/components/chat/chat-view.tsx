@@ -40,11 +40,15 @@ const REVEAL = 96;
 function ChatCard({
   c,
   active,
+  isOpen,
+  onOpen,
   onSelect,
   onDelete,
 }: {
   c: Conversation;
   active: boolean;
+  isOpen: boolean;
+  onOpen: (id: string | null) => void;
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
@@ -73,16 +77,29 @@ function ChatCard({
     if (!dragging.current) return;
     dragging.current = false;
     setAnimate(true);
-    setOffset((o) => (o < -REVEAL / 2 ? -REVEAL : 0));
+    const shouldOpen = offset < -REVEAL / 2;
+    setOffset(shouldOpen ? -REVEAL : 0);
+    onOpen(shouldOpen ? c.id : null);
   }
   function select() {
     if (moved.current) return; // war ein Wischen, kein Tippen
     if (offset !== 0) {
+      setAnimate(true);
       setOffset(0); // offen → erst zuschieben
+      onOpen(null);
       return;
     }
     onSelect(c.id);
   }
+
+  // Öffnet sich eine andere Karte, schiebt diese sich automatisch zu (wie WhatsApp).
+  useEffect(() => {
+    if (!isOpen && !dragging.current && offset !== 0) {
+      setAnimate(true);
+      setOffset(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const open = offset !== 0;
   return (
@@ -148,6 +165,8 @@ function ConversationList({
   loading: boolean;
   creating: boolean;
 }) {
+  // Nur eine Karte darf freigewischt (offen) sein.
+  const [openId, setOpenId] = useState<string | null>(null);
   return (
     <div className="px-4 pb-6 pt-6">
       <h1 className="text-2xl font-bold">Chat</h1>
@@ -179,6 +198,8 @@ function ConversationList({
             key={c.id}
             c={c}
             active={activeId === c.id}
+            isOpen={openId === c.id}
+            onOpen={setOpenId}
             onSelect={onSelect}
             onDelete={onDelete}
           />
