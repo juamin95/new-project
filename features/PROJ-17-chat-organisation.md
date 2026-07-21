@@ -72,10 +72,11 @@ Chats sind heute eine flache Liste. Dieses Feature gibt ihnen Ordnung: Ein Gespr
 - Auth erforderlich (Cockpit-Login).
 
 ## Open Questions
-- [ ] In welchem **Hero-Feld** steht der Projekttyp genau (Projektart/Kategorie/Gewerk)? Der Typ ist ein festes Attribut des Projekts — /architecture lokalisiert das Feld und ordnet es den drei Prozessketten (bauprojekt / projekt-ohne-angebot / abo) zu.
-- [ ] Genaues **Mapping** der Hero-Statuscodes/-signale auf die Schrittposition je Kette (welche Signale markieren welchen Schritt, Gesamtzahl Y je Projekttyp).
-- [ ] Soll der zwischengespeicherte letzte Hero-Status persistiert werden (für Offline/Ladeanzeige), oder immer live lesen?
-- [ ] Sortierung/Reihenfolge innerhalb „Aktiv" (zuletzt aktualisiert vs. nach Fortschritt)?
+- [x] ~~In welchem Hero-Feld steht der Projekttyp?~~ Gelöst (/architecture): `ProjectMatch.type`, IDs 32646/65686/65869.
+- [x] ~~Mapping Status → Schrittposition?~~ Gelöst: Position des `status_code` in der fixen Kette des Typs (12/6/5 Schritte, verifiziert).
+- [x] ~~Letzten Hero-Status cachen oder live?~~ Gelöst: Schnappschuss am Gespräch, Abgleich beim Öffnen/Schreiben.
+- [x] ~~Sortierung innerhalb „Aktiv"?~~ Gelöst: zuletzt aktualisiert; „Abgeschlossen" eingeklappt darunter.
+- [ ] **Backend-To-do:** `projekt suchen` (hero-tools) um `type { id name }` erweitern, damit der Projekttyp im Leseergebnis ankommt.
 
 ## Decision Log
 
@@ -96,13 +97,70 @@ Chats sind heute eine flache Liste. Dieses Feature gibt ihnen Ordnung: Ein Gespr
 ### Technical Decisions
 | Decision | Rationale | Date |
 |----------|-----------|------|
-| _To be added by /architecture_ | | |
+| Projekttyp aus `ProjectMatch.type` (IDs 32646/65686/65869) | Fester Attribut des Projekts; bestimmt eindeutig die Prozesskette | 2026-07-21 |
+| `projekt suchen` um `type { id name }` erweitern | Liest heute nur Status + Gewerk; Typ ist für die Kette nötig (Backend-To-do) | 2026-07-21 |
+| Schritt X/Y aus fixer Ketten-Konstante je Typ, Position via Statuscode | Ketten per API nicht änderbar, typübergreifend konsistente Codes, verifiziert im Vault | 2026-07-21 |
+| Status-Schnappschuss am Gespräch cachen, Abgleich beim Öffnen/Schreiben | Schnelle Liste, robust bei Hero-Ausfall; vermeidet N Live-Calls je Listenaufbau | 2026-07-21 |
+| Zuordnung als Aktion/Pop-up (wie Termin-Vorschau), Persistenz nur in Supabase | Konsistente Bedienung, kein Such-Picker; Hero bleibt führend, keine Doppelpflege | 2026-07-21 |
+| Aktiv sortiert nach zuletzt aktualisiert; „Abgeschlossen" eingeklappt | Übernimmt bestehende Ordnung; hält aktive Liste im Fokus | 2026-07-21 |
 
 ---
 <!-- Sections below are added by subsequent skills -->
 
 ## Tech Design (Solution Architect)
-_To be added by /architecture_
+
+### Überblick
+Kein neuer Bildschirm — die bestehende **Chat-Fläche (PROJ-10) wird erweitert**. Drei Bausteine: (1) Zuordnungs-Vorschlag mit Bestätigungs-Pop-up, (2) Fortschrittsanzeige in der Liste, (3) Gruppierung Aktiv / Abgeschlossen. Backend nötig (kleine Erweiterung am Gespräch in Supabase + ein Hero-Lesepfad); Hero bleibt führend, geschrieben wird nur der Gesprächs-Datensatz in Supabase.
+
+### A) Ablauf — die drei Bausteine
+1. **Zuordnung (Gate über Pop-up).** Erkennt der OS-Agent im Gespräch sicher ein Projekt/Kunde (über die Hero-Suche), gibt er zusätzlich zur Antwort einen **Zuordnungs-Vorschlag** zurück. Das Cockpit zeigt ihn als **Bestätigungs-Pop-up** (gleiche Karten-/Vorschau-Logik wie die Termin-Vorschau in PROJ-10). Bei „Bestätigen" speichert das Cockpit Bezug + Titel am Gespräch (Supabase). Bei Mehrdeutigkeit listet das Pop-up die Kandidaten zum Antippen. Korrektur = Marvin nennt es im Chat, der Agent schlägt neu vor.
+2. **Fortschritt.** Beim Öffnen eines Chats bzw. beim Schreiben liest der Agent das zugeordnete Hero-Projekt (Typ + aktueller Status) und legt einen kompakten **Status-Schnappschuss** am Gespräch ab. Die Liste zeigt daraus: Status-Text (z. B. „In Umsetzung") + grünen Balken (Schritt X von Y). Reiner Kunden-Chat: nur der Kundenname, kein Balken.
+3. **Aktiv / Abgeschlossen.** Aus dem Schnappschuss-Status: Codes **2000/2100** → Abschnitt „Abgeschlossen" (eingeklappt, aufklappbar, voll lesbar). Alles andere und alle allgemeinen Chats → aktiver Bereich oben.
+
+### B) Datenmodell (Klartext)
+Am Gespräch (Supabase `cockpit_conversations`) — die Felder **scope, hero_project_id, hero_customer_id, title bestehen bereits**; neu hinzu kommt nur ein kleiner **Status-Schnappschuss** (zuletzt aus Hero gelesen):
+```
+Je Gespräch zusätzlich:
+- Projekttyp (z. B. „Abo")
+- aktueller Status: Code + Klartext (z. B. 1111 / „In Umsetzung")
+- Schritt X von Y (aus der Kette des Typs)
+- Zeitpunkt des letzten Hero-Abgleichs
+```
+Die **Prozessketten** je Typ liegen als feste Nachschlagetabelle im Cockpit (aus dem verifizierten Hero-Wissen, per API ohnehin nicht änderbar):
+```
+Projekt (Typ 32646, „bauprojekt")        12 Schritte: 201→400→601→701→801→1001→1101→1111→1150→1500→2000→2100
+Projekt ohne Angebot (Typ 65686)          6 Schritte: 201→1101→1111→1150→2000→2100
+Abo (Typ 65869)                           5 Schritte: 201→1101→1111→2000→2100
+```
+Quelle der Wahrheit bleibt **Hero**: Typ über `ProjectMatch.type`, Status über `current_project_match_status.status_code`. Die **Zuordnung selbst wird nur in Supabase** am Gespräch gehalten (keine Doppelpflege).
+
+### C) Komponentenstruktur (Baum)
+```
+Chat-Liste (bestehend, erweitert)
+├── Aktiv-Bereich
+│   └── ChatCard (erweitert)
+│       ├── Titel = Projekt-/Kundenname · Zeit · Vorschau
+│       └── [NEU] Status-Zeile: Text + grüner Fortschrittsbalken (nur bei Projekt)
+├── Abschnitt „Abgeschlossen" (NEU, eingeklappt/aufklappbar)
+│   └── ChatCard (inaktiv, gleiche Karte)
+└── Wischen-zum-Löschen (bestehend)
+
+Gesprächsansicht (bestehend, erweitert)
+├── Kopf: Titel = Projekt-/Kundenname
+└── [NEU] Zuordnungs-Pop-up (Bestätigungs-Karte)
+    └── „Zu Projekt X / Kunde Y zuordnen?" · Bestätigen · Ablehnen · (Kandidatenliste bei Mehrdeutigkeit)
+```
+
+### D) Tech-Entscheidungen (WARUM)
+- **Projekttyp aus `ProjectMatch.type`** (fixe IDs 32646/65686/65869): fester Attribut des Projekts, keine Rateei. Löst offene Frage 1. **Folge fürs Backend:** die Leseabfrage `projekt suchen` muss `type { id name }` mitliefern (liefert heute nur Status + Gewerk).
+- **Schritt X/Y aus fixen Prozessketten je Typ** (Position des Statuscodes in der Kette): Codes sind typübergreifend konsistent und per API nicht änderbar → als Konstante im Cockpit verlässlich. Löst offene Frage 2. (Sonderfälle 1500 Reklamation / 2100 Archiviert sind Abzweige am Ende — für den Balken zählt der lineare Kettenindex.)
+- **Status-Schnappschuss am Gespräch cachen, Abgleich beim Öffnen/Schreiben** statt N Live-Calls bei jedem Listenaufbau: hält die Liste schnell und bei Hero-Ausfall nutzbar (Edge Case „Hero nicht erreichbar" → letzter Stand/neutral). Löst offene Frage 3.
+- **Zuordnungs-Vorschlag als Aktion/Pop-up** über dieselbe Vorschau-/Bestätigungs-Logik wie die Termin-Vorschau (PROJ-10) und die geplante universelle Aktions-Vorschau — kein separater Such-Picker, konsistente Bedienung.
+- **Nur Lesen an Hero, Schreiben nur an Supabase-Gespräch:** Reads sind gate-frei; die Zuordnung ist ein Supabase-Update über eine Cockpit-API, kein Hero-Schreibzugriff. Hero bleibt führend.
+- **Sortierung:** Aktiv nach zuletzt aktualisiert (bestehende Reihenfolge), „Abgeschlossen" eingeklappt darunter. Löst offene Frage 4.
+
+### Dependencies (Pakete)
+Keine neuen Laufzeit-Pakete nötig. Genutzt wird Bestehendes: **Supabase** (Persistenz + Realtime-Sync der Liste), **hero-tools** (Lesen von Typ/Status), **OS-Agent** (Erkennen + Lesen), **React/Tailwind** (UI). Der grüne Fortschrittsbalken ist einfache UI; optional die shadcn-Komponente `progress`, ein schlichter Balken genügt aber.
 
 ## QA Test Results
 _To be added by /qa_
