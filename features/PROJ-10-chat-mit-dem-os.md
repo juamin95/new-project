@@ -219,6 +219,8 @@ Der OS-Agent braucht für den Chat **keinen** eigenen Supabase-Schlüssel — de
 
 **Geprüft:** `npm run build` grün (`/chat` als Route), `tsc` ohne Fehler in den Chat-Dateien, Dev-Server kompiliert sauber.
 
+**Nachtrag 2026-07-21 — Chat löschen (kleiner Vorgriff auf PROJ-17).** Jede Karte in der Liste hat einen Papierkorb-Button; Tippen fragt sicherheitshalber nach und löscht dann. Optimistisch entfernt, Realtime/Reload gleicht ab. Neu: `DELETE /api/conversations/[id]` (Auth + UUID-Validierung; Nachrichten/Aktionen cascaden mit weg) inkl. Integrationstest (401/400/200/500, 4 Fälle grün). Veralteter „Etappe 2"-Hinweistext aus der Liste entfernt, da der Agent echt antwortet.
+
 ## Implementation Notes (Backend — Etappe 1: Datenbank + Persistenz)
 **Umgesetzt am 2026-07-20.** Gespräche und Nachrichten werden jetzt echt gespeichert und geräteübergreifend synchronisiert. Der OS-Agent (echte Antworten) und Medien-/Termin-Aktionen folgen in Etappe 2/3.
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Plus, MessageSquare } from "lucide-react";
+import { Plus, MessageSquare, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { createClient } from "@/lib/supabase/client";
@@ -37,6 +37,7 @@ function ConversationList({
   activeId,
   onSelect,
   onNew,
+  onDelete,
   loading,
   creating,
 }: {
@@ -44,6 +45,7 @@ function ConversationList({
   activeId: string | null;
   onSelect: (id: string) => void;
   onNew: () => void;
+  onDelete: (id: string) => void;
   loading: boolean;
   creating: boolean;
 }) {
@@ -51,8 +53,7 @@ function ConversationList({
     <div className="px-4 pb-6 pt-6">
       <h1 className="text-2xl font-bold">Chat</h1>
       <p className="mt-1 text-xs text-muted-foreground">
-        Gespräche werden gespeichert und auf deinen Geräten synchronisiert. Die
-        Antworten des OS-Agenten folgen in Etappe 2.
+        Gespräche werden gespeichert und auf deinen Geräten synchronisiert.
       </p>
 
       <button
@@ -75,31 +76,43 @@ function ConversationList({
           </div>
         )}
         {conversations.map((c) => (
-          <button
+          <div
             key={c.id}
-            onClick={() => onSelect(c.id)}
             className={cn(
-              "flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors",
+              "relative rounded-xl border transition-colors",
               activeId === c.id
                 ? "border-primary/40 bg-secondary/60"
                 : "border-border/70 bg-white hover:bg-secondary/40",
             )}
           >
-            <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
-              <MessageSquare className="h-4 w-4" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="flex items-baseline justify-between gap-2">
-                <span className="truncate font-semibold">{c.title}</span>
-                <span className="shrink-0 text-[11px] text-muted-foreground">
-                  {zeitLabel(c.updated_at)}
+            <button
+              onClick={() => onSelect(c.id)}
+              className="flex w-full items-start gap-3 p-3 pr-11 text-left"
+            >
+              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
+                <MessageSquare className="h-4 w-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-baseline justify-between gap-2">
+                  <span className="truncate font-semibold">{c.title}</span>
+                  <span className="shrink-0 text-[11px] text-muted-foreground">
+                    {zeitLabel(c.updated_at)}
+                  </span>
+                </span>
+                <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                  {plainPreview(c.last_preview) || "Neues Gespräch"}
                 </span>
               </span>
-              <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-                {plainPreview(c.last_preview) || "Neues Gespräch"}
-              </span>
-            </span>
-          </button>
+            </button>
+            <button
+              onClick={() => onDelete(c.id)}
+              aria-label="Chat löschen"
+              title="Chat löschen"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg p-2 text-muted-foreground/70 transition-colors hover:bg-destructive/10 hover:text-destructive"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
         ))}
       </div>
     </div>
@@ -162,6 +175,24 @@ export function ChatView() {
     }
   }
 
+  async function deleteChat(id: string) {
+    if (
+      !window.confirm(
+        "Diesen Chat wirklich löschen? Nachrichten und Anhänge werden entfernt — das lässt sich nicht rückgängig machen.",
+      )
+    )
+      return;
+    // Optimistisch entfernen; Realtime/Reload gleicht den echten Stand ab.
+    setConversations((cs) => cs.filter((c) => c.id !== id));
+    setActiveId((cur) => (cur === id ? null : cur));
+    try {
+      const res = await fetch(`/api/conversations/${id}`, { method: "DELETE" });
+      if (!res.ok) load();
+    } catch {
+      load();
+    }
+  }
+
   const active = conversations.find((c) => c.id === activeId) ?? null;
 
   // Vor dem Mounten und am Handy: Liste (fließt), Gespräch als Vollbild-Overlay.
@@ -173,6 +204,7 @@ export function ChatView() {
           activeId={activeId}
           onSelect={setActiveId}
           onNew={newChat}
+          onDelete={deleteChat}
           loading={loading}
           creating={creating}
         />
@@ -199,6 +231,7 @@ export function ChatView() {
           activeId={shown?.id ?? null}
           onSelect={setActiveId}
           onNew={newChat}
+          onDelete={deleteChat}
           loading={loading}
           creating={creating}
         />
