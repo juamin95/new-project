@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Plus, MessageSquare, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -30,6 +30,105 @@ function zeitLabel(iso: string): string {
   if (sameDay)
     return d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
   return d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
+}
+
+// Breite der freigewischten Löschen-Aktion (px).
+const REVEAL = 96;
+
+// Eine Chat-Karte mit WhatsApp-artiger Wisch-Geste: von rechts nach links ziehen
+// gibt rechts eine rote „Löschen"-Fläche frei. Tippen (ohne Wischen) öffnet den Chat.
+function ChatCard({
+  c,
+  active,
+  onSelect,
+  onDelete,
+}: {
+  c: Conversation;
+  active: boolean;
+  onSelect: (id: string) => void;
+  onDelete: (id: string) => void;
+}) {
+  const [offset, setOffset] = useState(0); // 0 = zu, -REVEAL = offen
+  const [animate, setAnimate] = useState(true);
+  const startX = useRef(0);
+  const base = useRef(0);
+  const dragging = useRef(false);
+  const moved = useRef(false);
+
+  function down(e: React.PointerEvent) {
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    startX.current = e.clientX;
+    base.current = offset;
+    dragging.current = true;
+    moved.current = false;
+    setAnimate(false);
+  }
+  function move(e: React.PointerEvent) {
+    if (!dragging.current) return;
+    const dx = e.clientX - startX.current;
+    if (Math.abs(dx) > 6) moved.current = true;
+    setOffset(Math.max(-REVEAL, Math.min(0, base.current + dx)));
+  }
+  function end() {
+    if (!dragging.current) return;
+    dragging.current = false;
+    setAnimate(true);
+    setOffset((o) => (o < -REVEAL / 2 ? -REVEAL : 0));
+  }
+  function select() {
+    if (moved.current) return; // war ein Wischen, kein Tippen
+    if (offset !== 0) {
+      setOffset(0); // offen → erst zuschieben
+      return;
+    }
+    onSelect(c.id);
+  }
+
+  const open = offset !== 0;
+  return (
+    <div className="relative overflow-hidden rounded-xl">
+      <button
+        onClick={() => onDelete(c.id)}
+        aria-label="Chat löschen"
+        aria-hidden={!open}
+        tabIndex={open ? 0 : -1}
+        className="absolute inset-y-0 right-0 flex w-24 flex-col items-center justify-center gap-0.5 bg-destructive text-destructive-foreground"
+      >
+        <Trash2 className="h-4 w-4" />
+        <span className="text-[11px] font-medium">Löschen</span>
+      </button>
+      <div
+        onPointerDown={down}
+        onPointerMove={move}
+        onPointerUp={end}
+        onPointerCancel={end}
+        onClick={select}
+        style={{ transform: `translateX(${offset}px)`, touchAction: "pan-y" }}
+        className={cn(
+          "relative flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-left",
+          animate && "transition-transform duration-200",
+          active
+            ? "border-primary/40 bg-secondary/60"
+            : "border-border/70 bg-white hover:bg-secondary/40",
+        )}
+      >
+        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
+          <MessageSquare className="h-4 w-4" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="flex items-baseline justify-between gap-2">
+            <span className="truncate font-semibold">{c.title}</span>
+            <span className="shrink-0 text-[11px] text-muted-foreground">
+              {zeitLabel(c.updated_at)}
+            </span>
+          </span>
+          <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+            {plainPreview(c.last_preview) || "Neues Gespräch"}
+          </span>
+        </span>
+      </div>
+    </div>
+  );
 }
 
 function ConversationList({
@@ -76,43 +175,13 @@ function ConversationList({
           </div>
         )}
         {conversations.map((c) => (
-          <div
+          <ChatCard
             key={c.id}
-            className={cn(
-              "relative rounded-xl border transition-colors",
-              activeId === c.id
-                ? "border-primary/40 bg-secondary/60"
-                : "border-border/70 bg-white hover:bg-secondary/40",
-            )}
-          >
-            <button
-              onClick={() => onSelect(c.id)}
-              className="flex w-full items-start gap-3 p-3 pr-11 text-left"
-            >
-              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
-                <MessageSquare className="h-4 w-4" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="flex items-baseline justify-between gap-2">
-                  <span className="truncate font-semibold">{c.title}</span>
-                  <span className="shrink-0 text-[11px] text-muted-foreground">
-                    {zeitLabel(c.updated_at)}
-                  </span>
-                </span>
-                <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-                  {plainPreview(c.last_preview) || "Neues Gespräch"}
-                </span>
-              </span>
-            </button>
-            <button
-              onClick={() => onDelete(c.id)}
-              aria-label="Chat löschen"
-              title="Chat löschen"
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg p-2 text-muted-foreground/70 transition-colors hover:bg-destructive/10 hover:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
+            c={c}
+            active={activeId === c.id}
+            onSelect={onSelect}
+            onDelete={onDelete}
+          />
         ))}
       </div>
     </div>
