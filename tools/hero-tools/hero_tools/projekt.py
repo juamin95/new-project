@@ -18,6 +18,7 @@ _PROJEKT_FELDER = """
     customer { id full_name }
     current_project_match_status { id status_code name short_name }
     measure { id short name }
+    type { id name }
 """
 
 

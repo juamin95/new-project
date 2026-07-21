@@ -162,6 +162,18 @@ Gesprächsansicht (bestehend, erweitert)
 ### Dependencies (Pakete)
 Keine neuen Laufzeit-Pakete nötig. Genutzt wird Bestehendes: **Supabase** (Persistenz + Realtime-Sync der Liste), **hero-tools** (Lesen von Typ/Status), **OS-Agent** (Erkennen + Lesen), **React/Tailwind** (UI). Der grüne Fortschrittsbalken ist einfache UI; optional die shadcn-Komponente `progress`, ein schlichter Balken genügt aber.
 
+## Implementation Notes (Backend)
+**Umgesetzt am 2026-07-21.** Deterministische Grundlage (Berechnung + Datenmodell) und die Zuordnungs-/Refresh-API stehen; die UI-Anbindung + der Agent-Vorschlag folgen im `/frontend`-Schritt.
+
+- **hero-tools:** `projekt suchen` liefert jetzt zusätzlich `type { id name }` (der Projekttyp fehlte bisher im Leseergebnis).
+- **`src/lib/hero/prozessketten.ts`** — feste Prozessketten je Typ (bauprojekt 12 / ohne-Angebot 6 / abo 5 Schritte) + `berechneFortschritt(typeId, statusCode)` → Schritt X/Y, Prozent, `is_inactive`. Unit-getestet (10 Fälle; Kontrolle Abo 1111 = 3/5 = 60 %).
+- **`src/lib/hero/projekt-snapshot.ts`** — holt den Projekt-Status vom OS-Agenten (localhost, nur lesend) und baut daraus den Schnappschuss; bei Agent-/Hero-Ausfall sauberer Fallback (Zuordnung ohne Fortschritt).
+- **Agent (`agent/server.mjs`):** neue Leseop `projekt-status` (ohne LLM, also ohne Token-Kosten) liefert Typ + aktuellen Status strukturiert aus dem hero-tools-JSON. An echtem Projekt **UNB-142** verifiziert (Typ 32646 „Projekt", Status 1111 „In Umsetzung" → Schritt 8/12).
+- **Migration `20260721120000_cockpit_chat_organisation.sql`** — Schnappschuss-Spalten am Gespräch (`hero_project_nr`, `project_type_id/name`, `status_code/label`, `step_index/total`, `is_inactive`, `hero_synced_at`) + Index auf `is_inactive`. Angewandt auf Projekt bnzpdujupmmrwcbunbql.
+- **API:** `PATCH /api/conversations/[id]` (Zuordnung bestätigen; bei Projekt-Scope Schnappschuss aus Hero, bei Kunde/Allgemein leer) und `POST /api/conversations/[id]/status` (Fortschritt neu abgleichen). Auth + Zod + Integrationstests (401/400/200, Kunde vs. Projekt, Agent offline). Gesamte Testsuite grün (1368).
+
+**Noch offen (nächste Etappe — `/frontend` + Agent):** Der Agent muss die erkannte Zuordnung im Chat als strukturierten **Vorschlag** zurückgeben (Payload fürs Bestätigungs-Pop-up); UI: Fortschrittsbalken in der Karte, eingeklappter Abschnitt „Abgeschlossen", Zuordnungs-Pop-up; Aufruf von `/status` beim Öffnen/Laden eines Chats.
+
 ## QA Test Results
 _To be added by /qa_
 

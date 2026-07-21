@@ -188,6 +188,35 @@ const heroTool = betaTool({
   run: async ({ modul, aktion, argumente }) => heroRead(modul, aktion, argumente),
 });
 
+// Strukturierter Projekt-Status (ohne LLM/Token) — für das Cockpit (PROJ-17).
+// Liest ein Projekt per hero-tools (JSON-Ausgabe) und gibt Typ + aktuellen Status
+// zurück. Nur lesend. Wirft bei Hero-Fehler; der Aufrufer antwortet dann sanft.
+function heroProjektStatus(ref) {
+  const term = String(ref ?? "").trim();
+  if (!term) throw new Error("ref fehlt");
+  const raw = execFileSync(HERO_CLI, ["projekt", "suchen", "--suche", term], {
+    cwd: REPO,
+    encoding: "utf-8",
+    timeout: 30000,
+  });
+  const list = JSON.parse(raw);
+  const arr = Array.isArray(list) ? list : [];
+  const p = arr.find((x) => x.project_nr === term) ?? arr[0] ?? null;
+  if (!p) return { found: false };
+  return {
+    found: true,
+    project: {
+      id: p.id ?? null,
+      project_nr: p.project_nr ?? null,
+      name: p.name ?? null,
+      project_title: p.project_title ?? null,
+      customer: p.customer ?? null,
+      type: p.type ?? null, // { id, name }
+      status: p.current_project_match_status ?? null, // { status_code, name, short_name }
+    },
+  };
+}
+
 function schrittLabel(name) {
   if (name === "vault_suchen") return "Wissensspeicher durchsucht";
   if (name === "hero_lesen") return "Hero gelesen";
@@ -237,12 +266,24 @@ const server = http.createServer((req, res) => {
   let body = "";
   req.on("data", (c) => (body += c));
   req.on("end", async () => {
-    let messages;
+    let parsed;
     try {
-      messages = JSON.parse(body || "{}").messages;
+      parsed = JSON.parse(body || "{}");
     } catch {
       return json(400, { error: "Ungültiges JSON" });
     }
+
+    // Cockpit-Leseop (PROJ-17): strukturierter Projekt-Status, ohne LLM.
+    if (parsed && parsed.op === "projekt-status") {
+      try {
+        return json(200, heroProjektStatus(parsed.ref));
+      } catch (e) {
+        console.error("projekt-status Fehler:", e?.message ?? e);
+        return json(502, { error: "Hero-Lesefehler" });
+      }
+    }
+
+    const messages = parsed?.messages;
     if (!Array.isArray(messages) || messages.length === 0) {
       return json(400, { error: "messages fehlt" });
     }
