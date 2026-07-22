@@ -18,13 +18,12 @@ import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetFooter,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { createClient } from "@/lib/supabase/client";
 import type {
   ChatMessage,
@@ -482,20 +481,20 @@ export function ConversationPane({
         </div>
       </div>
 
-      {/* Zuordnungs-Pop-up (PROJ-17): Vorschlag des Agenten bestätigen */}
-      <Sheet open={!!zuordnung} onOpenChange={(o) => !o && setZuordnung(null)}>
-        <SheetContent side="bottom" className="rounded-t-2xl">
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2">
+      {/* Zuordnungs-Pop-up (PROJ-17): Vorschlag des Agenten bestätigen — zentriert */}
+      <Dialog open={!!zuordnung} onOpenChange={(o) => !o && setZuordnung(null)}>
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
               <Link2 className="h-4 w-4 text-primary" /> Zuordnung vorgeschlagen
-            </SheetTitle>
-            <SheetDescription>
+            </DialogTitle>
+            <DialogDescription>
               Das OS ordnet diesen Chat zu. Bitte bestätigen — nichts wird ohne
               dich verknüpft.
-            </SheetDescription>
-          </SheetHeader>
+            </DialogDescription>
+          </DialogHeader>
           {zuordnung && (
-            <div className="my-4 rounded-xl border border-primary/25 bg-secondary/50 p-3 text-sm">
+            <div className="rounded-xl border border-primary/25 bg-secondary/50 p-3 text-sm">
               <div className="flex justify-between gap-3">
                 <span className="text-muted-foreground">
                   {zuordnung.scope === "projekt" ? "Projekt" : "Kunde"}
@@ -512,7 +511,7 @@ export function ConversationPane({
               </div>
             </div>
           )}
-          <SheetFooter className="flex-row gap-2">
+          <div className="flex gap-2">
             <Button
               variant="outline"
               className="flex-1"
@@ -524,9 +523,9 @@ export function ConversationPane({
             <Button className="flex-1" onClick={confirmZuordnung} disabled={assigning}>
               {assigning ? "Speichere …" : "Bestätigen"}
             </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
