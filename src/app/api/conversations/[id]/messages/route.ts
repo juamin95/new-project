@@ -11,9 +11,18 @@ type Params = { params: Promise<{ id: string }> };
 const AGENT_URL = process.env.OS_AGENT_URL ?? "http://127.0.0.1:8787";
 const AGENT_TOKEN = process.env.OS_AGENT_TOKEN ?? "";
 
+// Vom Agenten vorgeschlagene Chat-Zuordnung (PROJ-17); nur ein Vorschlag, der
+// Mensch bestätigt im Cockpit. Wird nicht gespeichert, nur an den Client gereicht.
+type Zuordnung = {
+  scope: "projekt" | "kunde";
+  projekt_nr?: string | null;
+  kunde_id?: string | null;
+  titel: string;
+};
+
 async function fragAgent(
   messages: { role: string; content: string }[],
-): Promise<{ text: string; thinking: string[] } | null> {
+): Promise<{ text: string; thinking: string[]; zuordnung: Zuordnung | null } | null> {
   if (!AGENT_URL || messages.length === 0) return null;
   try {
     const res = await fetch(AGENT_URL, {
@@ -27,6 +36,7 @@ async function fragAgent(
     return {
       text: String(d.text ?? ""),
       thinking: Array.isArray(d.thinking) ? d.thinking : [],
+      zuordnung: d.zuordnung ?? null,
     };
   } catch {
     return null;
@@ -126,5 +136,8 @@ export async function POST(request: Request, { params }: Params) {
     return NextResponse.json({ error: aiErr.message }, { status: 500 });
   }
 
-  return NextResponse.json({ userMessage, assistantMessage }, { status: 201 });
+  return NextResponse.json(
+    { userMessage, assistantMessage, zuordnung: agent?.zuordnung ?? null },
+    { status: 201 },
+  );
 }

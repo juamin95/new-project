@@ -20,6 +20,14 @@ export type Conversation = {
   is_inactive?: boolean | null;
 };
 
+// Zuordnungs-Vorschlag vom Agenten (PROJ-17) — im Pop-up bestätigt.
+export type ZuordnungVorschlag = {
+  scope: "projekt" | "kunde";
+  projekt_nr?: string | null;
+  kunde_id?: string | null;
+  titel: string;
+};
+
 export type TerminDraft = {
   datum: string;
   uhrzeit: string;

@@ -176,6 +176,16 @@ Keine neuen Laufzeit-Pakete nötig. Genutzt wird Bestehendes: **Supabase** (Pers
 
 **Noch offen (nächste Etappe — `/frontend` + Agent):** Der Agent muss die erkannte Zuordnung im Chat als strukturierten **Vorschlag** zurückgeben (Payload fürs Bestätigungs-Pop-up); UI: Fortschrittsbalken in der Karte, eingeklappter Abschnitt „Abgeschlossen", Zuordnungs-Pop-up; Aufruf von `/status` beim Öffnen/Laden eines Chats.
 
+## Implementation Notes (Frontend + Agent-Vorschlag)
+**Umgesetzt am 2026-07-22.** Die sichtbare Seite und der agenten-getriebene Zuordnungs-Vorschlag.
+
+- **Liste (`chat-view.tsx`):** ChatCard zeigt bei Projekt-Chats **Status-Text + grünen Fortschrittsbalken** (shadcn `Progress`, Schritt X/Y). Abgeschlossene (`is_inactive`) liegen in einem eingeklappten **Collapsible „Abgeschlossen (N)"**. Beim Öffnen eines Projekt-Chats wird der Hero-Status via `POST /status` aufgefrischt und lokal + per Realtime aktualisiert.
+- **Zuordnungs-Pop-up (`conversation.tsx`):** Kommt vom Agenten ein Vorschlag zurück, öffnet ein **Bottom-Sheet** (shadcn `Sheet`) mit Projekt/Kunde + Titel. **Bestätigen** → `PATCH /conversations/[id]` (Titel/Fortschritt sofort aktualisiert); **Ablehnen** verwirft. Nichts wird ohne Bestätigung verknüpft.
+- **Agent (`server.mjs`):** neues Werkzeug **`zuordnung_vorschlagen`** — der Agent ruft es bei eindeutigem Projekt-/Kundenbezug auf (Gate: führt nichts aus, nur Vorschlag). Der Server sammelt den Antworttext über den ganzen Lauf (Antwort geht nicht verloren, auch wenn das Tool danach läuft) und reicht den Vorschlag als `zuordnung` ans Cockpit. **An UNB-142 verifiziert:** volle Statusantwort + Vorschlag `{projekt, UNB-142, "UNB-142 – Kilian-Patt"}`; allgemeine Fachfrage → kein Vorschlag.
+- Typecheck + gesamte Testsuite grün (1368).
+
+**Damit ist PROJ-17 funktional komplett** (Zuordnung per Pop-up, Fortschrittsbalken, Aktiv/Abgeschlossen). Nächster Schritt: `/qa PROJ-17`.
+
 ## QA Test Results
 _To be added by /qa_
 

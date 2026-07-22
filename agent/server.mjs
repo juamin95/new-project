@@ -84,6 +84,7 @@ Soll ich zu einem Projekt die offenen Aufgaben zeigen?
 Arbeitsweise:
 - Bei Fach-, Prozess- und Nachschlagefragen ZUERST den Vault durchsuchen (vault_suchen). Die Treffer sind Roh-Notizen im Markdown-Format — nutze sie nur als Quelle und fasse sie zusammen, kopiere sie nicht. Stütze Fakten nur auf verifizierte Notizen; findest du nichts Belastbares, sag das offen und rate nicht.
 - Für Kunden-, Projekt- und Termindaten Hero lesen (hero_lesen, nur Lesebefehle). Für aktuelle/offene Projekte: modul "projekt", aktion "suchen". Für Termine: modul "kalender", aktion "termine" mit --von und --bis. Für Aufgaben eines Projekts: modul "projekt", aktion "aufgaben" mit --projekt und optional --offen.
+- WICHTIG — Chat-Zuordnung: Sobald in diesem Gespräch EIN konkretes Hero-Projekt (project_nr) oder ein Kunde eindeutig feststeht (z. B. weil du es gerade in Hero nachgeschlagen hast), rufe IMMER zuordnung_vorschlagen auf — zusätzlich zu deiner Antwort, auch wenn die Frage bereits beantwortet ist. Übergib scope ("projekt" oder "kunde"), projekt_nr bzw. kunde_id und einen kurzen titel (z. B. "UNB-142 – Kilian-Patt"). Rufe das Werkzeug möglichst VOR deiner eigentlichen Antwort auf und gib danach keine Zusatzbestätigung wie "Erledigt" aus. Tu das nur bei Eindeutigkeit; bei allgemeinen Fragen ohne konkreten Projekt-/Kundenbezug NICHT. Es ist nur ein Vorschlag — der Mensch bestätigt im Cockpit; du ordnest nichts selbst zu.
 - Du erstellst und versendest nichts nach außen (keine Mails, Angebote, Rechnungen) und schreibst nichts in Hero. Solche Aktionen macht später ein eigener, vom Menschen freigegebener Schritt.`;
 
 // ── Werkzeug: Vault durchsuchen ──────────────────────────────
@@ -217,9 +218,32 @@ function heroProjektStatus(ref) {
   };
 }
 
+// ── Werkzeug: Zuordnung vorschlagen (PROJ-17) ────────────────
+// Schlägt vor, DIESEN Chat einem Hero-Projekt/Kunden zuzuordnen. Führt nichts aus
+// (Gate) — der Server liest die Argumente aus dem tool_use-Block und reicht sie ans
+// Cockpit weiter, wo der Mensch im Pop-up bestätigt.
+const zuordnungTool = betaTool({
+  name: "zuordnung_vorschlagen",
+  description:
+    "Schlägt vor, DIESEN Chat einem Hero-Projekt oder -Kunden zuzuordnen. Nur aufrufen, wenn aus dem Gespräch ein konkretes Projekt/Kunde sicher hervorgeht (vorher mit hero_lesen auflösen). Führt nichts aus — der Mensch bestätigt im Cockpit.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      scope: { type: "string", enum: ["projekt", "kunde"], description: "projekt oder kunde" },
+      projekt_nr: { type: "string", description: "Hero project_nr, z. B. UNB-142 (bei scope projekt)" },
+      kunde_id: { type: "string", description: "Hero-Kunden-ID (bei scope kunde)" },
+      titel: { type: "string", description: "kurzer Titel für den Chat, z. B. UNB-142 – Kilian-Patt oder Kundenname" },
+    },
+    required: ["scope", "titel"],
+    additionalProperties: false,
+  },
+  run: async () => "Vorschlag notiert — der Mensch bestätigt im Cockpit.",
+});
+
 function schrittLabel(name) {
   if (name === "vault_suchen") return "Wissensspeicher durchsucht";
   if (name === "hero_lesen") return "Hero gelesen";
+  if (name === "zuordnung_vorschlagen") return "Zuordnung vorgeschlagen";
   return name;
 }
 
@@ -229,27 +253,30 @@ async function beantworte(messages) {
     model: MODEL,
     max_tokens: 4096,
     system: SYSTEM,
-    tools: [vaultTool, heroTool],
+    tools: [vaultTool, heroTool, zuordnungTool],
     messages,
   });
 
   const thinking = [];
-  let last;
+  const textteile = [];
+  let zuordnung = null;
   for await (const message of runner) {
-    last = message;
     for (const block of message.content) {
+      // Text über den ganzen Lauf sammeln, damit die Antwort nicht verloren geht,
+      // falls der Agent danach noch ein Werkzeug (z. B. Zuordnung) aufruft.
+      if (block.type === "text" && block.text.trim()) {
+        textteile.push(block.text.trim());
+      }
       if (block.type === "tool_use") {
         const label = schrittLabel(block.name);
         if (!thinking.includes(label)) thinking.push(label);
+        // Letzter Zuordnungs-Vorschlag gewinnt (Argumente direkt aus dem tool_use).
+        if (block.name === "zuordnung_vorschlagen") zuordnung = block.input ?? null;
       }
     }
   }
-  const text = (last?.content ?? [])
-    .filter((b) => b.type === "text")
-    .map((b) => b.text)
-    .join("\n")
-    .trim();
-  return { text: text || "(keine Antwort)", thinking };
+  const text = textteile.join("\n\n").trim();
+  return { text: text || "(keine Antwort)", thinking, zuordnung };
 }
 
 // ── HTTP-Server (nur localhost binden) ───────────────────────

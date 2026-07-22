@@ -351,6 +351,14 @@ export function ChatView() {
     }
   }
 
+  // Nach bestätigter Zuordnung das Gespräch sofort aktualisieren (Titel/Fortschritt);
+  // die Realtime-Sync gleicht zusätzlich ab.
+  function handleAssigned(updated: Conversation) {
+    setConversations((cs) =>
+      cs.map((c) => (c.id === updated.id ? { ...c, ...updated } : c)),
+    );
+  }
+
   const active = conversations.find((c) => c.id === activeId) ?? null;
 
   // Vor dem Mounten und am Handy: Liste (fließt), Gespräch als Vollbild-Overlay.
@@ -372,6 +380,7 @@ export function ChatView() {
               conversation={active}
               showBack
               onBack={() => setActiveId(null)}
+              onAssigned={handleAssigned}
             />
           </div>
         )}
@@ -396,7 +405,7 @@ export function ChatView() {
       </div>
       <div className="min-w-0 flex-1">
         {shown ? (
-          <ConversationPane conversation={shown} />
+          <ConversationPane conversation={shown} onAssigned={handleAssigned} />
         ) : (
           <div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted-foreground">
             {loading ? "Wird geladen …" : "Wähle links ein Gespräch oder starte einen neuen Chat."}

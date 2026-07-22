@@ -11,13 +11,28 @@ import {
   Check,
   CalendarClock,
   X,
+  Link2,
 } from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { createClient } from "@/lib/supabase/client";
-import type { ChatMessage, Conversation, Scope, TerminDraft } from "./types";
+import type {
+  ChatMessage,
+  Conversation,
+  Scope,
+  TerminDraft,
+  ZuordnungVorschlag,
+} from "./types";
 
 function ScopeBadge({ scope }: { scope: Scope }) {
   const label =
@@ -181,10 +196,12 @@ export function ConversationPane({
   conversation,
   showBack = false,
   onBack,
+  onAssigned,
 }: {
   conversation: Conversation;
   showBack?: boolean;
   onBack?: () => void;
+  onAssigned?: (conversation: Conversation) => void;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -193,6 +210,8 @@ export function ConversationPane({
   const [recording, setRecording] = useState(false);
   const [attached, setAttached] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [zuordnung, setZuordnung] = useState<ZuordnungVorschlag | null>(null);
+  const [assigning, setAssigning] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
@@ -265,11 +284,36 @@ export function ConversationPane({
       const d = await res.json();
       addMessage(d.userMessage);
       addMessage(d.assistantMessage);
+      if (d.zuordnung) setZuordnung(d.zuordnung); // Pop-up zum Bestätigen
     } catch {
       setError("Konnte nicht senden. Bitte gleich noch einmal versuchen.");
       setInput(text);
     } finally {
       setSending(false);
+    }
+  }
+
+  // Zuordnungs-Vorschlag bestätigen -> in Supabase am Gespräch speichern (PATCH).
+  async function confirmZuordnung() {
+    if (!zuordnung || assigning) return;
+    setAssigning(true);
+    try {
+      const body =
+        zuordnung.scope === "projekt"
+          ? { scope: "projekt", title: zuordnung.titel, hero_project_nr: zuordnung.projekt_nr ?? null }
+          : { scope: "kunde", title: zuordnung.titel, hero_customer_id: zuordnung.kunde_id ?? null };
+      const res = await fetch(`/api/conversations/${conversation.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        if (d.conversation) onAssigned?.(d.conversation);
+      }
+    } finally {
+      setAssigning(false);
+      setZuordnung(null);
     }
   }
 
@@ -437,6 +481,52 @@ export function ConversationPane({
           </div>
         </div>
       </div>
+
+      {/* Zuordnungs-Pop-up (PROJ-17): Vorschlag des Agenten bestätigen */}
+      <Sheet open={!!zuordnung} onOpenChange={(o) => !o && setZuordnung(null)}>
+        <SheetContent side="bottom" className="rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Link2 className="h-4 w-4 text-primary" /> Zuordnung vorgeschlagen
+            </SheetTitle>
+            <SheetDescription>
+              Das OS ordnet diesen Chat zu. Bitte bestätigen — nichts wird ohne
+              dich verknüpft.
+            </SheetDescription>
+          </SheetHeader>
+          {zuordnung && (
+            <div className="my-4 rounded-xl border border-primary/25 bg-secondary/50 p-3 text-sm">
+              <div className="flex justify-between gap-3">
+                <span className="text-muted-foreground">
+                  {zuordnung.scope === "projekt" ? "Projekt" : "Kunde"}
+                </span>
+                <span className="font-medium">
+                  {zuordnung.scope === "projekt"
+                    ? (zuordnung.projekt_nr ?? "—")
+                    : (zuordnung.kunde_id ?? "—")}
+                </span>
+              </div>
+              <div className="mt-1 flex justify-between gap-3">
+                <span className="text-muted-foreground">Titel</span>
+                <span className="font-medium">{zuordnung.titel}</span>
+              </div>
+            </div>
+          )}
+          <SheetFooter className="flex-row gap-2">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setZuordnung(null)}
+              disabled={assigning}
+            >
+              Ablehnen
+            </Button>
+            <Button className="flex-1" onClick={confirmZuordnung} disabled={assigning}>
+              {assigning ? "Speichere …" : "Bestätigen"}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
