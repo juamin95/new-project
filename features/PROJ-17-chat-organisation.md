@@ -187,7 +187,43 @@ Keine neuen Laufzeit-Pakete nötig. Genutzt wird Bestehendes: **Supabase** (Pers
 **Damit ist PROJ-17 funktional komplett** (Zuordnung per Pop-up, Fortschrittsbalken, Aktiv/Abgeschlossen). Nächster Schritt: `/qa PROJ-17`.
 
 ## QA Test Results
-_To be added by /qa_
+**Getestet am 2026-07-22.** Empfehlung: **Production-Ready — JA** (keine Critical/High-Bugs).
+
+### Testabdeckung — Hinweis
+Auth ist passwortlos (Magic Link); ohne Session-Fixture sind authentifizierte UI-Flows nicht per Playwright automatisierbar. Abgedeckt über: **Unit-Tests** (Berechnung), **Integrationstests** (Endpunkte mit gemocktem Agenten), **reale Hero-Prüfung** (UNB-142) und **manuelle Browser-Bestätigung** (Julian: Zuordnung funktioniert). E2E sichert die **HTTP-Auth der Endpunkte**.
+
+### Automatisierte Tests
+- Vitest: **1368 grün** (inkl. 10 `prozessketten`-Unit-Tests + PATCH/status-Integrationstests).
+- Playwright PROJ-17: **3/3 grün** (PATCH/status/DELETE ohne Anmeldung → 401, echte Middleware + Route).
+- Volle E2E-Suite: 31 grün + 1 **flaky (vorbestehend, PROJ-7 Login auf Mobile Safari)** — nicht von PROJ-17 verursacht (Login/Auth unverändert); bestand im Retry.
+
+### Akzeptanzkriterien (10/10 bestanden)
+| # | Kriterium | Ergebnis | Nachweis |
+|---|-----------|----------|----------|
+| 1 | Sicheres Projekt → Vorschlag + Pop-up | ✅ | Agent liefert `zuordnung` für UNB-142; Dialog öffnet |
+| 2 | Kein Projekt erkennbar → Allgemein, keine Nachfrage | ✅ | Rollrasen-Frage → `zuordnung: null` |
+| 3 | Bestätigen → verknüpft + Titel | ✅ | PATCH-Integrationstest (scope/title/Snapshot); manuell bestätigt |
+| 4 | Ablehnen/Schließen → unverändert | ✅ | Kein PATCH bei Ablehnen (Code) |
+| 5 | Projekt → Status-Text + grüner Balken (X/Y) | ✅ | ChatCard + `Progress`; UNB-142 = 8/11 |
+| 6 | Nur Kunde → nur Name, kein Balken | ✅ | ChatCard-Bedingung + `leererSnapshot`; Test |
+| 7 | Falsch → im Chat korrigieren → neuer Vorschlag | ✅ | Agent schlägt bei erneuter Klarheit neu vor |
+| 8 | 2000/2100 → Bereich „Abgeschlossen" | ✅ | `istInaktiv` + Collapsible-Gruppierung |
+| 9 | Abgeschlossen antippen → öffnet, lesbar | ✅ | `onSelect` in beiden Gruppen |
+| 10 | Hero nicht erreichbar → Liste nutzbar, neutral | ✅ | „Agent offline"-Integrationstest; kein Balken, kein Absturz |
+
+### Security-Audit (Red Team)
+- **Auth:** PATCH/status/DELETE/messages prüfen `getUser()` → 401 (Integration + E2E). Middleware lässt `/api` bewusst durch (Selbstschutz), keine offene Fläche. ✅
+- **Input:** PATCH per Zod (`AssignSchema`), Status per UUID-Prüfung, Messages per Zod. ✅
+- **Command-Injection:** Agent-Op nutzt `execFileSync` mit Argument-Array (keine Shell); `ref` ist Wert von `--suche`. Kein Shell-Risiko. ✅
+- **Agent:** bindet nur 127.0.0.1, Token-geschützt; liefert nie Secrets. ✅
+- **RLS:** `for all authenticated` — bewusst Ein-Mandant (Marvin + Julian teilen sich das Konto), kein Cross-User-Leak in diesem Modell. ✅
+
+### Gefundene Punkte (alle Low — kein Blocker)
+- **Mehrdeutigkeit-Kandidatenliste (Edge Case) nicht umgesetzt:** Der Agent schlägt genau ein Projekt vor (oder bei Unsicherheit keines) statt einer antippbaren Auswahl. Sicherer Default (Gate + Korrektur möglich). → spätere Erweiterung.
+- **Vorschlag nicht persistiert:** Beim Neuladen ist ein offenes Pop-up weg (der Vorschlag lebt nur in der Sende-Antwort). Der Agent schlägt beim nächsten passenden Chat erneut vor. → spätere Erweiterung.
+- **Gelegentlich zwei „nächste Schritte":** Wenn der Agent nach der Antwort das Tool ruft, kann eine zweite Rückfrage entstehen. → Prompt-Feinschliff.
+- **Refresh beim Öffnen feuert auch für Nicht-Projekt-Chats** (Endpunkt antwortet schnell `refreshed:false`). Vernachlässigbar.
+- **Vorbestehend, unabhängig:** PROJ-7-Login-Test auf Mobile Safari flaky.
 
 ## Deployment
 _To be added by /deploy_
