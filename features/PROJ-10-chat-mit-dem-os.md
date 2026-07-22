@@ -260,6 +260,14 @@ Der OS-Agent braucht für den Chat **keinen** eigenen Supabase-Schlüssel — de
 
 **Offen (gemeinsamer nächster Schritt):** `ANTHROPIC_API_KEY` in die `.env.local`, Agent starten, `OS_AGENT_URL` + `OS_AGENT_TOKEN` ins Cockpit — erst **lokal** testen (echte Antworten aus Vault/Hero), dann auf den VPS (pm2/systemd). Etappe 3: Termin-Schreibpfad, Whisper-Transkription, Bild-Upload.
 
+## Implementation Notes (Etappe 3 — Termin-Schreibpfad)
+**Umgesetzt am 2026-07-22.** Erster **Schreibzugriff auf Hero** — streng gated: Der Agent schlägt nur vor, geschrieben wird ausschließlich nach menschlicher Bestätigung im Pop-up.
+
+- **Agent (`server.mjs`):** Werkzeug **`termin_vorschlagen`** (titel, von, bis, kategorie, optional beschreibung/project_match_id/bezug) — führt nichts aus, liefert den Vorschlag als `termin`. Dazu die **gated Schreib-Op `termin-anlegen`**, die `hero kalender anlegen …` ausführt; erreichbar nur über den Token-gesicherten Endpunkt. **An echtem Hero verifiziert (nur Vorschlag):** „Vor-Ort-Termin … UNB-142" → project_match_id 10449960 selbst aufgelöst, kein Schreiben ohne Freigabe.
+- **Route:** `POST /api/conversations/[id]/termin` — Auth + Zod-Validierung (Kategorie-Enum), ruft nach Bestätigung die Schreib-Op, protokolliert den Vorgang in **`cockpit_actions`** (type `termin`, Status `erledigt`/`fehlgeschlagen`) als Audit-Trail. Integrationstest (401/400/200/502, 4 Fälle grün).
+- **Frontend (`conversation.tsx`):** Kommt ein Termin-Vorschlag zurück, öffnet dasselbe zentrierte **Dialog**-Pop-up wie die Zuordnung (Titel/Von/Bis/Kategorie/Bezug) → **Bestätigen** legt in Hero an und zeigt „In Hero angelegt"; **Ablehnen** verwirft. (Die alte Mock-`TerminCard` bleibt vorerst ungenutzt daneben bestehen.)
+- Gesamte Suite grün (1372). **Bewusst offen:** echter Hero-Schreib-Smoke-Test (braucht Freigabe/Testtermin), sowie Whisper-Transkription und Bild-Upload (restliche Etappe 3).
+
 ## Erweiterungs-Ideen (Julian, 20.07.2026 — nach erstem echten Test)
 
 1. **Modell-Strategie / Token sparen (Routing).** Nicht ein großes Modell für alles. Standard ein günstigeres Modell für den Alltag (Q&A, Zusammenfassungen, Hero-Reads); ein starkes Modell nur für Schweres (Angebotstexte, kniffliges Planen, hohe Fehlerkosten). Umsetzung: `OS_AGENT_MODEL` als Schalter ist da; später ein einfacher **Router** (Standard günstig → bei Bedarf eskalieren). Zusätzlich **Prompt-Caching** für System-Prompt + Vault-Kontext (spart bei wiederholten Turns stark). Kriterien für „starkes Modell" siehe Antwort im Chat / Decision Log.

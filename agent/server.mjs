@@ -85,7 +85,8 @@ Arbeitsweise:
 - Bei Fach-, Prozess- und Nachschlagefragen ZUERST den Vault durchsuchen (vault_suchen). Die Treffer sind Roh-Notizen im Markdown-Format — nutze sie nur als Quelle und fasse sie zusammen, kopiere sie nicht. Stütze Fakten nur auf verifizierte Notizen; findest du nichts Belastbares, sag das offen und rate nicht.
 - Für Kunden-, Projekt- und Termindaten Hero lesen (hero_lesen, nur Lesebefehle). Für aktuelle/offene Projekte: modul "projekt", aktion "suchen". Für Termine: modul "kalender", aktion "termine" mit --von und --bis. Für Aufgaben eines Projekts: modul "projekt", aktion "aufgaben" mit --projekt und optional --offen.
 - WICHTIG — Chat-Zuordnung: Sobald in diesem Gespräch EIN konkretes Hero-Projekt (project_nr) oder ein Kunde eindeutig feststeht (z. B. weil du es gerade in Hero nachgeschlagen hast), rufe IMMER zuordnung_vorschlagen auf — zusätzlich zu deiner Antwort, auch wenn die Frage bereits beantwortet ist. Übergib scope ("projekt" oder "kunde"), projekt_nr bzw. kunde_id und einen kurzen titel (z. B. "UNB-142 – Kilian-Patt"). Rufe das Werkzeug möglichst VOR deiner eigentlichen Antwort auf und gib danach keine Zusatzbestätigung wie "Erledigt" aus. Tu das nur bei Eindeutigkeit; bei allgemeinen Fragen ohne konkreten Projekt-/Kundenbezug NICHT. Es ist nur ein Vorschlag — der Mensch bestätigt im Cockpit; du ordnest nichts selbst zu.
-- Du erstellst und versendest nichts nach außen (keine Mails, Angebote, Rechnungen) und schreibst nichts in Hero. Solche Aktionen macht später ein eigener, vom Menschen freigegebener Schritt.`;
+- Will Marvin einen Termin anlegen, rufe termin_vorschlagen auf (titel, von, bis im Format "JJJJ-MM-TT HH:MM", kategorie aus umsetzung/vor-ort-termin/schlechtwetter/buero/besprechung/schule; bei Projektbezug vorher die project_match_id via hero_lesen auflösen). Du legst den Termin NIE selbst an — es ist ein Vorschlag; der Mensch bestätigt im Cockpit, dann wird geschrieben. Fehlt eine Eckdatei (Datum/Uhrzeit/Kategorie), frag kurz nach.
+- Du erstellst und versendest nichts nach außen (keine Mails, Angebote, Rechnungen). Außer Termin-Vorschlägen schreibst du nichts in Hero. Solche Aktionen macht ein eigener, vom Menschen freigegebener Schritt.`;
 
 // ── Werkzeug: Vault durchsuchen ──────────────────────────────
 function listMarkdown(dir, acc = []) {
@@ -218,6 +219,24 @@ function heroProjektStatus(ref) {
   };
 }
 
+// ── Schreib-Op: Termin in Hero anlegen (PROJ-10 Etappe 3) ────
+// Gated: wird NUR vom Cockpit nach menschlicher Bestätigung aufgerufen (Token +
+// auth-geschützter Endpunkt). Legt einen echten Kalendereintrag in Hero an.
+function heroTerminAnlegen(t) {
+  const titel = String(t?.titel ?? "").trim();
+  const von = String(t?.von ?? "").trim();
+  const bis = String(t?.bis ?? "").trim();
+  const kategorie = String(t?.kategorie ?? "").trim();
+  if (!titel || !von || !bis || !kategorie) {
+    throw new Error("titel, von, bis und kategorie sind Pflicht");
+  }
+  const args = ["kalender", "anlegen", "--titel", titel, "--von", von, "--bis", bis, "--kategorie", kategorie];
+  if (t.beschreibung) args.push("--beschreibung", String(t.beschreibung));
+  if (t.project_match_id) args.push("--projekt", String(t.project_match_id));
+  const raw = execFileSync(HERO_CLI, args, { cwd: REPO, encoding: "utf-8", timeout: 30000 });
+  return { ok: true, event: JSON.parse(raw) };
+}
+
 // ── Werkzeug: Zuordnung vorschlagen (PROJ-17) ────────────────
 // Schlägt vor, DIESEN Chat einem Hero-Projekt/Kunden zuzuordnen. Führt nichts aus
 // (Gate) — der Server liest die Argumente aus dem tool_use-Block und reicht sie ans
@@ -240,10 +259,40 @@ const zuordnungTool = betaTool({
   run: async () => "Vorschlag notiert — der Mensch bestätigt im Cockpit.",
 });
 
+// ── Werkzeug: Termin vorschlagen (PROJ-10 Etappe 3) ──────────
+// Schlägt einen Kalendereintrag vor. Führt NICHTS aus (Gate) — der Server reicht
+// den Vorschlag ans Cockpit, wo der Mensch im Pop-up bestätigt; erst dann wird
+// über die Schreib-Op tatsächlich in Hero angelegt.
+const terminTool = betaTool({
+  name: "termin_vorschlagen",
+  description:
+    "Schlägt einen Kalendereintrag (Termin) in Hero vor. Nur aufrufen, wenn Marvin klar einen Termin anlegen will und die Eckdaten feststehen. Führt nichts aus — der Mensch bestätigt im Cockpit. Wenn ein konkretes Projekt gemeint ist, löse zuerst mit hero_lesen die project_match_id (Feld id) auf.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      titel: { type: "string", description: "kurzer Titel, z. B. Vor-Ort-Termin Kilian-Patt" },
+      von: { type: "string", description: "Start, Format 'JJJJ-MM-TT HH:MM' (Europe/Berlin)" },
+      bis: { type: "string", description: "Ende, Format 'JJJJ-MM-TT HH:MM'" },
+      kategorie: {
+        type: "string",
+        enum: ["umsetzung", "vor-ort-termin", "schlechtwetter", "buero", "besprechung", "schule"],
+        description: "Terminkategorie",
+      },
+      beschreibung: { type: "string", description: "optionale Notiz" },
+      project_match_id: { type: "number", description: "Hero project_match_id (Feld id), falls projektbezogen" },
+      bezug: { type: "string", description: "menschenlesbarer Bezug für die Anzeige, z. B. Projekt/Kunde" },
+    },
+    required: ["titel", "von", "bis", "kategorie"],
+    additionalProperties: false,
+  },
+  run: async () => "Termin-Vorschlag notiert — der Mensch bestätigt im Cockpit.",
+});
+
 function schrittLabel(name) {
   if (name === "vault_suchen") return "Wissensspeicher durchsucht";
   if (name === "hero_lesen") return "Hero gelesen";
   if (name === "zuordnung_vorschlagen") return "Zuordnung vorgeschlagen";
+  if (name === "termin_vorschlagen") return "Termin vorgeschlagen";
   return name;
 }
 
@@ -253,30 +302,32 @@ async function beantworte(messages) {
     model: MODEL,
     max_tokens: 4096,
     system: SYSTEM,
-    tools: [vaultTool, heroTool, zuordnungTool],
+    tools: [vaultTool, heroTool, zuordnungTool, terminTool],
     messages,
   });
 
   const thinking = [];
   const textteile = [];
   let zuordnung = null;
+  let termin = null;
   for await (const message of runner) {
     for (const block of message.content) {
       // Text über den ganzen Lauf sammeln, damit die Antwort nicht verloren geht,
-      // falls der Agent danach noch ein Werkzeug (z. B. Zuordnung) aufruft.
+      // falls der Agent danach noch ein Werkzeug (z. B. Vorschlag) aufruft.
       if (block.type === "text" && block.text.trim()) {
         textteile.push(block.text.trim());
       }
       if (block.type === "tool_use") {
         const label = schrittLabel(block.name);
         if (!thinking.includes(label)) thinking.push(label);
-        // Letzter Zuordnungs-Vorschlag gewinnt (Argumente direkt aus dem tool_use).
+        // Letzter Vorschlag gewinnt (Argumente direkt aus dem tool_use).
         if (block.name === "zuordnung_vorschlagen") zuordnung = block.input ?? null;
+        if (block.name === "termin_vorschlagen") termin = block.input ?? null;
       }
     }
   }
   const text = textteile.join("\n\n").trim();
-  return { text: text || "(keine Antwort)", thinking, zuordnung };
+  return { text: text || "(keine Antwort)", thinking, zuordnung, termin };
 }
 
 // ── HTTP-Server (nur localhost binden) ───────────────────────
@@ -307,6 +358,20 @@ const server = http.createServer((req, res) => {
       } catch (e) {
         console.error("projekt-status Fehler:", e?.message ?? e);
         return json(502, { error: "Hero-Lesefehler" });
+      }
+    }
+
+    // Cockpit-Schreibop (PROJ-10 Etappe 3): Termin in Hero anlegen — NUR nach
+    // menschlicher Bestätigung im Cockpit (Gate). Der Token schützt den Zugang.
+    if (parsed && parsed.op === "termin-anlegen") {
+      try {
+        return json(200, heroTerminAnlegen(parsed.termin ?? {}));
+      } catch (e) {
+        console.error("termin-anlegen Fehler:", e?.message ?? e);
+        return json(502, {
+          error: "Hero-Schreibfehler",
+          detail: String(e?.message ?? e).slice(0, 500),
+        });
       }
     }
 

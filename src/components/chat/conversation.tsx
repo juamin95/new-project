@@ -30,8 +30,18 @@ import type {
   Conversation,
   Scope,
   TerminDraft,
+  TerminVorschlag,
   ZuordnungVorschlag,
 } from "./types";
+
+const KATEGORIE_LABEL: Record<string, string> = {
+  umsetzung: "Umsetzung",
+  "vor-ort-termin": "Vor-Ort-Termin",
+  schlechtwetter: "Schlechtwetter",
+  buero: "Büro",
+  besprechung: "Besprechung",
+  schule: "Schule",
+};
 
 function ScopeBadge({ scope }: { scope: Scope }) {
   const label =
@@ -211,6 +221,10 @@ export function ConversationPane({
   const [error, setError] = useState<string | null>(null);
   const [zuordnung, setZuordnung] = useState<ZuordnungVorschlag | null>(null);
   const [assigning, setAssigning] = useState(false);
+  const [termin, setTermin] = useState<TerminVorschlag | null>(null);
+  const [terminBusy, setTerminBusy] = useState(false);
+  const [terminMsg, setTerminMsg] = useState<string | null>(null);
+  const [terminDone, setTerminDone] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
@@ -284,6 +298,11 @@ export function ConversationPane({
       addMessage(d.userMessage);
       addMessage(d.assistantMessage);
       if (d.zuordnung) setZuordnung(d.zuordnung); // Pop-up zum Bestätigen
+      if (d.termin) {
+        setTerminMsg(null);
+        setTerminDone(false);
+        setTermin(d.termin);
+      }
     } catch {
       setError("Konnte nicht senden. Bitte gleich noch einmal versuchen.");
       setInput(text);
@@ -313,6 +332,30 @@ export function ConversationPane({
     } finally {
       setAssigning(false);
       setZuordnung(null);
+    }
+  }
+
+  // Termin-Vorschlag bestätigen -> nach Freigabe echt in Hero anlegen (Gate).
+  async function bestaetigeTermin() {
+    if (!termin || terminBusy) return;
+    setTerminBusy(true);
+    setTerminMsg(null);
+    try {
+      const res = await fetch(`/api/conversations/${conversation.id}/termin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(termin),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (res.ok && d.ok) {
+        setTerminDone(true);
+      } else {
+        setTerminMsg(d.error ?? "Konnte den Termin nicht anlegen.");
+      }
+    } catch {
+      setTerminMsg("Konnte den Termin nicht anlegen.");
+    } finally {
+      setTerminBusy(false);
     }
   }
 
@@ -530,6 +573,88 @@ export function ConversationPane({
               {assigning ? "Speichere …" : "Bestätigen"}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Termin-Pop-up (PROJ-10 Etappe 3): Vorschlag bestätigen -> Hero */}
+      <Dialog
+        open={!!termin}
+        onOpenChange={(o) => {
+          if (!o) {
+            setTermin(null);
+            setTerminMsg(null);
+            setTerminDone(false);
+          }
+        }}
+      >
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CalendarClock className="h-4 w-4 text-primary" /> Termin anlegen?
+            </DialogTitle>
+            <DialogDescription>
+              Vorschlag des OS — wird erst nach deiner Bestätigung in Hero eingetragen.
+            </DialogDescription>
+          </DialogHeader>
+          {termin && (
+            <div className="space-y-1 rounded-xl border border-primary/25 bg-secondary/50 p-3 text-sm">
+              {(
+                [
+                  ["Titel", termin.titel],
+                  ["Von", termin.von],
+                  ["Bis", termin.bis],
+                  ["Kategorie", KATEGORIE_LABEL[termin.kategorie] ?? termin.kategorie],
+                  ...(termin.bezug ? [["Bezug", termin.bezug]] : []),
+                  ...(termin.beschreibung ? [["Notiz", termin.beschreibung]] : []),
+                ] as [string, string][]
+              ).map(([k, v]) => (
+                <div key={k} className="flex justify-between gap-3">
+                  <span className="shrink-0 text-muted-foreground">{k}</span>
+                  <span className="text-right font-medium">{v}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {terminDone ? (
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
+                <Check className="h-4 w-4" /> In Hero angelegt
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setTermin(null);
+                  setTerminDone(false);
+                }}
+              >
+                Schließen
+              </Button>
+            </div>
+          ) : (
+            <>
+              {terminMsg && (
+                <div className="text-xs text-destructive">{terminMsg}</div>
+              )}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setTermin(null)}
+                  disabled={terminBusy}
+                >
+                  Ablehnen
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={bestaetigeTermin}
+                  disabled={terminBusy}
+                >
+                  {terminBusy ? "Lege an …" : "Bestätigen"}
+                </Button>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>

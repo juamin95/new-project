@@ -20,9 +20,26 @@ type Zuordnung = {
   titel: string;
 };
 
+// Vom Agenten vorgeschlagener Termin (PROJ-10 Etappe 3); nur Vorschlag, der Mensch
+// bestätigt im Cockpit, dann wird über den termin-Endpunkt in Hero geschrieben.
+type TerminVorschlag = {
+  titel: string;
+  von: string;
+  bis: string;
+  kategorie: string;
+  beschreibung?: string | null;
+  project_match_id?: number | null;
+  bezug?: string | null;
+};
+
 async function fragAgent(
   messages: { role: string; content: string }[],
-): Promise<{ text: string; thinking: string[]; zuordnung: Zuordnung | null } | null> {
+): Promise<{
+  text: string;
+  thinking: string[];
+  zuordnung: Zuordnung | null;
+  termin: TerminVorschlag | null;
+} | null> {
   if (!AGENT_URL || messages.length === 0) return null;
   try {
     const res = await fetch(AGENT_URL, {
@@ -37,6 +54,7 @@ async function fragAgent(
       text: String(d.text ?? ""),
       thinking: Array.isArray(d.thinking) ? d.thinking : [],
       zuordnung: d.zuordnung ?? null,
+      termin: d.termin ?? null,
     };
   } catch {
     return null;
@@ -137,7 +155,12 @@ export async function POST(request: Request, { params }: Params) {
   }
 
   return NextResponse.json(
-    { userMessage, assistantMessage, zuordnung: agent?.zuordnung ?? null },
+    {
+      userMessage,
+      assistantMessage,
+      zuordnung: agent?.zuordnung ?? null,
+      termin: agent?.termin ?? null,
+    },
     { status: 201 },
   );
 }

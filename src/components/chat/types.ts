@@ -28,6 +28,17 @@ export type ZuordnungVorschlag = {
   titel: string;
 };
 
+// Termin-Vorschlag vom Agenten (PROJ-10 Etappe 3) — im Pop-up bestätigt, dann Hero.
+export type TerminVorschlag = {
+  titel: string;
+  von: string;
+  bis: string;
+  kategorie: string;
+  beschreibung?: string | null;
+  project_match_id?: number | null;
+  bezug?: string | null;
+};
+
 export type TerminDraft = {
   datum: string;
   uhrzeit: string;
