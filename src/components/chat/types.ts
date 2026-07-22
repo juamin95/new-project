@@ -9,6 +9,15 @@ export type Conversation = {
   title: string;
   last_preview: string;
   updated_at: string;
+  // Zuordnung + Fortschritts-Schnappschuss (PROJ-17)
+  hero_customer_id?: string | null;
+  hero_project_id?: string | null;
+  hero_project_nr?: string | null;
+  project_type_name?: string | null;
+  status_label?: string | null;
+  step_index?: number | null;
+  step_total?: number | null;
+  is_inactive?: boolean | null;
 };
 
 export type TerminDraft = {

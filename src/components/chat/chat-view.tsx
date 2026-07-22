@@ -1,10 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Plus, MessageSquare, Trash2 } from "lucide-react";
+import { Plus, MessageSquare, Trash2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { createClient } from "@/lib/supabase/client";
+import { Progress } from "@/components/ui/progress";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import type { Conversation } from "./types";
 import { ConversationPane } from "./conversation";
 
@@ -132,17 +138,33 @@ function ChatCard({
         <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
           <MessageSquare className="h-4 w-4" />
         </span>
-        <span className="min-w-0 flex-1">
-          <span className="flex items-baseline justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline justify-between gap-2">
             <span className="truncate font-semibold">{c.title}</span>
             <span className="shrink-0 text-[11px] text-muted-foreground">
               {zeitLabel(c.updated_at)}
             </span>
-          </span>
-          <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+          </div>
+          <div className="mt-0.5 truncate text-xs text-muted-foreground">
             {plainPreview(c.last_preview) || "Neues Gespräch"}
-          </span>
-        </span>
+          </div>
+          {c.scope === "projekt" && c.step_index != null && c.step_total != null && (
+            <div className="mt-1.5">
+              <div className="mb-1 flex items-center justify-between gap-2 text-[11px]">
+                <span className="truncate font-medium text-primary">
+                  {c.status_label ?? "In Bearbeitung"}
+                </span>
+                <span className="shrink-0 tabular-nums text-muted-foreground">
+                  {c.step_index}/{c.step_total}
+                </span>
+              </div>
+              <Progress
+                value={Math.round((c.step_index / c.step_total) * 100)}
+                className="h-1.5"
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -167,6 +189,23 @@ function ConversationList({
 }) {
   // Nur eine Karte darf freigewischt (offen) sein.
   const [openId, setOpenId] = useState<string | null>(null);
+
+  // Abgeschlossene/archivierte Projekte (is_inactive) in einen eigenen Bereich.
+  const aktive = conversations.filter((c) => !c.is_inactive);
+  const inaktive = conversations.filter((c) => c.is_inactive);
+
+  const renderCard = (c: Conversation) => (
+    <ChatCard
+      key={c.id}
+      c={c}
+      active={activeId === c.id}
+      isOpen={openId === c.id}
+      onOpen={setOpenId}
+      onSelect={onSelect}
+      onDelete={onDelete}
+    />
+  );
+
   return (
     <div className="px-4 pb-6 pt-6">
       <h1 className="text-2xl font-bold">Chat</h1>
@@ -193,18 +232,25 @@ function ConversationList({
             Noch keine Gespräche. Starte einen neuen Chat.
           </div>
         )}
-        {conversations.map((c) => (
-          <ChatCard
-            key={c.id}
-            c={c}
-            active={activeId === c.id}
-            isOpen={openId === c.id}
-            onOpen={setOpenId}
-            onSelect={onSelect}
-            onDelete={onDelete}
-          />
-        ))}
+        {!loading && conversations.length > 0 && aktive.length === 0 && (
+          <div className="py-6 text-center text-xs text-muted-foreground">
+            Keine aktiven Gespräche.
+          </div>
+        )}
+        {aktive.map(renderCard)}
       </div>
+
+      {inaktive.length > 0 && (
+        <Collapsible className="mt-4">
+          <CollapsibleTrigger className="group flex w-full items-center justify-between rounded-lg px-1 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground">
+            <span>Abgeschlossen ({inaktive.length})</span>
+            <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2 space-y-2">
+            {inaktive.map(renderCard)}
+          </CollapsibleContent>
+        </Collapsible>
+      )}
     </div>
   );
 }
@@ -245,6 +291,28 @@ export function ChatView() {
       supabase.removeChannel(channel);
     };
   }, [load]);
+
+  // Fortschritt eines Projekt-Chats beim Öffnen mit Hero abgleichen (nur lesend).
+  // Der Endpunkt liefert refreshed:false für Nicht-Projekt-Chats oder Hero-Ausfall.
+  useEffect(() => {
+    if (!activeId) return;
+    let cancelled = false;
+    fetch(`/api/conversations/${activeId}/status`, { method: "POST" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d?.refreshed && d.conversation) {
+          setConversations((cs) =>
+            cs.map((c) =>
+              c.id === d.conversation.id ? { ...c, ...d.conversation } : c,
+            ),
+          );
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [activeId]);
 
   async function newChat() {
     if (creating) return;
