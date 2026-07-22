@@ -108,6 +108,9 @@ function ChatCard({
   }, [isOpen]);
 
   const open = offset !== 0;
+  // Projekt-Chat mit Fortschritt: Statuszeile ersetzt die (redundante) Vorschau.
+  const hasStatus =
+    c.scope === "projekt" && c.step_index != null && c.step_total != null;
   return (
     <div className="relative overflow-hidden rounded-xl">
       <button
@@ -145,10 +148,12 @@ function ChatCard({
               {zeitLabel(c.updated_at)}
             </span>
           </div>
-          <div className="mt-0.5 truncate text-xs text-muted-foreground">
-            {plainPreview(c.last_preview) || "Neues Gespräch"}
-          </div>
-          {c.scope === "projekt" && c.step_index != null && c.step_total != null && (
+          {!hasStatus && (
+            <div className="mt-0.5 truncate text-xs text-muted-foreground">
+              {plainPreview(c.last_preview) || "Neues Gespräch"}
+            </div>
+          )}
+          {hasStatus && (
             <div className="mt-1.5">
               <div className="mb-1 flex items-center justify-between gap-2 text-[11px]">
                 <span className="truncate font-medium text-primary">
@@ -159,7 +164,7 @@ function ChatCard({
                 </span>
               </div>
               <Progress
-                value={Math.round((c.step_index / c.step_total) * 100)}
+                value={Math.round((c.step_index! / c.step_total!) * 100)}
                 className="h-1.5"
               />
             </div>

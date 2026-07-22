@@ -186,6 +186,8 @@ Keine neuen Laufzeit-Pakete nötig. Genutzt wird Bestehendes: **Supabase** (Pers
 
 **Damit ist PROJ-17 funktional komplett** (Zuordnung per Pop-up, Fortschrittsbalken, Aktiv/Abgeschlossen). Nächster Schritt: `/qa PROJ-17`.
 
+**Nachtrag 2026-07-22 — Übersichtlichkeit (Julian).** Doppelte Infos entfernt: Bei Projekt-Chats mit Status zeigt die Karte nur noch **Titel + Statuszeile + Balken** (die Vorschau wiederholte Titel und „In Umsetzung" — jetzt ausgeblendet; ohne Status bleibt die Vorschau). Im Chat-Kopf ersetzt bei Projekt-Chats der echte Status („In Umsetzung · 8/11") das vage „Kontext aktiv".
+
 ## QA Test Results
 **Getestet am 2026-07-22.** Empfehlung: **Production-Ready — JA** (keine Critical/High-Bugs).
 

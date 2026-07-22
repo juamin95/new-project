@@ -364,7 +364,13 @@ export function ConversationPane({
         )}
         <div className="min-w-0 flex-1">
           <div className="truncate font-semibold">{conversation.title}</div>
-          <div className="text-xs text-primary">Kontext aktiv</div>
+          <div className="truncate text-xs text-primary">
+            {conversation.scope === "projekt" && conversation.status_label
+              ? conversation.step_index && conversation.step_total
+                ? `${conversation.status_label} · ${conversation.step_index}/${conversation.step_total}`
+                : conversation.status_label
+              : "Kontext aktiv"}
+          </div>
         </div>
         <ScopeBadge scope={conversation.scope} />
       </div>
