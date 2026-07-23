@@ -108,6 +108,37 @@ function ThinkingSteps({ steps }: { steps: string[] }) {
   );
 }
 
+// Bild aus dem privaten Bucket über eine kurzlebige signierte URL anzeigen.
+function ChatImage({ path }: { path: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    createClient()
+      .storage.from("cockpit-bilder")
+      .createSignedUrl(path, 3600)
+      .then(({ data }) => {
+        if (active && data?.signedUrl) setUrl(data.signedUrl);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [path]);
+  if (!url) {
+    return <div className="mb-1 h-40 w-40 animate-pulse rounded-xl bg-secondary" />;
+  }
+  return (
+    <Image
+      src={url}
+      alt="Angehängtes Bild"
+      width={240}
+      height={240}
+      unoptimized
+      className="mb-1 max-h-60 w-auto rounded-xl border border-border object-cover"
+    />
+  );
+}
+
 function MessageBubble({
   message,
   onConfirmTermin,
@@ -122,6 +153,7 @@ function MessageBubble({
         {!isUser && message.thinking && message.thinking.length > 0 && (
           <ThinkingSteps steps={message.thinking} />
         )}
+        {message.image_path && <ChatImage path={message.image_path} />}
         {message.text && (
           <div
             className={cn(
@@ -219,6 +251,7 @@ export function ConversationPane({
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
   const [attached, setAttached] = useState<string | null>(null);
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [zuordnung, setZuordnung] = useState<ZuordnungVorschlag | null>(null);
   const [assigning, setAssigning] = useState(false);
@@ -285,17 +318,31 @@ export function ConversationPane({
 
   async function send() {
     const text = input.trim();
-    if (!text || sending) return;
+    const file = attachedFile;
+    if ((!text && !file) || sending) return;
     setError(null);
     setInput("");
     setAttached(null);
+    setAttachedFile(null);
     if (taRef.current) taRef.current.style.height = "auto";
     setSending(true);
     try {
+      // Bild (falls angehängt) in den privaten Bucket laden -> Pfad an die Nachricht.
+      let imagePath: string | null = null;
+      if (file) {
+        const supabase = createClient();
+        const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+        const path = `${conversation.id}/${crypto.randomUUID()}.${ext}`;
+        const up = await supabase.storage
+          .from("cockpit-bilder")
+          .upload(path, file, { contentType: file.type || "image/jpeg" });
+        if (up.error) throw new Error("upload");
+        imagePath = path;
+      }
       const res = await fetch(`/api/conversations/${conversation.id}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text: text || undefined, image_path: imagePath }),
       });
       if (!res.ok) throw new Error();
       const d = await res.json();
@@ -375,7 +422,10 @@ export function ConversationPane({
 
   function onPickImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file) setAttached(URL.createObjectURL(file));
+    if (file) {
+      setAttachedFile(file);
+      setAttached(URL.createObjectURL(file));
+    }
     e.target.value = "";
   }
 
@@ -502,17 +552,15 @@ export function ConversationPane({
                 unoptimized
                 className="h-12 w-12 rounded-lg border border-border object-cover"
               />
-              <div className="flex flex-col">
-                <button
-                  onClick={() => setAttached(null)}
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-3.5 w-3.5" /> Bild entfernen
-                </button>
-                <span className="text-[11px] text-muted-foreground">
-                  Bild-Upload folgt (Etappe 3) — jetzt wird nur der Text gesendet.
-                </span>
-              </div>
+              <button
+                onClick={() => {
+                  setAttached(null);
+                  setAttachedFile(null);
+                }}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" /> Bild entfernen
+              </button>
             </div>
           )}
           {recording && (

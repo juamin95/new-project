@@ -269,7 +269,9 @@ Der OS-Agent braucht für den Chat **keinen** eigenen Supabase-Schlüssel — de
 - Gesamte Suite grün (1372). **Live-Test bestanden (2026-07-22, Freigabe Julian):** kontrollierter Rundgang über die echte Schreib-Op — Termin in Hero angelegt (Event 5876182, korrekte Zeitzone + Projektbezug UNB-142), gegengeprüft, wieder gelöscht; keine bleibende Spur. Der Schreibpfad Cockpit → Agent → Hero trägt.
 **Sprache-zu-Text (2026-07-23, OpenAI).** Mikro nimmt per MediaRecorder auf; beim Loslassen geht das Audio an `POST /api/transcribe` → OS-Agent → OpenAI (`gpt-4o-mini-transcribe`, Op `transkription`; AI-Key bleibt im Agenten). Der Text landet editierbar im Eingabefeld. **End-to-end an echtem OpenAI verifiziert** (deutsches Test-Audio korrekt transkribiert). Integrationstest (401/400/200/502). Entscheidung OpenAI statt Selbst-Hosting: einfachste Integration, günstig, Top-Deutsch, keine VPS-Last — später ohne Cockpit-Änderung auf Groq/Self-Hosting wechselbar.
 
-- **Restliche Etappe 3 offen:** nur noch **Bild-Upload** in den `cockpit-bilder`-Bucket.
+**Bild-Upload + Vision (2026-07-23).** Foto anhängen → wird beim Senden in den privaten `cockpit-bilder`-Bucket geladen (client-seitig, authentifiziert), `image_path` an der Nachricht; Anzeige über kurzlebige signierte URL. Die Nachrichten-Route lädt Bilder server-seitig und gibt sie als **Base64-Bildblöcke an Claude** (Vision) — der Anthropic-Key reicht, kein zweiter Anbieter. **Verifiziert:** Claude beschrieb das GRÜNSCHNITT-Logo korrekt. (Upload/Anzeige im Browser testbar; getUserMedia/Storage brauchen sichere Herkunft = localhost oder später HTTPS auf dem VPS.)
+
+**Etappe 3 komplett** ✅ — Termin-Schreibpfad, Sprache-zu-Text und Bild-Upload+Vision stehen und sind verifiziert. Damit ist der MVP-Funktionsumfang von PROJ-10 gebaut; als Nächstes bietet sich `/qa PROJ-10` (Gesamtabnahme) an.
 
 ## Erweiterungs-Ideen (Julian, 20.07.2026 — nach erstem echten Test)
 

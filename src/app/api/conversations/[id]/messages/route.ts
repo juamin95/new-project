@@ -33,7 +33,7 @@ type TerminVorschlag = {
 };
 
 async function fragAgent(
-  messages: { role: string; content: string }[],
+  messages: { role: string; content: unknown }[],
 ): Promise<{
   text: string;
   thinking: string[];
@@ -55,6 +55,35 @@ async function fragAgent(
       thinking: Array.isArray(d.thinking) ? d.thinking : [],
       zuordnung: d.zuordnung ?? null,
       termin: d.termin ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+type ServerClient = Awaited<ReturnType<typeof createClient>>;
+
+function mediaTypeFromPath(path: string): string {
+  const ext = path.split(".").pop()?.toLowerCase();
+  if (ext === "png") return "image/png";
+  if (ext === "webp") return "image/webp";
+  if (ext === "gif") return "image/gif";
+  return "image/jpeg";
+}
+
+// Lädt ein Bild aus dem privaten Bucket und baut den Base64-Bildblock für Claude.
+async function ladeBildBlock(supabase: ServerClient, path: string) {
+  try {
+    const { data, error } = await supabase.storage.from("cockpit-bilder").download(path);
+    if (error || !data) return null;
+    const buf = Buffer.from(await data.arrayBuffer());
+    return {
+      type: "image",
+      source: {
+        type: "base64",
+        media_type: mediaTypeFromPath(path),
+        data: buf.toString("base64"),
+      },
     };
   } catch {
     return null;
@@ -123,14 +152,30 @@ export async function POST(request: Request, { params }: Params) {
   }
 
   // Verlauf für den Agenten aufbauen (inkl. der gerade gespeicherten Nutzer-Nachricht).
+  // Bilder werden als Base64-Blöcke mitgegeben, damit Claude sie sieht (Vision).
   const { data: hist } = await supabase
     .from("cockpit_messages")
-    .select("role, text")
+    .select("role, text, image_path")
     .eq("conversation_id", id)
     .order("created_at", { ascending: true });
-  const verlauf = (Array.isArray(hist) ? hist : [])
-    .filter((m) => m.text)
-    .map((m) => ({ role: m.role as string, content: m.text as string }));
+
+  const rows = (Array.isArray(hist) ? hist : []).filter((m) => m.text || m.image_path);
+  const verlauf = await Promise.all(
+    rows.map(async (m) => {
+      if (!m.image_path) {
+        return { role: m.role as string, content: (m.text as string) ?? "" };
+      }
+      const blocks: unknown[] = [];
+      const bild = await ladeBildBlock(supabase, m.image_path as string);
+      if (bild) blocks.push(bild);
+      if (m.text) blocks.push({ type: "text", text: m.text });
+      // Fällt das Bild aus, wenigstens den Text senden.
+      return {
+        role: m.role as string,
+        content: blocks.length ? blocks : ((m.text as string) ?? ""),
+      };
+    }),
+  );
 
   // Etappe 2: echten Agenten fragen; ohne konfigurierten Agenten Platzhalter.
   const agent = await fragAgent(verlauf);
