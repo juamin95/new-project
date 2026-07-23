@@ -21,14 +21,19 @@ führende System — Fehler dort sind Datenmüll beim Kunden.
 - **Lesebefehle — frei:** `suchen`, `kategorien`, `termine`, `logbuch-lesen`,
   `aufgaben`, `checklisten`, `historie`, `export`. Erkunden, Kontext auflösen,
   Fragen beantworten ist jederzeit erlaubt („Reads erkunden").
-- **Schreibbefehle — nur nach ausdrücklicher Anweisung oder Freigabe im aktuellen
-  Vorgang:** `anlegen`, `bearbeiten`, `adresse`, `status`, `gewerk`, `logbuch`,
-  `aufgabe-*`, `checkliste-*` sowie alle Dokument-Erzeugungen.
-  Keine eigeninitiativen Schreibzugriffe — insbesondere: Aufgaben nur auf
-  ausdrückliche Anweisung als erledigt markieren, nie aus dem Gesprächskontext
-  schließen (Lernlog-Beobachtung vom 12.07.2026).
-- Löschen: Projekte sind per API ohnehin nicht löschbar; Aufräumen = Status 2100
-  (Archiviert), auch das nur nach Freigabe.
+- **Schreibbefehle — im Dienst von Marvins Anfrage erlaubt** (Klarstellung Julian
+  23.07.2026): Der Agent darf **anlegen/ändern** — `anlegen`, `bearbeiten`,
+  `adresse`, `status`, `gewerk`, `logbuch`, `aufgabe-*`, `checkliste-*` und
+  Dokument-Erzeugungen. Der Schutz liegt **nicht** in „kein Schreiben", sondern in
+  **Draft-first** (Kernprinzip oben): Alles mit Entwurfsmodus (Angebote, Rechnungen,
+  künftig Mails) entsteht **immer als Entwurf**; **Veröffentlichen/Versenden macht ein
+  Mensch** im Quellsystem. Objekte ohne Entwurfsmodus (Termin, Projekt, Aufgabe) darf
+  der Agent direkt anlegen.
+- Keine eigeninitiativen Aktionen ohne Anlass im Gespräch — insbesondere Aufgaben/
+  Status nur ändern, wenn Marvin es will, nie aus dem Kontext schließen
+  (Lernlog-Beobachtung vom 12.07.2026).
+- Löschen/Archivieren bleibt bestätigungspflichtig: Projekte sind per API ohnehin
+  nicht löschbar; Aufräumen = Status 2100 (Archiviert), nur nach Freigabe.
 
 ## Betrieb
 

@@ -86,8 +86,9 @@ Arbeitsweise:
 - Für Kunden-, Projekt- und Termindaten Hero lesen (hero_lesen, nur Lesebefehle). Für aktuelle/offene Projekte: modul "projekt", aktion "suchen". Für Termine: modul "kalender", aktion "termine" mit --von und --bis. Für Aufgaben eines Projekts: modul "projekt", aktion "aufgaben" mit --projekt und optional --offen.
 - WICHTIG — Chat-Zuordnung: Sobald in diesem Gespräch EIN konkretes Hero-Projekt (project_nr) oder ein Kunde eindeutig feststeht (z. B. weil du es gerade in Hero nachgeschlagen hast), rufe IMMER zuordnung_vorschlagen auf — zusätzlich zu deiner Antwort, auch wenn die Frage bereits beantwortet ist. Übergib scope ("projekt" oder "kunde"), projekt_nr bzw. kunde_id und einen kurzen titel (z. B. "UNB-142 – Kilian-Patt"). Rufe das Werkzeug möglichst VOR deiner eigentlichen Antwort auf und gib danach keine Zusatzbestätigung wie "Erledigt" aus. Tu das nur bei Eindeutigkeit; bei allgemeinen Fragen ohne konkreten Projekt-/Kundenbezug NICHT. Es ist nur ein Vorschlag — der Mensch bestätigt im Cockpit; du ordnest nichts selbst zu.
 - Will Marvin einen Termin anlegen, rufe termin_vorschlagen auf (titel, von, bis im Format "JJJJ-MM-TT HH:MM", kategorie aus umsetzung/vor-ort-termin/schlechtwetter/buero/besprechung/schule; bei Projektbezug vorher die project_match_id via hero_lesen auflösen). Du legst den Termin NIE selbst an — es ist ein Vorschlag; der Mensch bestätigt im Cockpit, dann wird geschrieben. Fehlt eine Eckdatei (Datum/Uhrzeit/Kategorie), frag kurz nach.
+- Will Marvin ein NEUES Projekt anlegen, löse zuerst mit hero_lesen (kontakt suchen) den Kunden auf — nimm customer_id und die INNERE address.id (customer_addresses[].address.id) — und rufe dann projekt_vorschlagen auf (name im Format JJJJMMTT_Kunde_Schlagwort; Gewerk/Projekttyp wenn erkennbar, sonst kurz nachfragen). Du legst das Projekt nicht selbst an — der Mensch bestätigt im Cockpit.
 - Enthält eine Nachricht ein Bild, sieh es dir an und beziehe dich konkret darauf (z. B. Zustand einer Fläche, Schaden, Pflanze, Material).
-- Du erstellst und versendest nichts nach außen (keine Mails, Angebote, Rechnungen). Außer Termin-Vorschlägen schreibst du nichts in Hero. Solche Aktionen macht ein eigener, vom Menschen freigegebener Schritt.`;
+- Du DARFST in Hero anlegen (Termine, Projekte, später mehr) — aber IMMER nur als Vorschlag, den der Mensch im Cockpit bestätigt; die Anlage selbst führst du nie aus. Sag NIE, du könntest etwas grundsätzlich nicht anlegen — schlage es stattdessen vor. Außenwirksames (Angebote, Rechnungen, Mails) entsteht später immer als Entwurf und wird nur vom Menschen veröffentlicht/versendet.`;
 
 // ── Werkzeug: Vault durchsuchen ──────────────────────────────
 function listMarkdown(dir, acc = []) {
@@ -265,6 +266,22 @@ async function transkribiere(audioBase64, mimetype) {
   return { text: String(d.text ?? "").trim() };
 }
 
+// ── Schreib-Op: Projekt in Hero anlegen (PROJ-10 Etappe 3+) ──
+// Gated wie der Termin: nur vom Cockpit nach menschlicher Bestätigung (Token).
+function heroProjektAnlegen(p) {
+  const name = String(p?.name ?? "").trim();
+  const kunde = p?.customer_id;
+  const adresse = p?.address_id;
+  if (!name || !kunde || !adresse) {
+    throw new Error("name, customer_id und address_id sind Pflicht");
+  }
+  const args = ["projekt", "anlegen", "--name", name, "--kunde", String(kunde), "--adresse", String(adresse)];
+  if (p.gewerk) args.push("--gewerk", String(p.gewerk));
+  if (p.projekttyp) args.push("--projekttyp", String(p.projekttyp));
+  const raw = execFileSync(HERO_CLI, args, { cwd: REPO, encoding: "utf-8", timeout: 30000 });
+  return { ok: true, projekt: JSON.parse(raw) };
+}
+
 // ── Werkzeug: Zuordnung vorschlagen (PROJ-17) ────────────────
 // Schlägt vor, DIESEN Chat einem Hero-Projekt/Kunden zuzuordnen. Führt nichts aus
 // (Gate) — der Server liest die Argumente aus dem tool_use-Block und reicht sie ans
@@ -316,11 +333,41 @@ const terminTool = betaTool({
   run: async () => "Termin-Vorschlag notiert — der Mensch bestätigt im Cockpit.",
 });
 
+// ── Werkzeug: Projekt vorschlagen (PROJ-10 Etappe 3+) ────────
+const projektTool = betaTool({
+  name: "projekt_vorschlagen",
+  description:
+    "Schlägt vor, ein NEUES Projekt in Hero anzulegen. Löse zuerst mit hero_lesen (kontakt suchen) den Kunden auf und nimm daraus customer_id sowie die INNERE address.id (Feld customer_addresses[].address.id). Führt nichts aus — der Mensch bestätigt im Cockpit.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      name: { type: "string", description: "Projektname, Format JJJJMMTT_Kunde_Schlagwort (z. B. 20260723_Amini_Gartenpflege)" },
+      customer_id: { type: "number", description: "Hero-Kunden-ID" },
+      address_id: { type: "number", description: "innere address.id des Kunden (aus customer_addresses[].address.id)" },
+      gewerk: {
+        type: "string",
+        enum: ["gartengestaltung", "gartenpflege", "abo", "unbekannt"],
+        description: "Gewerk / Nummernkreis-Präfix",
+      },
+      projekttyp: {
+        type: "string",
+        enum: ["projekt", "ohne-angebot", "abo"],
+        description: "Prozessweg (Standard: projekt)",
+      },
+      bezug: { type: "string", description: "menschenlesbarer Bezug für die Anzeige, z. B. Julian Amini – Gartenpflege" },
+    },
+    required: ["name", "customer_id", "address_id"],
+    additionalProperties: false,
+  },
+  run: async () => "Projekt-Vorschlag notiert — der Mensch bestätigt im Cockpit.",
+});
+
 function schrittLabel(name) {
   if (name === "vault_suchen") return "Wissensspeicher durchsucht";
   if (name === "hero_lesen") return "Hero gelesen";
   if (name === "zuordnung_vorschlagen") return "Zuordnung vorgeschlagen";
   if (name === "termin_vorschlagen") return "Termin vorgeschlagen";
+  if (name === "projekt_vorschlagen") return "Projekt vorgeschlagen";
   return name;
 }
 
@@ -331,7 +378,7 @@ async function beantworte(messages, kontext) {
     model: MODEL,
     max_tokens: 4096,
     system,
-    tools: [vaultTool, heroTool, zuordnungTool, terminTool],
+    tools: [vaultTool, heroTool, zuordnungTool, terminTool, projektTool],
     messages,
   });
 
@@ -339,6 +386,7 @@ async function beantworte(messages, kontext) {
   const textteile = [];
   let zuordnung = null;
   let termin = null;
+  let projekt = null;
   for await (const message of runner) {
     for (const block of message.content) {
       // Text über den ganzen Lauf sammeln, damit die Antwort nicht verloren geht,
@@ -352,11 +400,12 @@ async function beantworte(messages, kontext) {
         // Letzter Vorschlag gewinnt (Argumente direkt aus dem tool_use).
         if (block.name === "zuordnung_vorschlagen") zuordnung = block.input ?? null;
         if (block.name === "termin_vorschlagen") termin = block.input ?? null;
+        if (block.name === "projekt_vorschlagen") projekt = block.input ?? null;
       }
     }
   }
   const text = textteile.join("\n\n").trim();
-  return { text: text || "(keine Antwort)", thinking, zuordnung, termin };
+  return { text: text || "(keine Antwort)", thinking, zuordnung, termin, projekt };
 }
 
 // ── HTTP-Server (nur localhost binden) ───────────────────────
@@ -407,6 +456,19 @@ const server = http.createServer((req, res) => {
         return json(200, heroTerminAnlegen(parsed.termin ?? {}));
       } catch (e) {
         console.error("termin-anlegen Fehler:", e?.message ?? e);
+        return json(502, {
+          error: "Hero-Schreibfehler",
+          detail: String(e?.message ?? e).slice(0, 500),
+        });
+      }
+    }
+
+    // Cockpit-Schreibop: Projekt in Hero anlegen — NUR nach Bestätigung (Gate).
+    if (parsed && parsed.op === "projekt-anlegen") {
+      try {
+        return json(200, heroProjektAnlegen(parsed.projekt ?? {}));
+      } catch (e) {
+        console.error("projekt-anlegen Fehler:", e?.message ?? e);
         return json(502, {
           error: "Hero-Schreibfehler",
           detail: String(e?.message ?? e).slice(0, 500),

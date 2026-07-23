@@ -39,6 +39,16 @@ export type TerminVorschlag = {
   bezug?: string | null;
 };
 
+// Projekt-Vorschlag vom Agenten (PROJ-10 Etappe 3+) — im Pop-up bestätigt, dann Hero.
+export type ProjektVorschlag = {
+  name: string;
+  customer_id: number;
+  address_id: number;
+  gewerk?: string | null;
+  projekttyp?: string | null;
+  bezug?: string | null;
+};
+
 export type TerminDraft = {
   datum: string;
   uhrzeit: string;

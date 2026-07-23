@@ -32,6 +32,16 @@ type TerminVorschlag = {
   bezug?: string | null;
 };
 
+// Vom Agenten vorgeschlagenes neues Projekt (PROJ-10 Etappe 3+).
+type ProjektVorschlag = {
+  name: string;
+  customer_id: number;
+  address_id: number;
+  gewerk?: string | null;
+  projekttyp?: string | null;
+  bezug?: string | null;
+};
+
 async function fragAgent(
   messages: { role: string; content: unknown }[],
   kontext?: string,
@@ -40,6 +50,7 @@ async function fragAgent(
   thinking: string[];
   zuordnung: Zuordnung | null;
   termin: TerminVorschlag | null;
+  projekt: ProjektVorschlag | null;
 } | null> {
   if (!AGENT_URL || messages.length === 0) return null;
   try {
@@ -56,6 +67,7 @@ async function fragAgent(
       thinking: Array.isArray(d.thinking) ? d.thinking : [],
       zuordnung: d.zuordnung ?? null,
       termin: d.termin ?? null,
+      projekt: d.projekt ?? null,
     };
   } catch {
     return null;
@@ -220,6 +232,7 @@ export async function POST(request: Request, { params }: Params) {
       assistantMessage,
       zuordnung: agent?.zuordnung ?? null,
       termin: agent?.termin ?? null,
+      projekt: agent?.projekt ?? null,
     },
     { status: 201 },
   );

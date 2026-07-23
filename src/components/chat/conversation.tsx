@@ -12,6 +12,7 @@ import {
   CalendarClock,
   X,
   Link2,
+  FolderPlus,
 } from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -31,6 +32,7 @@ import type {
   Scope,
   TerminDraft,
   TerminVorschlag,
+  ProjektVorschlag,
   ZuordnungVorschlag,
 } from "./types";
 
@@ -41,6 +43,19 @@ const KATEGORIE_LABEL: Record<string, string> = {
   buero: "Büro",
   besprechung: "Besprechung",
   schule: "Schule",
+};
+
+const GEWERK_LABEL: Record<string, string> = {
+  gartengestaltung: "Gartengestaltung",
+  gartenpflege: "Gartenpflege",
+  abo: "Gartenpflege (Abo)",
+  unbekannt: "Unbekannt",
+};
+
+const PROJEKTTYP_LABEL: Record<string, string> = {
+  projekt: "Mit Angebot",
+  "ohne-angebot": "Ohne Angebot",
+  abo: "Abo",
 };
 
 function ScopeBadge({ scope }: { scope: Scope }) {
@@ -259,6 +274,10 @@ export function ConversationPane({
   const [terminBusy, setTerminBusy] = useState(false);
   const [terminMsg, setTerminMsg] = useState<string | null>(null);
   const [terminDone, setTerminDone] = useState(false);
+  const [projekt, setProjekt] = useState<ProjektVorschlag | null>(null);
+  const [projektBusy, setProjektBusy] = useState(false);
+  const [projektMsg, setProjektMsg] = useState<string | null>(null);
+  const [projektDone, setProjektDone] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
@@ -354,6 +373,11 @@ export function ConversationPane({
         setTerminDone(false);
         setTermin(d.termin);
       }
+      if (d.projekt) {
+        setProjektMsg(null);
+        setProjektDone(false);
+        setProjekt(d.projekt);
+      }
     } catch {
       setError("Konnte nicht senden. Bitte gleich noch einmal versuchen.");
       setInput(text);
@@ -416,6 +440,37 @@ export function ConversationPane({
     setTermin(null);
     setTerminMsg(null);
     setTerminDone(false);
+    setTimeout(() => taRef.current?.focus(), 0);
+  }
+
+  // Projekt-Vorschlag bestätigen -> nach Freigabe echt in Hero anlegen (Gate).
+  async function bestaetigeProjekt() {
+    if (!projekt || projektBusy) return;
+    setProjektBusy(true);
+    setProjektMsg(null);
+    try {
+      const res = await fetch(`/api/conversations/${conversation.id}/projekt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(projekt),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (res.ok && d.ok) {
+        setProjektDone(true);
+      } else {
+        setProjektMsg(d.error ?? "Konnte das Projekt nicht anlegen.");
+      }
+    } catch {
+      setProjektMsg("Konnte das Projekt nicht anlegen.");
+    } finally {
+      setProjektBusy(false);
+    }
+  }
+
+  function anpassenProjekt() {
+    setProjekt(null);
+    setProjektMsg(null);
+    setProjektDone(false);
     setTimeout(() => taRef.current?.focus(), 0);
   }
 
@@ -773,6 +828,98 @@ export function ConversationPane({
                   disabled={terminBusy}
                 >
                   {terminBusy ? "…" : "Bestätigen"}
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Projekt-Pop-up (PROJ-10 Etappe 3+): Vorschlag bestätigen -> Hero */}
+      <Dialog
+        open={!!projekt}
+        onOpenChange={(o) => {
+          if (!o) {
+            setProjekt(null);
+            setProjektMsg(null);
+            setProjektDone(false);
+          }
+        }}
+      >
+        <DialogContent className="max-w-sm rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FolderPlus className="h-4 w-4 text-primary" /> Projekt anlegen?
+            </DialogTitle>
+            <DialogDescription>
+              Vorschlag des OS — wird erst nach deiner Bestätigung in Hero angelegt.
+            </DialogDescription>
+          </DialogHeader>
+          {projekt && (
+            <div className="space-y-1 rounded-xl border border-primary/25 bg-secondary/50 p-3 text-sm">
+              {(
+                [
+                  ["Name", projekt.name],
+                  ...(projekt.bezug ? [["Kunde", projekt.bezug]] : []),
+                  ...(projekt.gewerk
+                    ? [["Gewerk", GEWERK_LABEL[projekt.gewerk] ?? projekt.gewerk]]
+                    : []),
+                  ...(projekt.projekttyp
+                    ? [["Typ", PROJEKTTYP_LABEL[projekt.projekttyp] ?? projekt.projekttyp]]
+                    : []),
+                ] as [string, string][]
+              ).map(([k, v]) => (
+                <div key={k} className="flex justify-between gap-3">
+                  <span className="shrink-0 text-muted-foreground">{k}</span>
+                  <span className="text-right font-medium">{v}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {projektDone ? (
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
+                <Check className="h-4 w-4" /> In Hero angelegt
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setProjekt(null);
+                  setProjektDone(false);
+                }}
+              >
+                Schließen
+              </Button>
+            </div>
+          ) : (
+            <>
+              {projektMsg && (
+                <div className="text-xs text-destructive">{projektMsg}</div>
+              )}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setProjekt(null)}
+                  disabled={projektBusy}
+                >
+                  Ablehnen
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={anpassenProjekt}
+                  disabled={projektBusy}
+                >
+                  Anpassen
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={bestaetigeProjekt}
+                  disabled={projektBusy}
+                >
+                  {projektBusy ? "…" : "Bestätigen"}
                 </Button>
               </div>
             </>
