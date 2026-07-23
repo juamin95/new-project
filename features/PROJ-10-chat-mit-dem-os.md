@@ -286,7 +286,43 @@ Der OS-Agent braucht für den Chat **keinen** eigenen Supabase-Schlüssel — de
 **Einordnung:** Punkt 1+2 sind kleine Ergänzungen. Punkt 5 gehört zur Aktions-/Gate-Vorschau (Etappe 3 verallgemeinert). Punkt 3+4 sind der Ausbau „Chat-Organisation" (PROJ-17). Punkt 6 ist der größte, feature-übergreifende Schritt (proaktiver, bidirektionaler Chat) und berührt PROJ-11/12/17 — eigene Spec, wenn wir dahin kommen.
 
 ## QA Test Results
-_To be added by /qa_
+**Getestet am 2026-07-23.** Empfehlung: **Production-Ready — JA** (keine Critical/High-Bugs), mit 2 empfohlenen Medium-Fixes vor dem MVP-Deploy.
+
+### Testabdeckung — Hinweis
+Auth ist passwortlos (Magic Link); authentifizierte UI-Flows sind nicht per Playwright automatisierbar. Abgedeckt über **Unit-/Integrationstests**, **E2E der Endpunkt-Auth** und **reale Live-Smoke-Tests** dieser Session.
+
+### Automatisierte Tests
+- Vitest: **1376 grün** (inkl. Chat-Routen, prozessketten, termin/transcribe/status).
+- Playwright: **volle Suite 32/32 grün** + neue PROJ-10-Etappe-3-Auth-Tests (termin/transcribe ohne Anmeldung → 401).
+
+### Reale Live-Smoke-Tests (diese Session)
+- **Hero-Lesen:** Projektstatus UNB-142 korrekt beantwortet.
+- **Termin-Schreibpfad:** Termin echt in Hero angelegt (Event 5876182), geprüft, wieder gelöscht — Gate + Audit greifen.
+- **Sprache-zu-Text:** deutsches Audio via OpenAI korrekt transkribiert.
+- **Vision:** Claude beschrieb ein echtes Bild (GRÜNSCHNITT-Logo) korrekt.
+
+### Akzeptanzkriterien (11/13 voll, 2 mit Lücke)
+Voll erfüllt: Textantwort aus Vault+Hero, morgige Termine, ehrlich ohne Vault-Grundlage, Sprachmemo→Text, Bild einbezogen, Termin-Vorschau→Bestätigen→Hero (Gate), Ablehnen schreibt nichts, mehrere Gespräche/Wechsel, geräteübergreifende Persistenz, verständliche Fehlermeldung bei Ausfall, klarer Fehler bei fehlgeschlagener Terminanlage (kein halber Zustand).
+
+### Security-Audit (Red Team)
+- **Auth:** alle Endpunkte (messages, conversations, [id] DELETE/PATCH, status, termin, transcribe) prüfen `getUser()` → 401 (Integration + E2E). ✅
+- **Gate:** Termin-Schreiben nur nach menschlicher Bestätigung; Agent schlägt nur vor; Audit in `cockpit_actions`. ✅
+- **Injection:** hero-tools via `execFileSync` (Argument-Array, keine Shell); Zod-Validierung; Markdown ohne rohes HTML (kein XSS). ✅
+- **Secrets:** Agent/Routen geben nie Keys zurück; Bilder liegen im privaten Bucket, Anzeige nur über kurzlebige signierte URLs. ✅
+- **RLS:** `for all authenticated` — bewusst Ein-Mandant (Marvin + Julian). ✅
+
+### Gefundene Punkte
+**Medium (empfohlen vor MVP-Deploy):**
+1. **„Anpassen" in der Termin-Vorschau fehlt** (AC 7): Das Pop-up bietet „Bestätigen"/„Ablehnen", aber kein inline-Bearbeiten. Korrektur läuft aktuell übers Ansagen im Chat (Agent schlägt neu vor). Gate/Sicherheit unberührt.
+2. **Zugeordneter Projektkontext wird dem Agenten nicht automatisch mitgegeben** (AC 9): Der Agent leitet das Projekt aus dem Nachrichtentext ab; die am Gespräch gespeicherte Zuordnung (PROJ-17) wird nicht als Kontext in den Agent-Aufruf injiziert. Workaround: Projekt kurz erwähnen.
+
+**Low:**
+- Bilder werden bei jeder Nachricht erneut an Claude gesendet (alle Bild-Nachrichten im Verlauf) → wächst mit der Bildanzahl; später deckeln/nur jüngste.
+- Alte Mock-`TerminCard` liegt ungenutzt im Code (echter Pfad ist das Dialog-Pop-up) → aufräumen.
+- Kein Rate-Limiting (interne App, Ein-Mandant) — für spätere Exponierung erwägen.
+- ESLint nicht konfiguriert (Next 16 ohne `next lint`) → durch `tsc` + Tests kompensiert; sauberes Flat-Config nachziehen.
+
+**Fazit:** Keine Critical/High-Bugs → **Approved**. Die 2 Medium-Punkte betreffen explizite Akzeptanzkriterien und sollten vor dem MVP-Deploy nachgezogen werden (kleiner Umfang).
 
 ## Deployment
 _To be added by /deploy_
