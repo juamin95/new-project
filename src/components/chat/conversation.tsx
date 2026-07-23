@@ -410,6 +410,15 @@ export function ConversationPane({
     }
   }
 
+  // „Anpassen": Vorschlag verwerfen und ins Eingabefeld springen, damit Marvin
+  // die Änderung im Chat ansagt (der Agent schlägt dann neu vor).
+  function anpassenTermin() {
+    setTermin(null);
+    setTerminMsg(null);
+    setTerminDone(false);
+    setTimeout(() => taRef.current?.focus(), 0);
+  }
+
   function confirmTermin(msgId: string) {
     setMessages((m) =>
       m.map((x) =>
@@ -751,11 +760,19 @@ export function ConversationPane({
                   Ablehnen
                 </Button>
                 <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={anpassenTermin}
+                  disabled={terminBusy}
+                >
+                  Anpassen
+                </Button>
+                <Button
                   className="flex-1"
                   onClick={bestaetigeTermin}
                   disabled={terminBusy}
                 >
-                  {terminBusy ? "Lege an …" : "Bestätigen"}
+                  {terminBusy ? "…" : "Bestätigen"}
                 </Button>
               </div>
             </>

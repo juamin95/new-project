@@ -322,7 +322,11 @@ Voll erfüllt: Textantwort aus Vault+Hero, morgige Termine, ehrlich ohne Vault-G
 - Kein Rate-Limiting (interne App, Ein-Mandant) — für spätere Exponierung erwägen.
 - ESLint nicht konfiguriert (Next 16 ohne `next lint`) → durch `tsc` + Tests kompensiert; sauberes Flat-Config nachziehen.
 
-**Fazit:** Keine Critical/High-Bugs → **Approved**. Die 2 Medium-Punkte betreffen explizite Akzeptanzkriterien und sollten vor dem MVP-Deploy nachgezogen werden (kleiner Umfang).
+**Fazit:** Keine Critical/High-Bugs → **Approved**.
+
+**Nachtrag 2026-07-23 — beide Medium-Punkte behoben:**
+1. **„Anpassen" in der Termin-Vorschau ergänzt** — Pop-up bietet jetzt Ablehnen · Anpassen · Bestätigen; „Anpassen" springt ins Eingabefeld für eine Korrektur im Chat.
+2. **Projektkontext wird injiziert** — die Nachrichten-Route gibt dem Agenten den zugeordneten Projekt-/Kundenkontext mit (`kontext` im Agent-Aufruf → an den System-Prompt angehängt). **Live verifiziert:** Frage ohne Projektnennung + Kontext UNB-142 → Antwort korrekt auf UNB-142 bezogen.
 
 ## Deployment
 _To be added by /deploy_

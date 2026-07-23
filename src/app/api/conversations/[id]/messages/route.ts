@@ -34,6 +34,7 @@ type TerminVorschlag = {
 
 async function fragAgent(
   messages: { role: string; content: unknown }[],
+  kontext?: string,
 ): Promise<{
   text: string;
   thinking: string[];
@@ -45,7 +46,7 @@ async function fragAgent(
     const res = await fetch(AGENT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-agent-token": AGENT_TOKEN },
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify({ messages, kontext }),
       signal: AbortSignal.timeout(60000),
     });
     if (!res.ok) return null;
@@ -177,8 +178,22 @@ export async function POST(request: Request, { params }: Params) {
     }),
   );
 
+  // Zugeordneten Projekt-/Kundenkontext (PROJ-17) an den Agenten mitgeben,
+  // damit projektbezogene Chats treffsicher sind (auch ohne erneute Nennung).
+  const { data: conv } = await supabase
+    .from("cockpit_conversations")
+    .select("scope, title, hero_project_nr, hero_customer_id")
+    .eq("id", id)
+    .single();
+  let kontext: string | undefined;
+  if (conv?.scope === "projekt" && conv.hero_project_nr) {
+    kontext = `Dieses Gespräch ist dem Hero-Projekt ${conv.hero_project_nr} („${conv.title}") zugeordnet. Beziehe Fragen ohne ausdrücklich genannten anderen Bezug auf dieses Projekt.`;
+  } else if (conv?.scope === "kunde" && conv.hero_customer_id) {
+    kontext = `Dieses Gespräch ist dem Hero-Kunden „${conv.title}" (ID ${conv.hero_customer_id}) zugeordnet. Beziehe Fragen im Zweifel auf diesen Kunden.`;
+  }
+
   // Etappe 2: echten Agenten fragen; ohne konfigurierten Agenten Platzhalter.
-  const agent = await fragAgent(verlauf);
+  const agent = await fragAgent(verlauf, kontext);
   const assistantText =
     agent?.text ||
     "Der OS-Agent ist noch nicht angebunden. Sobald der Dienst läuft, beantworte ich das aus Vault und Hero.";

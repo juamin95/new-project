@@ -325,11 +325,12 @@ function schrittLabel(name) {
 }
 
 // ── Agentenlauf ──────────────────────────────────────────────
-async function beantworte(messages) {
+async function beantworte(messages, kontext) {
+  const system = kontext ? `${SYSTEM}\n\nKontext dieses Gesprächs:\n${kontext}` : SYSTEM;
   const runner = client.beta.messages.toolRunner({
     model: MODEL,
     max_tokens: 4096,
-    system: SYSTEM,
+    system,
     tools: [vaultTool, heroTool, zuordnungTool, terminTool],
     messages,
   });
@@ -418,7 +419,7 @@ const server = http.createServer((req, res) => {
       return json(400, { error: "messages fehlt" });
     }
     try {
-      const result = await beantworte(messages);
+      const result = await beantworte(messages, parsed?.kontext);
       json(200, result);
     } catch (e) {
       console.error("Agentfehler:", e?.message ?? e);
