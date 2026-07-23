@@ -237,6 +237,33 @@ function heroTerminAnlegen(t) {
   return { ok: true, event: JSON.parse(raw) };
 }
 
+// ── Op: Sprache-zu-Text (PROJ-10 Etappe 3) ──────────────────
+// Transkribiert ein kurzes Audio über OpenAI. Der Key bleibt im Agenten (env),
+// das Cockpit reicht nur das Audio durch. Nur Transkription, kein LLM-Lauf.
+async function transkribiere(audioBase64, mimetype) {
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) throw new Error("OPENAI_API_KEY fehlt");
+  const b64 = String(audioBase64 ?? "");
+  if (!b64) throw new Error("audio fehlt");
+  const bytes = Buffer.from(b64, "base64");
+  const blob = new Blob([bytes], { type: mimetype || "audio/webm" });
+  const form = new FormData();
+  form.append("file", blob, "audio");
+  form.append("model", process.env.OPENAI_TRANSCRIBE_MODEL ?? "gpt-4o-mini-transcribe");
+  form.append("language", "de");
+  const res = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}` },
+    body: form,
+  });
+  if (!res.ok) {
+    const t = await res.text().catch(() => "");
+    throw new Error(`OpenAI ${res.status}: ${t.slice(0, 300)}`);
+  }
+  const d = await res.json();
+  return { text: String(d.text ?? "").trim() };
+}
+
 // ── Werkzeug: Zuordnung vorschlagen (PROJ-17) ────────────────
 // Schlägt vor, DIESEN Chat einem Hero-Projekt/Kunden zuzuordnen. Führt nichts aus
 // (Gate) — der Server liest die Argumente aus dem tool_use-Block und reicht sie ans
@@ -358,6 +385,16 @@ const server = http.createServer((req, res) => {
       } catch (e) {
         console.error("projekt-status Fehler:", e?.message ?? e);
         return json(502, { error: "Hero-Lesefehler" });
+      }
+    }
+
+    // Cockpit-Op (PROJ-10 Etappe 3): Sprachmemo transkribieren (OpenAI).
+    if (parsed && parsed.op === "transkription") {
+      try {
+        return json(200, await transkribiere(parsed.audio_base64, parsed.mimetype));
+      } catch (e) {
+        console.error("transkription Fehler:", e?.message ?? e);
+        return json(502, { error: "Transkription fehlgeschlagen" });
       }
     }
 

@@ -267,7 +267,9 @@ Der OS-Agent braucht für den Chat **keinen** eigenen Supabase-Schlüssel — de
 - **Route:** `POST /api/conversations/[id]/termin` — Auth + Zod-Validierung (Kategorie-Enum), ruft nach Bestätigung die Schreib-Op, protokolliert den Vorgang in **`cockpit_actions`** (type `termin`, Status `erledigt`/`fehlgeschlagen`) als Audit-Trail. Integrationstest (401/400/200/502, 4 Fälle grün).
 - **Frontend (`conversation.tsx`):** Kommt ein Termin-Vorschlag zurück, öffnet dasselbe zentrierte **Dialog**-Pop-up wie die Zuordnung (Titel/Von/Bis/Kategorie/Bezug) → **Bestätigen** legt in Hero an und zeigt „In Hero angelegt"; **Ablehnen** verwirft. (Die alte Mock-`TerminCard` bleibt vorerst ungenutzt daneben bestehen.)
 - Gesamte Suite grün (1372). **Live-Test bestanden (2026-07-22, Freigabe Julian):** kontrollierter Rundgang über die echte Schreib-Op — Termin in Hero angelegt (Event 5876182, korrekte Zeitzone + Projektbezug UNB-142), gegengeprüft, wieder gelöscht; keine bleibende Spur. Der Schreibpfad Cockpit → Agent → Hero trägt.
-- **Restliche Etappe 3 offen:** Whisper-Transkription (Sprache-zu-Text) und Bild-Upload in den `cockpit-bilder`-Bucket.
+**Sprache-zu-Text (2026-07-23, OpenAI).** Mikro nimmt per MediaRecorder auf; beim Loslassen geht das Audio an `POST /api/transcribe` → OS-Agent → OpenAI (`gpt-4o-mini-transcribe`, Op `transkription`; AI-Key bleibt im Agenten). Der Text landet editierbar im Eingabefeld. **End-to-end an echtem OpenAI verifiziert** (deutsches Test-Audio korrekt transkribiert). Integrationstest (401/400/200/502). Entscheidung OpenAI statt Selbst-Hosting: einfachste Integration, günstig, Top-Deutsch, keine VPS-Last — später ohne Cockpit-Änderung auf Groq/Self-Hosting wechselbar.
+
+- **Restliche Etappe 3 offen:** nur noch **Bild-Upload** in den `cockpit-bilder`-Bucket.
 
 ## Erweiterungs-Ideen (Julian, 20.07.2026 — nach erstem echten Test)
 

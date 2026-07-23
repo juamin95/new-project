@@ -217,6 +217,7 @@ export function ConversationPane({
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
   const [attached, setAttached] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [zuordnung, setZuordnung] = useState<ZuordnungVorschlag | null>(null);
@@ -228,6 +229,9 @@ export function ConversationPane({
   const fileRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const mediaRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const stopWantedRef = useRef(false);
 
   const addMessage = useCallback((msg: ChatMessage) => {
     setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
@@ -375,18 +379,65 @@ export function ConversationPane({
     e.target.value = "";
   }
 
-  function startRecording(e: React.PointerEvent<HTMLButtonElement>) {
+  // Sprachmemo: gedrückt halten = aufnehmen; loslassen = stoppen + transkribieren.
+  async function startRecording(e: React.PointerEvent<HTMLButtonElement>) {
     e.preventDefault();
-    e.currentTarget.setPointerCapture(e.pointerId);
-    setRecording(true);
+    const btn = e.currentTarget;
+    const pid = e.pointerId;
+    btn.setPointerCapture?.(pid);
+    stopWantedRef.current = false;
+    setError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Nutzer hat schon losgelassen, bevor die Freigabe kam:
+      if (stopWantedRef.current) {
+        stream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+      const mr = new MediaRecorder(stream);
+      chunksRef.current = [];
+      mr.ondataavailable = (ev) => {
+        if (ev.data.size > 0) chunksRef.current.push(ev.data);
+      };
+      mr.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunksRef.current, { type: mr.mimeType || "audio/webm" });
+        if (blob.size === 0) return;
+        setTranscribing(true);
+        try {
+          const res = await fetch("/api/transcribe", {
+            method: "POST",
+            headers: { "Content-Type": blob.type },
+            body: blob,
+          });
+          const d = await res.json().catch(() => ({}));
+          if (res.ok && d.text) {
+            setInput((v) => (v ? v + " " : "") + d.text);
+            setTimeout(autosize, 0);
+          } else {
+            setError("Transkription hat nicht geklappt. Bitte tippen oder erneut aufnehmen.");
+          }
+        } catch {
+          setError("Transkription hat nicht geklappt.");
+        } finally {
+          setTranscribing(false);
+        }
+      };
+      mediaRef.current = mr;
+      mr.start();
+      setRecording(true);
+    } catch {
+      setRecording(false);
+      setError("Mikrofon nicht verfügbar. Bitte den Zugriff erlauben.");
+    }
   }
 
   function stopRecording() {
-    if (!recording) return;
+    stopWantedRef.current = true;
     setRecording(false);
-    // Mock-Transkription (echte Whisper-Anbindung kommt in Etappe 3):
-    setInput((v) => (v ? v + " " : "") + "Ich brauche nächste Woche einen Termin bei …");
-    setTimeout(autosize, 0);
+    const mr = mediaRef.current;
+    mediaRef.current = null;
+    if (mr && mr.state !== "inactive") mr.stop();
   }
 
   return (
@@ -468,6 +519,12 @@ export function ConversationPane({
             <div className="mb-2 flex items-center gap-2 rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">
               <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-destructive" />
               Aufnahme läuft — zum Stoppen loslassen
+            </div>
+          )}
+          {transcribing && (
+            <div className="mb-2 flex items-center gap-2 rounded-xl bg-secondary px-3 py-2 text-sm text-primary">
+              <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-primary" />
+              Wird transkribiert …
             </div>
           )}
           <div className="flex items-end gap-2">
